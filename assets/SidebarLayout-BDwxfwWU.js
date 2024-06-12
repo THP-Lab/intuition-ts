@@ -1,0 +1,55 @@
+import{j as a}from"./jsx-runtime-Cw0GR0a5.js";import{useMDXComponents as r}from"./index-DSkyVWTJ.js";import{M as i,T as n,d as m,C as d}from"./index-CpDNJhWq.js";import"./Avatar-BtHJmJsO.js";import"./Badge-DdnwakjS.js";import"./Identity-BVYylzIy.js";import"./Input-BOF_Ax6K.js";import"./Separator-CDCDkwLb.js";import"./Text-Ut-2NFPv.js";import"./Resizable-D6r50leV.js";import"./Icon-B74lSK-X.js";import"./Textarea-BcMsqAZI.js";import"./Label-Cn83oreb.js";import"./Table-DhRwqTN4.js";import"./ValueDisplay-D0Lul068.js";import{S as s,B as u}from"./SidebarLayout.stories-BOtqfQk1.js";import"./index-CTjT7uj6.js";import"./iframe-Bnu9CfUm.js";import"../sb-preview/runtime.js";import"./index-D62jTv_I.js";import"./index-BI02G6dj.js";import"./index-BhgyLgKK.js";import"./index-BPrHwcGF.js";import"./index-DXimoRZY.js";import"./index-Bx4XDAbk.js";import"./index-DrFu-skq.js";import"./index-bugisSBR.js";import"./palette-saq09hvB.js";import"./index-Bb4qSo10.js";function t(o){const e={a:"a",code:"code",h4:"h4",p:"p",...r(),...o.components};return a.jsxs(a.Fragment,{children:[a.jsx(i,{of:s}),`
+`,a.jsx(n,{}),`
+`,a.jsx(e.h4,{id:"a-two-panel-layout-with-a-built-in-resizable-side-nav",children:"A two-panel layout with a built in resizable side nav."}),`
+`,a.jsx(m,{dark:!0,language:"tsx",code:`
+import {   
+  SidebarLayout,
+  SidebarLayoutContent,
+  SidebarLayoutNav,
+  SidebarLayoutNavAvatar,
+  SidebarLayoutNavFooter,
+  SidebarLayoutNavFooterItem,
+  SidebarLayoutNavHeader,
+  SidebarLayoutNavHeaderContent,
+  SidebarLayoutNavItem,
+  SidebarLayoutNavItems,
+  SidebarLayoutProvider, 
+} from '@0xintuition/1ui'
+
+<SidebarLayoutProvider>
+  <SidebarLayout {...args}>
+    <SidebarLayoutNav>
+      <SidebarLayoutNavHeader>
+        <SidebarLayoutNavHeaderContent imgLogo={<svg />} textLogo={<svg />} />
+      </SidebarLayoutNavHeader>
+      <SidebarLayoutNavItems>
+        <SidebarLayoutNavItem
+          iconName="crystal-ball"
+          label="Explore This"
+          onClick={() => doSomething}
+        />
+        <SidebarLayoutNavItem
+          iconName="megaphone"
+          label="Explore That"
+          onClick={() => doSomething}
+        />
+      </SidebarLayoutNavItems>
+      <SidebarLayoutNavFooter>
+        <SidebarLayoutNavFooterItem
+          iconName="settings-gear"
+          label="Settings"
+          onClick={() => doSomething}
+        />
+        <SidebarLayoutNavAvatar
+          imageSrc="image.jpg"
+          name="Super Dave"
+          onClick={() => doSomething}
+        />
+      </SidebarLayoutNavFooter>
+    </SidebarLayoutNav>
+    <SidebarLayoutContent>Content goes here.</SidebarLayoutContent>
+  </SidebarLayout>
+</SidebarLayoutProvider>
+`}),`
+`,a.jsxs(e.p,{children:[a.jsx(e.code,{children:"SidebarLayoutNav"})," leverages the same properties as ",a.jsx(e.a,{href:"/docs/components-resizable--docs",children:"ResizablePanel"}),"."]}),`
+`,a.jsx(d,{of:u,sourceState:"none"})]})}function R(o={}){const{wrapper:e}={...r(),...o.components};return e?a.jsx(e,{...o,children:a.jsx(t,{...o})}):t(o)}export{R as default};
