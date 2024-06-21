@@ -10,6 +10,7 @@ export const DEFAULT_VERIFIER = function (): void {
   throw new Error('verify function must be implemented')
 }
 
+export const API_URL = process.env.API_URL
 export const MULTIVAULT_CONTRACT_ADDRESS =
   CURRENT_ENV === 'production'
     ? '0xd57981d5Bc446768E8a1E3D582e545fa705415b5' // prod contract address

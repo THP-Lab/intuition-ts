@@ -6,6 +6,7 @@ import {
   SortDirection,
 } from '@0xintuition/api'
 
+import { API_URL } from '@lib/utils/constants'
 import { calculateTotalPages, getAuthHeaders } from '@lib/utils/misc'
 import { SessionContext } from '@middleware/session'
 import { json, LoaderFunctionArgs } from '@remix-run/node'
@@ -13,7 +14,7 @@ import { useLoaderData } from '@remix-run/react'
 import { getPrivyAccessToken } from '@server/privy'
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
-  OpenAPI.BASE = 'https://dev.api.intuition.systems'
+  OpenAPI.BASE = API_URL
   const accessToken = getPrivyAccessToken(request)
   const headers = getAuthHeaders(accessToken !== null ? accessToken : '')
   OpenAPI.HEADERS = headers as Record<string, string>

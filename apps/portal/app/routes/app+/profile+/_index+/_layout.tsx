@@ -28,7 +28,7 @@ import {
   editProfileModalAtom,
   editSocialLinksModalAtom,
 } from '@lib/state/store'
-import { userProfileRouteOptions } from '@lib/utils/constants'
+import { API_URL, userProfileRouteOptions } from '@lib/utils/constants'
 import logger from '@lib/utils/logger'
 import {
   calculatePercentageGain,
@@ -52,7 +52,7 @@ import { SessionUser } from 'types/user'
 import { VaultDetailsType } from 'types/vault'
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
-  OpenAPI.BASE = 'https://dev.api.intuition.systems'
+  OpenAPI.BASE = API_URL
   const accessToken = getPrivyAccessToken(request)
   const headers = getAuthHeaders(accessToken !== null ? accessToken : '')
   OpenAPI.HEADERS = headers as Record<string, string>

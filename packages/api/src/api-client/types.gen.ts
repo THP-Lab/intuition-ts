@@ -415,7 +415,7 @@ export type IdentityPresenter = {
   semantic?: string | null
   status: Status
   tag_count?: number | null
-  tags?: Array<string> | null
+  tags?: Array<TagEmbeddedPresenter> | null
   updated_at: string
   user?: UserPresenter | null
   user_asset_delta: string
@@ -814,6 +814,12 @@ export type SubjectVaultIdQuery = {
   comparator?: NumericComparators | null
   options?: number | null
   userValue?: JsonNum | null
+}
+
+export type TagEmbeddedPresenter = {
+  display_name: string
+  num_positions: number
+  vault_id: string
 }
 
 export type TimeFrame =
@@ -1375,7 +1381,7 @@ export type CreateIdentityResponse = {
   semantic?: string | null
   status: Status
   tag_count?: number | null
-  tags?: Array<string> | null
+  tags?: Array<TagEmbeddedPresenter> | null
   updated_at: string
   user?: UserPresenter | null
   user_asset_delta: string
@@ -1446,7 +1452,7 @@ export type GetIdentityByIdResponse = {
   semantic?: string | null
   status: Status
   tag_count?: number | null
-  tags?: Array<string> | null
+  tags?: Array<TagEmbeddedPresenter> | null
   updated_at: string
   user?: UserPresenter | null
   user_asset_delta: string
@@ -2554,7 +2560,7 @@ export type $OpenApiTs = {
           semantic?: string | null
           status: Status
           tag_count?: number | null
-          tags?: Array<string> | null
+          tags?: Array<TagEmbeddedPresenter> | null
           updated_at: string
           user?: UserPresenter | null
           user_asset_delta: string
@@ -2639,7 +2645,7 @@ export type $OpenApiTs = {
           semantic?: string | null
           status: Status
           tag_count?: number | null
-          tags?: Array<string> | null
+          tags?: Array<TagEmbeddedPresenter> | null
           updated_at: string
           user?: UserPresenter | null
           user_asset_delta: string
