@@ -1,6 +1,5 @@
 import { ApiError, OpenAPI, UsersService } from '@0xintuition/api'
 
-import { API_URL } from '@lib/utils/constants'
 import logger from '@lib/utils/logger'
 import { getAuthHeaders } from '@lib/utils/misc'
 import { SessionContext } from '@middleware/session'
@@ -24,7 +23,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
   const description = formData.get('description')
 
   try {
-    OpenAPI.BASE = API_URL
+    OpenAPI.BASE = process.env.API_URL
     const accessToken = getPrivyAccessToken(request)
     const headers = getAuthHeaders(accessToken !== null ? accessToken : '')
     OpenAPI.HEADERS = headers as Record<string, string>

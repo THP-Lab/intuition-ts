@@ -20,7 +20,7 @@ import { getPrivyAccessToken } from '@server/privy'
 import { ExtendedIdentityPresenter } from 'types/identity'
 
 export async function loader({ context, request, params }: LoaderFunctionArgs) {
-  OpenAPI.BASE = 'https://dev.api.intuition.systems'
+  OpenAPI.BASE = process.env.API_URL
   const accessToken = getPrivyAccessToken(request)
   const headers = getAuthHeaders(accessToken !== null ? accessToken : '')
   OpenAPI.HEADERS = headers as Record<string, string>

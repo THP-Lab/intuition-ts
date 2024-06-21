@@ -1,6 +1,6 @@
 import { ApiError, IdentitiesService, OpenAPI } from '@0xintuition/api'
 
-import { API_URL, MULTIVAULT_CONTRACT_ADDRESS } from '@lib/utils/constants'
+import { MULTIVAULT_CONTRACT_ADDRESS } from '@lib/utils/constants'
 import logger from '@lib/utils/logger'
 import { getAuthHeaders } from '@lib/utils/misc'
 import { SessionContext } from '@middleware/session'
@@ -23,7 +23,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
   const description = formData.get('description')
 
   try {
-    OpenAPI.BASE = API_URL
+    OpenAPI.BASE = process.env.API_URL
     const accessToken = getPrivyAccessToken(request)
     const headers = getAuthHeaders(accessToken !== null ? accessToken : '')
     logger('create headers', headers)

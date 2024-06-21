@@ -15,7 +15,7 @@ import Toast from '@components/toast'
 import { multivaultAbi } from '@lib/abis/multivault'
 import { useCreateIdentity } from '@lib/hooks/useCreateIdentity'
 import { editProfileModalAtom } from '@lib/state/store'
-import { API_URL, MULTIVAULT_CONTRACT_ADDRESS } from '@lib/utils/constants'
+import { MULTIVAULT_CONTRACT_ADDRESS } from '@lib/utils/constants'
 import logger from '@lib/utils/logger'
 import { getAuthHeaders, sliceString } from '@lib/utils/misc'
 import { SessionContext } from '@middleware/session'
@@ -33,7 +33,7 @@ import { toHex, TransactionReceipt } from 'viem'
 import { usePublicClient, useWalletClient } from 'wagmi'
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
-  OpenAPI.BASE = API_URL
+  OpenAPI.BASE = process.env.API_URL
   const accessToken = getPrivyAccessToken(request)
   const headers = getAuthHeaders(accessToken !== null ? accessToken : '')
   OpenAPI.HEADERS = headers as Record<string, string>

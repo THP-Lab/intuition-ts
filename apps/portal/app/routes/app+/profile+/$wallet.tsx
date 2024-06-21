@@ -17,7 +17,7 @@ import {
 } from '@0xintuition/api'
 
 import { NestedLayout } from '@components/nested-layout'
-import { API_URL, userIdentityRouteOptions } from '@lib/utils/constants'
+import { userIdentityRouteOptions } from '@lib/utils/constants'
 import logger from '@lib/utils/logger'
 import {
   calculatePercentageGain,
@@ -35,7 +35,7 @@ import { ExtendedUserPresenter } from 'types/user'
 import { VaultDetailsType } from 'types/vault'
 
 export async function loader({ context, request, params }: LoaderFunctionArgs) {
-  OpenAPI.BASE = API_URL
+  OpenAPI.BASE = process.env.API_URL
   const accessToken = getPrivyAccessToken(request)
   const headers = getAuthHeaders(accessToken !== null ? accessToken : '')
   OpenAPI.HEADERS = headers as Record<string, string>
