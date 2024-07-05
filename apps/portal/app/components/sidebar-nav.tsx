@@ -34,23 +34,18 @@ interface SidebarNavRoute {
 const sidebarNavRoutes: SidebarNavRoute[] = [
   {
     route: '/app/profile',
-    label: 'Profile',
-    iconName: 'eye-open',
-  },
-  {
-    route: '/app/identities',
-    label: 'Identities',
-    iconName: 'fingerprint',
-  },
-  {
-    route: '/app/quests',
-    label: 'Quests',
-    iconName: 'crystal-ball',
+    label: 'Home',
+    iconName: 'home-door',
   },
   {
     route: '/app/explore',
     label: 'Explore',
     iconName: 'magnifying-glass',
+  },
+  {
+    route: '/app/quests',
+    label: 'Quests',
+    iconName: 'crystal-ball',
   },
 ]
 

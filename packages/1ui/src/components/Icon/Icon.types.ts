@@ -45,6 +45,7 @@ export const IconName = {
   folder: 'folder',
   graduateCap: 'graduate-cap',
   group: 'group',
+  home: 'home-door',
   layoutGrid: 'layout-grid',
   layoutThird: 'layout-third',
   loader: 'loader',
