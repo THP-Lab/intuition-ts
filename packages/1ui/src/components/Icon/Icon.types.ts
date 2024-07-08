@@ -11,6 +11,7 @@ export const IconName = {
   bookmarkCheck: 'bookmark-check',
   brushSparkle: 'brush-sparkle',
   bubbleAnnotation: 'bubble-annotation',
+  bubbleText: 'bubble-text',
   calendar: 'calendar',
   checkmark: 'checkmark',
   chevronDoubleLeft: 'chevron-double-left',
