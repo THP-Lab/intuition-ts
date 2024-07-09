@@ -1,0 +1,17 @@
+import{j as t}from"./jsx-runtime-Cw0GR0a5.js";import{useMDXComponents as i}from"./index-DSkyVWTJ.js";import{M as s,T as n,d as m,C as a,e as p}from"./index-D8SWQvH8.js";import{S as u,B as d}from"./QuestHeaderCard.stories-C4XLTVdI.js";import"./index-CTjT7uj6.js";import"./iframe-DL5ou8am.js";import"../sb-preview/runtime.js";import"./index-DP8FJ8Qs.js";import"./index-BI02G6dj.js";import"./index-BhgyLgKK.js";import"./index-DXimoRZY.js";import"./index-Bx4XDAbk.js";import"./index-DrFu-skq.js";import"./Trunctacular-UZQD5LhG.js";import"./index-Bb4qSo10.js";import"./index-DeHqaMYO.js";import"./themes-JyTiufSz.js";import"./palette-saq09hvB.js";import"./Resizable-B4D6NlOM.js";import"./Icon.types-bVvTOTyL.js";import"./Text-DRgAEttF.js";import"./Input-BL6h55ro.js";import"./Label-Ca4F4AkB.js";import"./PieChart-B_dtFskq.js";import"./SegmentedControl-CpGzRY7X.js";import"./Separator-BPzIOX_U.js";import"./Table-DoQDVlQC.js";import"./Textarea-w5FyYqF_.js";import"./ValueDisplay-BGyvBqcS.js";function e(o){const r={h2:"h2",h4:"h4",...i(),...o.components};return t.jsxs(t.Fragment,{children:[t.jsx(s,{of:u}),`
+`,t.jsx(n,{}),`
+`,t.jsx(r.h4,{id:"a-card-to-show-quest-data-to-a-user",children:"A card to show quest data to a user."}),`
+`,t.jsx(m,{dark:!0,language:"tsx",code:`
+import { QuestHeaderCard } from '@0xintuition/1ui'
+
+<QuestHeaderCard
+  title="Primitive Island"
+  subtitle="Continue your journey."
+  numberOfCompletedQuests={1}
+  totalNumberOfQuests={10}
+  onButtonClick={() => doSomething}
+/>
+`}),`
+`,t.jsx(a,{of:d,sourceState:"none"}),`
+`,t.jsx(r.h2,{id:"properties",children:"Properties"}),`
+`,t.jsx(p,{})]})}function L(o={}){const{wrapper:r}={...i(),...o.components};return r?t.jsx(r,{...o,children:t.jsx(e,{...o})}):e(o)}export{L as default};
