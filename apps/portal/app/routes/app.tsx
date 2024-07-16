@@ -3,18 +3,25 @@ import { UserPresenter } from '@0xintuition/api'
 import SidebarNav from '@components/sidebar-nav'
 import { chainalysisOracleAbi } from '@lib/abis/chainalysisOracle'
 import { getUserByWallet } from '@lib/utils/fetches'
-import logger from '@lib/utils/logger'
+import { invariant } from '@lib/utils/misc'
 import { json, LoaderFunctionArgs, redirect } from '@remix-run/node'
 import { Outlet, useLoaderData } from '@remix-run/react'
-import { requireUserWallet } from '@server/auth'
+import {
+  getUserWallet,
+  isOAuthInProgress,
+  requireUserWallet,
+} from '@server/auth'
 import { mainnetClient } from '@server/viem'
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const wallet = await requireUserWallet(request)
-
-  if (!wallet) {
-    return logger('No user found in session')
+  let wallet
+  if (await isOAuthInProgress(request)) {
+    console.log(`${request.url} : Detected that OAuth in progress`)
+    wallet = await getUserWallet(request)
+  } else {
+    wallet = await requireUserWallet(request)
   }
+  invariant(wallet, 'User wallet not found')
 
   const isSanctioned = wallet
     ? ((await mainnetClient.readContract({

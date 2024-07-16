@@ -48,7 +48,7 @@ import {
   useNavigate,
   useRevalidator,
 } from '@remix-run/react'
-import { requireUser } from '@server/auth'
+import { getUser, isOAuthInProgress, requireUser } from '@server/auth'
 import { getVaultDetails } from '@server/multivault'
 import { getPrivyAccessToken } from '@server/privy'
 import * as blockies from 'blockies-ts'
@@ -56,10 +56,17 @@ import { useAtom } from 'jotai'
 import { VaultDetailsType } from 'types/vault'
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await requireUser(request)
+  let user
+  if (await isOAuthInProgress(request)) {
+    console.log(`${request.url} : Detected that OAuth in progress`)
+    user = await getUser(request)
+  } else {
+    user = await requireUser(request)
+  }
   invariant(user, 'User not found')
-  invariant(user.wallet?.address, 'User wallet not found')
+
   const userWallet = user.wallet?.address
+  invariant(userWallet, 'User wallet not found')
 
   OpenAPI.BASE = 'https://dev.api.intuition.systems'
   const accessToken = getPrivyAccessToken(request)
@@ -150,7 +157,7 @@ export default function Profile() {
 
   const [stakeModalActive, setStakeModalActive] = useAtom(stakeModalAtom)
 
-  const revalidator = useRevalidator()
+  const { revalidate } = useRevalidator()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -160,9 +167,17 @@ export default function Profile() {
 
   useEffect(() => {
     if (!editProfileModalActive) {
-      revalidator.revalidate()
+      revalidate()
     }
   }, [editProfileModalActive])
+
+  // revalidate every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      revalidate()
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [])
 
   const matches = useMatches()
   const currentPath = matches[matches.length - 1].pathname

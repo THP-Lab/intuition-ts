@@ -15,22 +15,17 @@ export async function getUserId(request: Request) {
 
 export async function getUser(
   request: Request,
-  { redirectTo }: RedirectTo = {},
 ) {
   const userId = await getUserId(request)
   if (!userId) {
-    const redirectUrl = await getRedirectToUrl(request, '/login', {
-      redirectTo,
-    })
-    throw redirect(redirectUrl)
+    return null
   }
-  invariant(userId, 'No userId provided by Privy')
   return await getPrivyUserById(userId)
 }
 
 export async function getUserWallet(request: Request) {
   const user = await getUser(request)
-  return user.wallet?.address
+  return user?.wallet?.address ?? null
 }
 
 export async function requireUserId(
@@ -67,6 +62,7 @@ export async function requireUserWallet(
 ) {
   const wallet = await getUserWallet(request)
   if (!wallet) {
+    console.log("requireUserWallet: redirecting")
     const redirectUrl = await getRedirectToUrl(request, '/playground', {
       redirectTo,
     })
@@ -102,4 +98,11 @@ export async function logout(
     ...responseInit,
     headers: combineHeaders(responseInit?.headers),
   })
+}
+
+export async function isOAuthInProgress(request: Request) {
+  // Check if privy_oauth_code, privy_oauth_state, or privy_oauth_provider are in query params
+  // these parameters are a required component of Privy's OAuth login flow and applying a redirect will destructively erase them.
+  const url = new URL(request.url)
+  return url.searchParams.has('privy_oauth_code') || url.searchParams.has('privy_oauth_state') || url.searchParams.has('privy_oauth_provider')
 }

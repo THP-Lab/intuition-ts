@@ -22,14 +22,25 @@ import {
   calculateTotalPages,
   formatBalance,
   getAuthHeaders,
+  invariant,
 } from '@lib/utils/misc'
 import { json, LoaderFunctionArgs } from '@remix-run/node'
-import { requireUserWallet } from '@server/auth'
+import {
+  getUserWallet,
+  isOAuthInProgress,
+  requireUserWallet,
+} from '@server/auth'
 import { getPrivyAccessToken } from '@server/privy'
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const userWallet = await requireUserWallet(request)
-
+  let userWallet
+  if (await isOAuthInProgress(request)) {
+    console.log(`${request.url} : Detected that OAuth in progress`)
+    userWallet = await getUserWallet(request)
+  } else {
+    userWallet = await requireUserWallet(request)
+  }
+  invariant(userWallet, 'User wallet not found')
   OpenAPI.BASE = 'https://dev.api.intuition.systems'
   const accessToken = getPrivyAccessToken(request)
   const headers = getAuthHeaders(accessToken !== null ? accessToken : '')
