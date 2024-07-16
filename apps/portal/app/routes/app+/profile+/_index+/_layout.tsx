@@ -1,5 +1,3 @@
-import { useEffect } from 'react'
-
 import {
   Button,
   PositionCard,
@@ -19,6 +17,7 @@ import {
   UserTotalsPresenter,
 } from '@0xintuition/api'
 
+// import { ProfileSocialAccounts } from '@client/profile-social-accounts'
 import EditProfileModal from '@components/edit-profile/modal'
 import EditSocialLinksModal from '@components/edit-social-links-modal'
 import { NestedLayout } from '@components/nested-layout'
@@ -46,14 +45,17 @@ import {
   Outlet,
   useMatches,
   useNavigate,
-  useRevalidator,
+  // useRevalidator,
 } from '@remix-run/react'
 import { getUser, isOAuthInProgress, requireUser } from '@server/auth'
 import { getVaultDetails } from '@server/multivault'
 import { getPrivyAccessToken } from '@server/privy'
 import * as blockies from 'blockies-ts'
 import { useAtom } from 'jotai'
+// import { ClientOnly } from 'remix-utils/client-only'
 import { VaultDetailsType } from 'types/vault'
+
+import PrivyTest from '../../../../.client/privy-test'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   let user
@@ -157,27 +159,27 @@ export default function Profile() {
 
   const [stakeModalActive, setStakeModalActive] = useAtom(stakeModalAtom)
 
-  const { revalidate } = useRevalidator()
   const navigate = useNavigate()
+  // const { revalidate } = useRevalidator()
 
-  useEffect(() => {
-    setEditProfileModalActive(false)
-    setEditSocialLinksModalActive(false)
-  }, [])
+  // useEffect(() => {
+  //   setEditProfileModalActive(false)
+  //   setEditSocialLinksModalActive(false)
+  // }, [])
 
-  useEffect(() => {
-    if (!editProfileModalActive) {
-      revalidate()
-    }
-  }, [editProfileModalActive])
+  // useEffect(() => {
+  //   if (!editProfileModalActive) {
+  //     revalidate()
+  //   }
+  // }, [editProfileModalActive])
 
-  // revalidate every 4 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      revalidate()
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [])
+  // // revalidate every 4 seconds
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     revalidate()
+  //   }, 4000)
+  //   return () => clearInterval(interval)
+  // }, [])
 
   const matches = useMatches()
   const currentPath = matches[matches.length - 1].pathname
@@ -195,6 +197,7 @@ export default function Profile() {
 
   return (
     <NestedLayout outlet={Outlet} options={userProfileRouteOptions}>
+      <PrivyTest />
       <div className="flex flex-col">
         <>
           <div className="w-[300px] h-[230px] flex-col justify-start items-start gap-5 inline-flex">

@@ -30,7 +30,6 @@ import {
   fetchIdentitiesWithUserPosition,
   fetchIdentity,
   fetchUserTotals,
-  getUserByWallet,
 } from '@lib/utils/fetches'
 import logger from '@lib/utils/logger'
 import {
