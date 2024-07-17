@@ -18,8 +18,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     displayName: searchQuery,
   })
   const data = response.data
-
   if (data) {
+    logger('data', data)
     logger('search data length', data.length, searchQuery)
   }
 

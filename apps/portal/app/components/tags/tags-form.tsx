@@ -14,13 +14,18 @@ import {
 } from '@0xintuition/1ui'
 import { IdentityPresenter } from '@0xintuition/api'
 
+import { useCreateTriple } from '@lib/hooks/useCreateTriple'
+import { useLoaderFetcher } from '@lib/hooks/useLoaderFetcher'
 import {
   initialTransactionState,
   transactionReducer,
   useTransactionState,
 } from '@lib/hooks/useTransactionReducer'
+import { CREATE_RESOURCE_ROUTE } from '@lib/utils/constants'
 import logger from '@lib/utils/logger'
+import { CreateLoaderData } from '@routes/resources+/create'
 import { TransactionActionType, TransactionStateType } from 'types/transaction'
+import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
 
 import { AddTags } from './add-tags'
 import TagsReview from './tags-review'
@@ -67,6 +72,8 @@ export function TagsForm({ identity, mode, onClose }: TagsFormProps) {
   const handleRemoveTag = (id: string) => {
     setSelectedTags((prevTags) => prevTags.filter((tag) => tag.vault_id !== id))
   }
+
+  // async function handleOnChainCreateTags() {}
 
   return (
     <>
@@ -127,7 +134,11 @@ export function TagsForm({ identity, mode, onClose }: TagsFormProps) {
             </>
           )}
           {state.status === 'review-transaction' && (
-            <TagsReview state={state} dispatch={dispatch} tags={selectedTags} />
+            <TagsReview
+              dispatch={dispatch}
+              subjectVaultId={identity.vault_id}
+              tags={selectedTags}
+            />
           )}
         </>
       )}

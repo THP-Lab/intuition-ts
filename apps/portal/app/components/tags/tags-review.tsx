@@ -7,18 +7,130 @@ import {
   Tags,
   TagWithValue,
   Text,
+  toast,
 } from '@0xintuition/1ui'
 import { IdentityPresenter } from '@0xintuition/api'
 
+import { useBatchCreateTriple, useBatchCreateTriple } from '@lib/hooks/useBatchCreateTriple'
+import { useLoaderFetcher } from '@lib/hooks/useLoaderFetcher'
+import { CREATE_RESOURCE_ROUTE, MULTIVAULT_CONTRACT_ADDRESS } from '@lib/utils/constants'
+import { CreateLoaderData } from '@routes/resources+/create'
+// import logger from '@lib/utils/logger'
 import { TransactionActionType } from 'types/transaction'
+import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
+
+import { createTagArrays } from './tag-utils'
+import Toast from '@components/toast'
+import { multivaultAbi } from '@lib/abis/multivault'
+import { parseUnits } from 'viem'
+import logger from '@lib/utils/logger'
+import logger from '@lib/utils/logger'
+import { s } from 'vitest/dist/reporters-yx5ZTtEV.js'
 
 interface TagsReviewProps {
   dispatch: (action: TransactionActionType) => void
-
+  subjectVaultId: string
   tags: IdentityPresenter[]
 }
 
-export default function TagsReview({ dispatch, tags }: TagsReviewProps) {
+export default function TagsReview({
+  dispatch,
+  subjectVaultId,
+  tags,
+}: TagsReviewProps) {
+  // TODO: decide where this lives after it works
+  const feeFetcher = useLoaderFetcher<CreateLoaderData>(CREATE_RESOURCE_ROUTE)
+
+  const { tripleCost } = (feeFetcher.data as CreateLoaderData) ?? {
+    tripleCost: BigInt(0),
+  }
+
+  const { data: walletClient } = useWalletClient()
+  const publicClient = usePublicClient()
+  const { address } = useAccount()
+
+  const {
+    writeContractAsync: writeBatchCreateTriple,
+    awaitingWalletConfirmation,
+    awaitingOnChainConfirmation,
+  } = useBatchCreateTriple()
+
+  const { subjectIdentityVaultIds, predicateHasTagVaultIds, objectTagVaultIds } = createTagArrays(tags, subjectVaultId)
+
+
+
+  async function handleOnChainCreateTags() {
+    if (
+      !awaitingOnChainConfirmation &&
+      !awaitingWalletConfirmation &&
+      publicClient &&
+      writeBatchCreateTriple &&
+      address
+    ) {
+    try {
+      dispatch({ type: 'APPROVE_TRANSACTION' })
+      logger('[BEGIN ONCHAIN CREATE')
+      logger('subjectVaultIds:', subjectIdentityVaultIds)
+      logger('predicateHasTagVaultIds:', predicateHasTagVaultIds)
+      logger('objectTagVaultIds:', objectTagVaultIds)
+        const txHash = await writeBatchCreateTriple({
+          address: MULTIVAULT_CONTRACT_ADDRESS,
+          abi: multivaultAbi,
+          functionName: 'batchCreateTriple',
+          args: [subjectIdentityVaultIds, predicateHasTagVaultIds, objectTagVaultIds],
+          value:
+          BigInt(tripleCost) * BigInt(subjectIdentityVaultIds.length),
+        })
+        dispatch({ type: 'TRANSACTION_PENDING' })
+        if (txHash) {
+          const receipt = await publicClient.waitForTransactionReceipt({
+            hash: txHash,
+          })
+
+          dispatch({
+            type: 'TRANSACTION_COMPLETE',
+            txHash,
+            txReceipt: receipt,
+          })
+      }
+    } catch (error) {
+      console.error('error', error)
+      if (error instanceof Error) {
+        let errorMessage = 'Error in onchain transaction.'
+        if (error.message.includes('insufficient')) {
+          errorMessage =
+            'Insufficient funds. Please add more OP to your wallet and try again.'
+        }
+        if (error.message.includes('rejected')) {
+          errorMessage = 'Transaction rejected. Try again when you are ready.'
+        }
+        dispatch({
+          type: 'TRANSACTION_ERROR',
+          error: errorMessage,
+        })
+        toast.custom(
+          () => (
+            <Toast
+              title="Error"
+              description="error"
+              icon={
+                <Icon
+                  name="triangle-exclamation"
+                  className="h-3 w-3 text-destructive"
+                />
+              }
+            />
+          ),
+          {
+            duration: 5000,
+          },
+        )
+        return
+      }
+    }
+  }
+  }
+
   return (
     <>
       <DialogHeader>
@@ -70,7 +182,7 @@ export default function TagsReview({ dispatch, tags }: TagsReviewProps) {
         <div className="flex flex-col items-center gap-1">
           <Button
             variant="primary"
-            onClick={() => dispatch({ type: 'CONFIRM_TRANSACTION' })}
+            onClick={handleOnChainCreateTags}
           >
             Confirm
           </Button>

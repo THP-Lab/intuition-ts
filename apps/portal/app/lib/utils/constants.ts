@@ -155,3 +155,8 @@ export const activityRouteOptions = [
     basePath: '/app/activity',
   },
 ]
+
+// SPECIAL ATOMS
+
+export const LIST_OBJECT_VAULT_ID_TESTNET = 175 // used in testnet list claim as object
+export const TAG_PREDICATE_VAULT_ID_TESTNET = 176 // used in testnet tag claim as predicate
