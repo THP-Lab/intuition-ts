@@ -1,3 +1,4 @@
+import logger from '@lib/utils/logger'
 import {
   createMultiVaultContract,
   getMultivaultContract,
@@ -9,6 +10,7 @@ import {
   VaultDetailsType,
 } from 'types/vault'
 import { formatUnits, parseUnits, type Address } from 'viem'
+import { s } from 'vitest/dist/reporters-yx5ZTtEV.js'
 
 interface MulticallResponse {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -462,4 +464,19 @@ export async function getTripleCost() {
   const tripleCost =
     (await getMultivaultContract.read.getTripleCost()) as bigint
   return tripleCost
+}
+
+export async function getTripleHashFromAtoms(
+  subjectId: bigint,
+  predicateId: bigint,
+  objectId: bigint,
+) {
+  const tripleHashFromAtoms =
+    (await getMultivaultContract.read.tripleHashFromAtoms([
+      subjectId,
+      predicateId,
+      objectId,
+    ])) as `0x${string}`
+  logger('in fn', tripleHashFromAtoms)
+  return tripleHashFromAtoms
 }

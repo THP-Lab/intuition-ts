@@ -11,21 +11,25 @@ import {
 } from '@0xintuition/1ui'
 import { IdentityPresenter } from '@0xintuition/api'
 
-import { useBatchCreateTriple, useBatchCreateTriple } from '@lib/hooks/useBatchCreateTriple'
-import { useLoaderFetcher } from '@lib/hooks/useLoaderFetcher'
-import { CREATE_RESOURCE_ROUTE, MULTIVAULT_CONTRACT_ADDRESS } from '@lib/utils/constants'
+import Toast from '@components/toast'
+import { multivaultAbi } from '@lib/abis/multivault'
+import { useBatchCreateTriple } from '@lib/hooks/useBatchCreateTriple'
+import { useLoaderFetcher, useLoaderFetcher } from '@lib/hooks/useLoaderFetcher'
+import {
+  CREATE_RESOURCE_ROUTE,
+  MULTIVAULT_CONTRACT_ADDRESS,
+  TAG_RESOURCE_ROUTE,
+} from '@lib/utils/constants'
+import logger from '@lib/utils/logger'
 import { CreateLoaderData } from '@routes/resources+/create'
+import { getTripleHashFromAtoms } from '@server/multivault'
 // import logger from '@lib/utils/logger'
 import { TransactionActionType } from 'types/transaction'
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
 
 import { createTagArrays } from './tag-utils'
-import Toast from '@components/toast'
-import { multivaultAbi } from '@lib/abis/multivault'
-import { parseUnits } from 'viem'
-import logger from '@lib/utils/logger'
-import logger from '@lib/utils/logger'
-import { s } from 'vitest/dist/reporters-yx5ZTtEV.js'
+import { TagLoaderData } from '@routes/resources+/tag'
+import { publicClient } from '@server/viem'
 
 interface TagsReviewProps {
   dispatch: (action: TransactionActionType) => void
@@ -55,9 +59,33 @@ export default function TagsReview({
     awaitingOnChainConfirmation,
   } = useBatchCreateTriple()
 
-  const { subjectIdentityVaultIds, predicateHasTagVaultIds, objectTagVaultIds } = createTagArrays(tags, subjectVaultId)
+  const {
+    subjectIdentityVaultIds,
+    predicateHasTagVaultIds,
+    objectTagVaultIds,
+  } = createTagArrays(tags, subjectVaultId)
 
+  // async function testGetTripleHashFromAtoms(
+  //   subjectId: number,
+  //   predicateId: number,
+  //   objectId: number,
+  // ) {
+  //   try {
+  //     const result = await getTripleHashFromAtoms(
+  //       BigInt(subjectId),
+  //       BigInt(predicateId),
+  //       BigInt(objectId),
+  //     )
+  //     console.log('Triple Hash:', result)
+  //   } catch (error) {
+  //     console.error('Error fetching triple hash:', error)
+  //   }
+  // }
 
+  const tagResourceFetcher = useLoaderFetcher<TagLoaderData>(TAG_RESOURCE_ROUTE)
+
+  const { result } = (tagResourceFetcher.data as TagLoaderData)
+  logger('result', result)
 
   async function handleOnChainCreateTags() {
     if (
@@ -67,19 +95,22 @@ export default function TagsReview({
       writeBatchCreateTriple &&
       address
     ) {
-    try {
-      dispatch({ type: 'APPROVE_TRANSACTION' })
-      logger('[BEGIN ONCHAIN CREATE')
-      logger('subjectVaultIds:', subjectIdentityVaultIds)
-      logger('predicateHasTagVaultIds:', predicateHasTagVaultIds)
-      logger('objectTagVaultIds:', objectTagVaultIds)
+      try {
+        dispatch({ type: 'APPROVE_TRANSACTION' })
+        logger('[BEGIN ONCHAIN CREATE')
+        logger('subjectVaultIds:', subjectIdentityVaultIds)
+        logger('predicateHasTagVaultIds:', predicateHasTagVaultIds)
+        logger('objectTagVaultIds:', objectTagVaultIds)
         const txHash = await writeBatchCreateTriple({
           address: MULTIVAULT_CONTRACT_ADDRESS,
           abi: multivaultAbi,
           functionName: 'batchCreateTriple',
-          args: [subjectIdentityVaultIds, predicateHasTagVaultIds, objectTagVaultIds],
-          value:
-          BigInt(tripleCost) * BigInt(subjectIdentityVaultIds.length),
+          args: [
+            subjectIdentityVaultIds,
+            predicateHasTagVaultIds,
+            objectTagVaultIds,
+          ],
+          value: BigInt(tripleCost) * BigInt(subjectIdentityVaultIds.length),
         })
         dispatch({ type: 'TRANSACTION_PENDING' })
         if (txHash) {
@@ -92,43 +123,43 @@ export default function TagsReview({
             txHash,
             txReceipt: receipt,
           })
-      }
-    } catch (error) {
-      console.error('error', error)
-      if (error instanceof Error) {
-        let errorMessage = 'Error in onchain transaction.'
-        if (error.message.includes('insufficient')) {
-          errorMessage =
-            'Insufficient funds. Please add more OP to your wallet and try again.'
         }
-        if (error.message.includes('rejected')) {
-          errorMessage = 'Transaction rejected. Try again when you are ready.'
+      } catch (error) {
+        console.error('error', error)
+        if (error instanceof Error) {
+          let errorMessage = 'Error in onchain transaction.'
+          if (error.message.includes('insufficient')) {
+            errorMessage =
+              'Insufficient funds. Please add more OP to your wallet and try again.'
+          }
+          if (error.message.includes('rejected')) {
+            errorMessage = 'Transaction rejected. Try again when you are ready.'
+          }
+          dispatch({
+            type: 'TRANSACTION_ERROR',
+            error: errorMessage,
+          })
+          toast.custom(
+            () => (
+              <Toast
+                title="Error"
+                description="error"
+                icon={
+                  <Icon
+                    name="triangle-exclamation"
+                    className="h-3 w-3 text-destructive"
+                  />
+                }
+              />
+            ),
+            {
+              duration: 5000,
+            },
+          )
+          return
         }
-        dispatch({
-          type: 'TRANSACTION_ERROR',
-          error: errorMessage,
-        })
-        toast.custom(
-          () => (
-            <Toast
-              title="Error"
-              description="error"
-              icon={
-                <Icon
-                  name="triangle-exclamation"
-                  className="h-3 w-3 text-destructive"
-                />
-              }
-            />
-          ),
-          {
-            duration: 5000,
-          },
-        )
-        return
       }
     }
-  }
   }
 
   return (
@@ -180,11 +211,11 @@ export default function TagsReview({
       </div>
       <DialogFooter className="!justify-center !items-center mt-20">
         <div className="flex flex-col items-center gap-1">
-          <Button
-            variant="primary"
-            onClick={handleOnChainCreateTags}
-          >
+          <Button variant="primary" onClick={handleOnChainCreateTags}>
             Confirm
+          </Button>
+          <Button onClick={() => testGetTripleHashFromAtoms(195, 194, 175)}>
+            TEST LIST CLAIM
           </Button>
         </div>
       </DialogFooter>
