@@ -630,7 +630,9 @@ function CreateIdentityForm({
                   type="button"
                   variant="primary"
                   onClick={() => {
-                    navigate(`/app/identity/${transactionResponseData.id}`)
+                    navigate(
+                      `/app/identity/${transactionResponseData.identity_id}`,
+                    )
                     onClose()
                   }}
                 >
