@@ -67,6 +67,7 @@ export default function TagsReview({
 
   async function handleOnChainCreateTags() {
     if (
+      walletClient &&
       !awaitingOnChainConfirmation &&
       !awaitingWalletConfirmation &&
       publicClient &&

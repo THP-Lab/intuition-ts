@@ -20,6 +20,7 @@ import { TagsListInputPortal } from './tags-list-input-portal'
 
 interface AddTagsProps {
   selectedTags: IdentityPresenter[]
+  existingTagIds: string[]
   onAddTag: (newTag: IdentityPresenter) => void
   onRemoveTag: (id: string) => void
   dispatch: (action: TransactionActionType) => void
@@ -28,6 +29,7 @@ interface AddTagsProps {
 
 export function AddTags({
   selectedTags,
+  existingTagIds,
   onAddTag,
   onRemoveTag,
   subjectVaultId,
@@ -48,19 +50,6 @@ export function AddTags({
   )
 
   const [invalidTags, setInvalidTags] = useState<string[]>([])
-
-  // this is for testing using the identity_id of tags that exist on the identity already
-  const testIdentityTags = [
-    'QmNrF6pE3RNXwFNbBCmvJMBBGKbe1yhK1E6YRPsAU23saj',
-    'QmVfxo1di6CsaJaVGodnUS6gcGPLahYowHwA6UEUiRqG5v',
-    'QmZndE239C65EhKXpX1funQH5XGaMSpaX9cwWC7DA2kBnY',
-  ]
-
-  // const handleIdentitySelect = (identity: IdentityPresenter) => {
-  //   logger('tag', identity)
-  //   onAddTag(identity)
-  //   setSearchQuery('')
-  // }
 
   const tagFetcher = useFetcher<TagLoaderData>()
 
@@ -114,7 +103,7 @@ export function AddTags({
           <IdentitySearchCombobox
             onCreateIdentityClick={() => setCreateIdentityModalActive(true)}
             identities={filteredIdentities}
-            existingIdentityIds={testIdentityTags}
+            existingIdentityIds={existingTagIds}
             onIdentitySelect={handleIdentitySelect}
             onValueChange={setSearchQuery}
             onInput={handleInput}
