@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Popover, PopoverContent, PopoverTrigger, Text } from '@0xintuition/1ui'
 import { IdentityPresenter } from '@0xintuition/api'
 
+import ErrorList from '@components/error-list'
 import { IdentitySearchCombobox } from '@components/identity/identity-search-combo-box'
 import { useIdentityServerSearch } from '@lib/hooks/useIdentityServerSearch'
 import { createIdentityModalAtom } from '@lib/state/store'
@@ -25,6 +26,8 @@ interface AddTagsProps {
   onRemoveTag: (id: string) => void
   dispatch: (action: TransactionActionType) => void
   subjectVaultId: string
+  invalidTags: string[]
+  setInvalidTags: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 export function AddTags({
@@ -33,6 +36,8 @@ export function AddTags({
   onAddTag,
   onRemoveTag,
   subjectVaultId,
+  invalidTags,
+  setInvalidTags,
 }: AddTagsProps) {
   const formattedTags = selectedTags?.map((tag) => ({
     name: tag.display_name,
@@ -48,8 +53,6 @@ export function AddTags({
     (identity) =>
       !selectedTags.some((tag) => tag.vault_id === identity.vault_id),
   )
-
-  const [invalidTags, setInvalidTags] = useState<string[]>([])
 
   const tagFetcher = useFetcher<TagLoaderData>()
 
@@ -120,6 +123,13 @@ export function AddTags({
           invalidTags={invalidTags}
         />
       </Popover>
+      {invalidTags.length !== 0 && (
+        <div className="mt-4">
+          <ErrorList
+            errors={['Selected tag(s) already exist on this identity.']}
+          />
+        </div>
+      )}
     </div>
   )
 }

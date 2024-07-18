@@ -58,6 +58,7 @@ export function TagsForm({ identity, mode, onClose }: TagsFormProps) {
   ].includes(state.status)
 
   const [selectedTags, setSelectedTags] = useState<IdentityPresenter[]>([])
+  const [invalidTags, setInvalidTags] = useState<string[]>([])
 
   const handleAddTag = (newTag: IdentityPresenter) => {
     setSelectedTags((prevTags) => [...prevTags, newTag])
@@ -66,6 +67,7 @@ export function TagsForm({ identity, mode, onClose }: TagsFormProps) {
 
   const handleRemoveTag = (id: string) => {
     setSelectedTags((prevTags) => prevTags.filter((tag) => tag.vault_id !== id))
+    setInvalidTags((prev) => prev.filter((tagId) => tagId !== id))
   }
 
   return (
@@ -112,6 +114,8 @@ export function TagsForm({ identity, mode, onClose }: TagsFormProps) {
                       dispatch={dispatch}
                       onRemoveTag={handleRemoveTag}
                       subjectVaultId={identity.vault_id}
+                      invalidTags={invalidTags}
+                      setInvalidTags={setInvalidTags}
                     />
                   </TabsContent>
                 </div>
@@ -120,7 +124,9 @@ export function TagsForm({ identity, mode, onClose }: TagsFormProps) {
                 <div className="flex flex-col items-center gap-1">
                   <Button
                     variant="primary"
-                    disabled={selectedTags.length === 0}
+                    disabled={
+                      selectedTags.length === 0 || invalidTags.length !== 0
+                    }
                     onClick={() => dispatch({ type: 'REVIEW_TRANSACTION' })}
                   >
                     Add Tags

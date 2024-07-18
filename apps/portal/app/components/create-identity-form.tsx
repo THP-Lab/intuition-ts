@@ -59,7 +59,7 @@ interface IdentityFormProps {
   onSuccess?: () => void
   onClose: () => void
 }
-export function IdentityForm({ onSuccess, onClose }: IdentityFormProps) {
+export function IdentityForm({ onClose }: IdentityFormProps) {
   const { state, dispatch } = useTransactionState<
     IdentityTransactionStateType,
     IdentityTransactionActionType
