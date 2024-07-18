@@ -89,7 +89,7 @@ export function AddTags({
         })
       }
     }
-  }, [tagFetcher.state, tagFetcher.data])
+  }, [tagFetcher.state, tagFetcher.data, setInvalidTags])
 
   return (
     <div className="flex flex-col">
