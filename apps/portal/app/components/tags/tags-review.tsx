@@ -1,5 +1,7 @@
 import {
   Button,
+  Button,
+  Button,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -14,7 +16,7 @@ import { IdentityPresenter } from '@0xintuition/api'
 import Toast from '@components/toast'
 import { multivaultAbi } from '@lib/abis/multivault'
 import { useBatchCreateTriple } from '@lib/hooks/useBatchCreateTriple'
-import { useLoaderFetcher, useLoaderFetcher } from '@lib/hooks/useLoaderFetcher'
+import { useLoaderFetcher } from '@lib/hooks/useLoaderFetcher'
 import {
   CREATE_RESOURCE_ROUTE,
   MULTIVAULT_CONTRACT_ADDRESS,
@@ -22,14 +24,13 @@ import {
 } from '@lib/utils/constants'
 import logger from '@lib/utils/logger'
 import { CreateLoaderData } from '@routes/resources+/create'
-import { getTripleHashFromAtoms } from '@server/multivault'
+import { TagLoaderData } from '@routes/resources+/tag'
+import { publicClient } from '@server/viem'
 // import logger from '@lib/utils/logger'
 import { TransactionActionType } from 'types/transaction'
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
 
 import { createTagArrays } from './tag-utils'
-import { TagLoaderData } from '@routes/resources+/tag'
-import { publicClient } from '@server/viem'
 
 interface TagsReviewProps {
   dispatch: (action: TransactionActionType) => void
@@ -42,7 +43,6 @@ export default function TagsReview({
   subjectVaultId,
   tags,
 }: TagsReviewProps) {
-  // TODO: decide where this lives after it works
   const feeFetcher = useLoaderFetcher<CreateLoaderData>(CREATE_RESOURCE_ROUTE)
 
   const { tripleCost } = (feeFetcher.data as CreateLoaderData) ?? {
@@ -65,11 +65,9 @@ export default function TagsReview({
     objectTagVaultIds,
   } = createTagArrays(tags, subjectVaultId)
 
-
-
   const tagResourceFetcher = useLoaderFetcher<TagLoaderData>(TAG_RESOURCE_ROUTE)
 
-  const { result } = (tagResourceFetcher.data as TagLoaderData)
+  const { result } = tagResourceFetcher.data as TagLoaderData
   logger('result', result)
 
   async function handleOnChainCreateTags() {

@@ -1,4 +1,3 @@
-import { url } from 'inspector'
 import { useEffect, useState } from 'react'
 
 import { Popover, PopoverContent, PopoverTrigger, Text } from '@0xintuition/1ui'
@@ -6,6 +5,7 @@ import { IdentityPresenter } from '@0xintuition/api'
 
 import { IdentitySearchCombobox } from '@components/identity/identity-search-combo-box'
 import { useIdentityServerSearch } from '@lib/hooks/useIdentityServerSearch'
+import { createIdentityModalAtom } from '@lib/state/store'
 import {
   TAG_PREDICATE_VAULT_ID_TESTNET,
   TAG_RESOURCE_ROUTE,
@@ -13,6 +13,7 @@ import {
 import logger from '@lib/utils/logger'
 import { useFetcher } from '@remix-run/react'
 import { TagLoaderData } from '@routes/resources+/tag'
+import { useAtom } from 'jotai'
 import { TransactionActionType } from 'types/transaction'
 
 import { TagsListInputPortal } from './tags-list-input-portal'
@@ -35,6 +36,8 @@ export function AddTags({
     name: tag.display_name,
     id: tag.vault_id,
   }))
+
+  const [, setCreateIdentityModalActive] = useAtom(createIdentityModalAtom)
 
   const { setSearchQuery, identities, handleInput } = useIdentityServerSearch()
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
@@ -109,6 +112,7 @@ export function AddTags({
       <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
         <PopoverContent className="bg-transparent border-none">
           <IdentitySearchCombobox
+            onCreateIdentityClick={() => setCreateIdentityModalActive(true)}
             identities={filteredIdentities}
             existingIdentityIds={testIdentityTags}
             onIdentitySelect={handleIdentitySelect}
