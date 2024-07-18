@@ -156,7 +156,7 @@ export function TagsForm({ identity, mode, onClose }: TagsFormProps) {
                   type="button"
                   variant="primary"
                   onClick={() => {
-                    navigate(`/app/identity/${identity.id}`)
+                    navigate(`/app/identity/${identity.identity_id}`)
                     onClose()
                   }}
                 >
