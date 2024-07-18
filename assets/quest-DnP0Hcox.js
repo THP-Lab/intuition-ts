@@ -1,1 +1,0 @@
-const t={notStarted:"not-started",inProgress:"in-progress",claimable:"claimable",completed:"completed",disabled:"disabled"},l={notStarted:"not-started",partiallyFulfilled:"partially-fulfilled",fulfilled:"fulfilled"};export{t as Q,l as a};

@@ -1,0 +1,7 @@
+import{j as r}from"./jsx-runtime-Cw0GR0a5.js";import{aR as i}from"./Trunctacular-Des6CcpU.js";import"./Icon.types-DvvrcWKg.js";import{L as s}from"./Label-BSnWqvXc.js";import"./PieChart-B_dtFskq.js";import"./ProgressBar-D75vLLzs.js";import"./ProgressCard-BrCNH_y5.js";import"./QuestCriteriaCard-yWCcMe1c.js";import"./QuestCriteriaDisplay-BeTNNq0T.js";import"./QuestPointsDisplay-BMWi52ZN.js";import"./QuestSetCard-DXHyju0d.js";import"./QuestStatusIndicator-DBJnmA6G.js";import"./SegmentedControl-C43o2uqF.js";import"./Separator-8RGezXAr.js";import"./Skeleton-BtFXuCOi.js";import"./Table-C0qIXiUM.js";import"./Text-DsVeH9qI.js";import"./Textarea-CUiVvNKI.js";import"./ValueDisplay-D2U_pdiu.js";const p={title:"Components/Form Elements/Switch",component:i},e={args:{},render:m=>r.jsxs("div",{className:"flex items-center space-x-3",children:[r.jsx(i,{id:"airplane-mode",...m}),r.jsx(s,{htmlFor:"airplane-mode",children:"Airplane Mode"})]})};var o,t,a;e.parameters={...e.parameters,docs:{...(o=e.parameters)==null?void 0:o.docs,source:{originalSource:`{
+  args: {},
+  render: args => <div className="flex items-center space-x-3">
+      <Switch id="airplane-mode" {...args} />
+      <Label htmlFor="airplane-mode">Airplane Mode</Label>
+    </div>
+}`,...(a=(t=e.parameters)==null?void 0:t.docs)==null?void 0:a.source}}};const n=["BasicUsage"],O=Object.freeze(Object.defineProperty({__proto__:null,BasicUsage:e,__namedExportsOrder:n,default:p},Symbol.toStringTag,{value:"Module"}));export{e as B,O as S};
