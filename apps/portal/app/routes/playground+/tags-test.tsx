@@ -4,26 +4,26 @@ import { useLoaderData } from '@remix-run/react'
 import { getTripleHashFromAtoms, getTriplesByHash } from '@server/multivault'
 
 type LoaderData = {
-  getTriplesByHashResult: string
+  result: string
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
     const subjectId = BigInt(47)
     const predicateId = BigInt(48)
-    const objectId = BigInt(1111)
+    const objectId = BigInt(19)
     console.log('Input values:', { subjectId, predicateId, objectId })
 
-    const getTripleHashFromAtomsHash = await getTripleHashFromAtoms(
+    const getTripleHashFromAtomsHash = await getTripleHashFromAtoms({
       subjectId,
       predicateId,
       objectId,
-    )
+    })
     console.log('Hash from atoms:', getTripleHashFromAtomsHash)
 
-    const getTriplesByHashResult = await getTriplesByHash(
-      getTripleHashFromAtomsHash,
-    )
+    const getTriplesByHashResult = await getTriplesByHash({
+      hash: getTripleHashFromAtomsHash,
+    })
     console.log('Result for actual hash:', getTriplesByHashResult.toString())
 
     return json({ result: getTriplesByHashResult.toString() })
@@ -34,11 +34,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function TagsTest() {
-  const { getTriplesByHashResult } = useLoaderData<LoaderData>()
+  const { result } = useLoaderData<LoaderData>()
 
   return (
     <div className="p-10 space-y-5">
-      <pre>result: {getTriplesByHashResult}</pre>
+      <pre>result: {result}</pre>
     </div>
   )
 }

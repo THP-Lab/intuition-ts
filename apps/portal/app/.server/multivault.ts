@@ -1,6 +1,3 @@
-import console from 'console'
-import { hash } from 'crypto'
-
 import logger from '@lib/utils/logger'
 import {
   createMultiVaultContract,
@@ -12,19 +9,23 @@ import {
   MultivaultConfig,
   VaultDetailsType,
 } from 'types/vault'
-import {
-  formatUnits,
-  parseUnits,
-  stringToBytes,
-  toBytes,
-  type Address,
-} from 'viem'
+import { formatUnits, parseUnits, type Address } from 'viem'
 
 interface MulticallResponse {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   result?: any
   error?: Error
   status: 'failure' | 'success'
+}
+
+interface TripleAtoms {
+  subjectId: bigint
+  predicateId: bigint
+  objectId: bigint
+}
+
+interface TripleHash {
+  hash: `0x${string}`
 }
 
 const baseVault = BigInt(0)
@@ -474,11 +475,11 @@ export async function getTripleCost() {
   return tripleCost
 }
 
-export async function getTripleHashFromAtoms(
-  subjectId: bigint,
-  predicateId: bigint,
-  objectId: bigint,
-): Promise<`0x${string}`> {
+export async function getTripleHashFromAtoms({
+  subjectId,
+  predicateId,
+  objectId,
+}: TripleAtoms): Promise<`0x${string}`> {
   const tripleHashFromAtoms =
     await getMultivaultContract.read.tripleHashFromAtoms([
       subjectId,
@@ -489,7 +490,7 @@ export async function getTripleHashFromAtoms(
   return tripleHashFromAtoms as `0x${string}`
 }
 
-export async function getTriplesByHash(hash: `0x${string}`): Promise<bigint> {
+export async function getTriplesByHash({ hash }: TripleHash): Promise<bigint> {
   if (!hash.startsWith('0x') || hash.length !== 66) {
     throw new Error('Invalid hash format. Expected 0x-prefixed 32-byte hash.')
   }
