@@ -115,7 +115,9 @@ export function TagsForm({ identity, mode, onClose }: TagsFormProps) {
                     <AddTags
                       selectedTags={selectedTags}
                       onAddTag={handleAddTag}
+                      dispatch={dispatch}
                       onRemoveTag={handleRemoveTag}
+                      subjectVaultId={identity.vault_id}
                     />
                   </TabsContent>
                 </div>

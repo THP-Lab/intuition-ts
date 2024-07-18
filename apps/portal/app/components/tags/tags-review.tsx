@@ -65,22 +65,7 @@ export default function TagsReview({
     objectTagVaultIds,
   } = createTagArrays(tags, subjectVaultId)
 
-  // async function testGetTripleHashFromAtoms(
-  //   subjectId: number,
-  //   predicateId: number,
-  //   objectId: number,
-  // ) {
-  //   try {
-  //     const result = await getTripleHashFromAtoms(
-  //       BigInt(subjectId),
-  //       BigInt(predicateId),
-  //       BigInt(objectId),
-  //     )
-  //     console.log('Triple Hash:', result)
-  //   } catch (error) {
-  //     console.error('Error fetching triple hash:', error)
-  //   }
-  // }
+
 
   const tagResourceFetcher = useLoaderFetcher<TagLoaderData>(TAG_RESOURCE_ROUTE)
 

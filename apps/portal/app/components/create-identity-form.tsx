@@ -60,8 +60,6 @@ interface IdentityFormProps {
   onClose: () => void
 }
 export function IdentityForm({ onSuccess, onClose }: IdentityFormProps) {
-  logger(onClose, onSuccess)
-
   const { state, dispatch } = useTransactionState<
     IdentityTransactionStateType,
     IdentityTransactionActionType
