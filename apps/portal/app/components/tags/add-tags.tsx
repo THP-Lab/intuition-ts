@@ -78,9 +78,6 @@ export function AddTags({
   }
 
   useEffect(() => {
-    logger('Fetcher state:', tagFetcher.state)
-    logger('Fetcher data:', tagFetcher.data)
-
     if (tagFetcher.state === 'idle' && tagFetcher.data !== undefined) {
       const result = tagFetcher.data.result
       if (result === '0') {

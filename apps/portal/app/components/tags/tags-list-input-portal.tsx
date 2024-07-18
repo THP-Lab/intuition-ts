@@ -49,7 +49,7 @@ export const TagsListInputPortal = ({
           <TagWithValue
             key={tag.id}
             label={tag.name}
-            className={`tag ${invalidTags.includes(tag.id) ? 'border-red-500' : ''}`}
+            className={`tag ${invalidTags.includes(tag.id) ? 'border-red-500 hover:border-red-500' : ''}`}
             onRemove={() => onRemoveTag(tag.id)}
           />
         ))}
