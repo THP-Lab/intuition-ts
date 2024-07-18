@@ -1,7 +1,5 @@
 import {
   Button,
-  Button,
-  Button,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -20,14 +18,11 @@ import { useLoaderFetcher } from '@lib/hooks/useLoaderFetcher'
 import {
   CREATE_RESOURCE_ROUTE,
   MULTIVAULT_CONTRACT_ADDRESS,
-  TAG_RESOURCE_ROUTE,
 } from '@lib/utils/constants'
 import logger from '@lib/utils/logger'
 import { CreateLoaderData } from '@routes/resources+/create'
-import { TagLoaderData } from '@routes/resources+/tag'
-import { publicClient } from '@server/viem'
-// import logger from '@lib/utils/logger'
 import { TransactionActionType } from 'types/transaction'
+import { formatUnits } from 'viem'
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
 
 import { createTagArrays } from './tag-utils'
@@ -65,10 +60,10 @@ export default function TagsReview({
     objectTagVaultIds,
   } = createTagArrays(tags, subjectVaultId)
 
-  const tagResourceFetcher = useLoaderFetcher<TagLoaderData>(TAG_RESOURCE_ROUTE)
-
-  const { result } = tagResourceFetcher.data as TagLoaderData
-  logger('result', result)
+  const estimatedFees = formatUnits(
+    BigInt(tripleCost) * BigInt(subjectIdentityVaultIds.length),
+    18,
+  )
 
   async function handleOnChainCreateTags() {
     if (
@@ -100,7 +95,6 @@ export default function TagsReview({
           const receipt = await publicClient.waitForTransactionReceipt({
             hash: txHash,
           })
-
           dispatch({
             type: 'TRANSACTION_COMPLETE',
             txHash,
@@ -187,18 +181,16 @@ export default function TagsReview({
             </div>
           </Tags>
         </div>
-        <Text variant="body" className="text-primary/50">
-          Estimated Fees: 0.001 ETH{' '}
-          {/* TODO: [ENG-2519] placeholder for actual cost */}
-        </Text>
+        {!!estimatedFees && (
+          <Text variant="body" className="text-primary/50">
+            Estimated Fees: {estimatedFees}
+          </Text>
+        )}
       </div>
       <DialogFooter className="!justify-center !items-center mt-20">
         <div className="flex flex-col items-center gap-1">
           <Button variant="primary" onClick={handleOnChainCreateTags}>
             Confirm
-          </Button>
-          <Button onClick={() => testGetTripleHashFromAtoms(195, 194, 175)}>
-            TEST LIST CLAIM
           </Button>
         </div>
       </DialogFooter>

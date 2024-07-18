@@ -10,22 +10,19 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
+  TransactionStatusType,
   Trunctacular,
 } from '@0xintuition/1ui'
 import { IdentityPresenter } from '@0xintuition/api'
 
-import { useCreateTriple } from '@lib/hooks/useCreateTriple'
-import { useLoaderFetcher } from '@lib/hooks/useLoaderFetcher'
+import { TransactionState } from '@components/transaction-state'
 import {
   initialTransactionState,
   transactionReducer,
   useTransactionState,
 } from '@lib/hooks/useTransactionReducer'
-import { CREATE_RESOURCE_ROUTE } from '@lib/utils/constants'
 import logger from '@lib/utils/logger'
-import { CreateLoaderData } from '@routes/resources+/create'
 import { TransactionActionType, TransactionStateType } from 'types/transaction'
-import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
 
 import { AddTags } from './add-tags'
 import TagsReview from './tags-review'
@@ -143,6 +140,31 @@ export function TagsForm({ identity, mode, onClose }: TagsFormProps) {
             />
           )}
         </>
+      )}
+      {isTransactionStarted && (
+        <div className="flex flex-col items-center justify-center min-h-96">
+          <TransactionState
+            status={state.status as TransactionStatusType}
+            txHash={state.txHash}
+            type="tag"
+            // successButton={
+            //   transactionResponseData && (
+            //     <Button
+            //       type="button"
+            //       variant="primary"
+            //       onClick={() => {
+            //         navigate(
+            //           `/app/claim/${transactionResponseData.claim_id}`,
+            //         )
+            //         onClose()
+            //       }}
+            //     >
+            //       View identity
+            //     </Button>
+            //   )
+            // }
+          />
+        </div>
       )}
     </>
   )
