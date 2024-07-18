@@ -1,3 +1,6 @@
+import console from 'console'
+import { hash } from 'crypto'
+
 import logger from '@lib/utils/logger'
 import {
   createMultiVaultContract,
@@ -9,8 +12,13 @@ import {
   MultivaultConfig,
   VaultDetailsType,
 } from 'types/vault'
-import { formatUnits, parseUnits, type Address } from 'viem'
-import { s } from 'vitest/dist/reporters-yx5ZTtEV.js'
+import {
+  formatUnits,
+  parseUnits,
+  stringToBytes,
+  toBytes,
+  type Address,
+} from 'viem'
 
 interface MulticallResponse {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -470,13 +478,25 @@ export async function getTripleHashFromAtoms(
   subjectId: bigint,
   predicateId: bigint,
   objectId: bigint,
-) {
+): Promise<`0x${string}`> {
   const tripleHashFromAtoms =
-    (await getMultivaultContract.read.tripleHashFromAtoms([
+    await getMultivaultContract.read.tripleHashFromAtoms([
       subjectId,
       predicateId,
       objectId,
-    ])) as `0x${string}`
+    ])
   logger('in fn', tripleHashFromAtoms)
-  return tripleHashFromAtoms
+  return tripleHashFromAtoms as `0x${string}`
+}
+
+export async function getTriplesByHash(hash: `0x${string}`): Promise<bigint> {
+  if (!hash.startsWith('0x') || hash.length !== 66) {
+    throw new Error('Invalid hash format. Expected 0x-prefixed 32-byte hash.')
+  }
+  console.log('Querying contract with hash:', hash)
+  const result = (await getMultivaultContract.read.triplesByHash([
+    hash,
+  ])) as bigint
+  console.log('Raw result from contract:', result)
+  return result
 }
