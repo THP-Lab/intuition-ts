@@ -1,0 +1,10 @@
+import{j as t}from"./jsx-runtime-Cw0GR0a5.js";import{useMDXComponents as e}from"./index-DSkyVWTJ.js";import{M as m,T as n,d as p,C as s}from"./index-CPt3gzFX.js";import{B as a}from"./QuestCard-D64eSUEy.js";import"./Icon.types-DvvrcWKg.js";import"./Label-BSnWqvXc.js";import"./PieChart-B_dtFskq.js";import"./ProgressBar-D75vLLzs.js";import"./ProgressCard-BrCNH_y5.js";import"./SegmentedControl-C43o2uqF.js";import"./Separator-8RGezXAr.js";import"./Table-C0qIXiUM.js";import"./Text-DsVeH9qI.js";import"./Textarea-CUiVvNKI.js";import"./ValueDisplay-D2U_pdiu.js";import"./QuestSetCard-DXHyju0d.js";import"./QuestStatusIndicator-Dppz0ehK.js";import"./QuestCriteriaCard-A0DJuMkI.js";import"./QuestCriteriaDisplay-BzNuGZIV.js";import"./QuestPointsDisplay-ejZCRmtZ.js";import"./Skeleton-BtFXuCOi.js";import{S as c,B as u}from"./Select.stories-mQ7Nz7No.js";import"./index-CTjT7uj6.js";import"./iframe-DjUcgIEC.js";import"../sb-preview/runtime.js";import"./index-DP8FJ8Qs.js";import"./index-BI02G6dj.js";import"./index-BhgyLgKK.js";import"./index-DXimoRZY.js";import"./index-Bx4XDAbk.js";import"./index-DrFu-skq.js";import"./index-Bb4qSo10.js";import"./index-DgtlF2hQ.js";import"./themes-JyTiufSz.js";import"./palette-saq09hvB.js";import"./quest-DnP0Hcox.js";import"./progress-DxZziHAc.js";function i(o){const r={h4:"h4",...e(),...o.components};return t.jsxs(t.Fragment,{children:[t.jsx(m,{of:c}),`
+`,t.jsx(n,{}),`
+`,t.jsx(r.h4,{id:"displays-a-list-of-options-for-the-user-to-pick-fromtriggered-by-a-button",children:"Displays a list of options for the user to pick from—triggered by a button."}),`
+`,t.jsx(a,{variant:"accent",onClick:()=>window.open("https://www.radix-ui.com/primitives/docs/components/select#api-reference","_blank"),children:"API Reference"}),`
+`,t.jsx(p,{dark:!0,language:"tsx",code:`
+import { Select } from '@0xintuition/1ui'
+
+<Select />
+`}),`
+`,t.jsx(s,{of:u,sourceState:"none"})]})}function V(o={}){const{wrapper:r}={...e(),...o.components};return r?t.jsx(r,{...o,children:t.jsx(i,{...o})}):i(o)}export{V as default};
