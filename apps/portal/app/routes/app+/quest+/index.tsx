@@ -11,11 +11,12 @@ import {
 import { ProfileCardHeader } from '@0xintuition/1ui/src/components/ProfileCard/components'
 import { GetUserByWalletResponse, UsersService } from '@0xintuition/api'
 
+import comingSoonPlaceholder from '@assets/coming-soon-placeholder.png'
 import questPlaceholder from '@assets/quest-placeholder.png'
 import { QUEST_LOG_DESCRIPTION } from '@lib/utils/constants/quest'
 import { fetchWrapper, invariant } from '@lib/utils/misc'
 import { defer, LoaderFunctionArgs } from '@remix-run/node'
-import { Await, Link, useLoaderData } from '@remix-run/react'
+import { Await, Link, useLoaderData, useNavigate } from '@remix-run/react'
 import { requireUserWallet } from '@server/auth'
 import { isAddress } from 'viem'
 
@@ -37,6 +38,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Quests() {
+  const navigate = useNavigate()
   return (
     <div className="p-10 w-full max-w-7xl mx-auto flex flex-col gap-5">
       <div className="flex flex-col gap-5">
@@ -57,10 +59,10 @@ export default function Quests() {
               <QuestSetProgressCard
                 imgSrc={questPlaceholder}
                 title={'Tutorial Island: The Primitive Elements'}
-                numberQuests={10}
-                numberCompletedQuests={5}
-                onButtonClick={function (): void {
-                  throw new Error('Function not implemented.')
+                numberQuests={6}
+                numberCompletedQuests={0}
+                onButtonClick={() => {
+                  navigate('/app/quest/book/0')
                 }}
               />
             </div>
@@ -91,16 +93,18 @@ export default function Quests() {
                 <li className="col-span-1 h-full">
                   <QuestSetCard
                     disabled={i === 1}
-                    imgSrc={questPlaceholder}
+                    imgSrc={i !== 1 ? questPlaceholder : comingSoonPlaceholder}
                     title={
                       i === 1
                         ? 'Coming soon'
                         : 'Tutorial Island: The Primitive Elements'
                     }
                     description={
-                      'Something inside you stirs, urging you to rekindle and reclaim humanity’s lost intuition...'
+                      i === 1
+                        ? 'Our interns are hard at work.'
+                        : 'Learn the core elements of the Intuition System'
                     }
-                    numberQuests={12}
+                    numberQuests={i === 1 ? 0 : 6}
                     numberCompletedQuests={0}
                   />
                 </li>

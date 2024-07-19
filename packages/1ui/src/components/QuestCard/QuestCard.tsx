@@ -39,7 +39,7 @@ const QuestCard = ({
       {...props}
     >
       <div
-        className="w-52 h-52 flex-shrink-0 relative"
+        className="w-52 h-52 flex-shrink-0 relative bg-cover bg-center"
         style={{ backgroundImage: `url(${imgSrc})` }}
       >
         <div className="absolute top-2.5 left-2.5">

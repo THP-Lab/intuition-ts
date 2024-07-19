@@ -5,44 +5,98 @@ import {
   Icon,
   IconName,
   QuestCriteriaCard,
-  QuestCriteriaStatus,
   QuestCriteriaType,
+  QuestStatus,
   QuestStatusCard,
+  QuestStatusType,
   Text,
 } from '@0xintuition/1ui'
 
-import questPlaceholder from '@assets/quest-placeholder.png'
+import questPlaceholder from '@assets/quest-placeholder-2.png'
 import { MDXContent } from '@content-collections/mdx/react'
-import { getQuestContentBySlug } from '@lib/utils/quest'
-import { json } from '@remix-run/node'
+import { fetchQuestById, searchUserQuests } from '@lib/utils/fetches'
+import logger from '@lib/utils/logger'
+import { invariant } from '@lib/utils/misc'
+import {
+  getQuestContentBySlug,
+  getQuestCriteria,
+  getQuestImage,
+  getQuestStatus,
+} from '@lib/utils/quest'
+import { json, LoaderFunctionArgs } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
-import { generateRandomQuests } from 'types/quest-temp'
+import { requireUser } from '@server/auth'
+import { getPrivyAccessToken } from '@server/privy'
 
-export async function loader() {
-  const quest = generateRandomQuests(1)[0] // MOCK
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const user = await requireUser(request)
+  invariant(user, 'Unauthorized')
+
+  const id = params.id
+  invariant(id, 'id is required')
+
+  // TODO: Replace me
+  const accessToken = getPrivyAccessToken(request)
+  invariant(accessToken, 'accessToken is required')
+  const quest = await fetchQuestById(id, accessToken)
+  logger('Fetched quest', quest)
+
+  const { data } = await searchUserQuests({
+    questId: id,
+    userId: user.id,
+  })
+  const userQuest = data.length ? data[0] : null
+
+  const questIntro = getQuestContentBySlug(`${quest.id}-intro`)
   const questContent = getQuestContentBySlug(`${quest.id}-main`)
   const questClosing = getQuestContentBySlug(`${quest.id}-closing`)
+  let questMain2
+  try {
+    questMain2 = getQuestContentBySlug(`${quest.id}-main-2`)
+  } catch (e) {
+    logger('No questMain2 found', e)
+  }
+
+  const questStatus = userQuest
+    ? getQuestStatus(userQuest.status)
+    : (QuestStatus.notStarted as QuestStatusType)
+
+  const criteria = getQuestCriteria(quest.condition)
+
   return json({
     quest,
+    questIntro,
     questContent,
     questClosing,
+    questMain2,
+    userQuest,
+    questStatus,
+    criteria,
   })
 }
 
 export default function Quests() {
-  const { quest, questContent, questClosing } = useLoaderData<typeof loader>()
-  // const questContent = getQuestContentBySlug(quest.id)
+  const {
+    quest,
+    questIntro,
+    questContent,
+    questMain2,
+    questClosing,
+    userQuest,
+    questStatus,
+    criteria,
+  } = useLoaderData<typeof loader>()
 
   return (
     <div className="px-10 w-full max-w-7xl mx-auto flex flex-col gap-10">
       <div className="flex flex-col gap-10 mb-5">
         <img
-          src={questPlaceholder}
+          src={getQuestImage(quest.id)}
           alt="Quest Placeholder"
           className="object-cover w-full h-[350px] border-x border-b border-border/20 rounded-b-lg"
         />
         <div className="flex flex-col gap-10">
-          <Link to="/app/quest">
+          <Link to="/app/quest/book/0">
             <Button variant={ButtonVariant.secondary} className="w-fit">
               <div className="flex items-center gap-2">
                 <Icon name={IconName.arrowLeft} />
@@ -53,40 +107,51 @@ export default function Quests() {
             <Text variant="heading4" weight="medium">
               {quest.title}
             </Text>
-            <QuestStatusCard status={quest.status} />
+            <QuestStatusCard status={questStatus} />
           </div>
+          {questIntro.body && <MDXLoreWrapper code={questIntro.body} />}
 
-          <Text variant="bodyLarge" className="text-foreground/50">
-            The island of identity beckons. But what secrets will you uncover?
-            As you explore the shores of your digital self, you&apos;ll discover
-            hidden coves of knowledge and secrets waiting to be uncovered. Will
-            you uncover the truth about your digital identity? Each task unlocks
-            new learnings and earns you points.
-          </Text>
           <QuestCriteriaCard
             title={quest.title}
             criteria={
               {
-                status: QuestCriteriaStatus.notStarted,
-                criteria: 'Placeholder for quest criteria',
+                status: questStatus,
+                criteria,
               } as QuestCriteriaType
             }
             questStatus={quest.status}
             points={quest.points}
           />
         </div>
-        {questContent.body && <MDXContentWrapper code={questContent.body} />}
+        {questContent.body && (
+          <MDXCoreContentWrapper code={questContent.body} />
+        )}
         <div className="bg-warning/5 rounded-lg theme-border p-5 flex justify-center align-items h-96 border-warning/30 border-dashed text-warning/30 text-bold">
           Quest Activity
         </div>
+        {questMain2 && (
+          <div className="flex flex-col gap-5 py-5">
+            <MDXLoreWrapper code={questMain2.body} />
+          </div>
+        )}
+
+        {quest.id === 'ac22e180-9923-4481-9cba-31e88f223e58' && (
+          <div className="bg-warning/5 rounded-lg theme-border p-5 flex justify-center align-items h-96 border-warning/30 border-dashed text-warning/30 text-bold">
+            Quest Activity 2
+          </div>
+        )}
         {questClosing.body && (
           <div className="flex flex-col gap-5 py-5">
-            <MDXContentWrapper code={questClosing.body} />
+            <MDXLoreWrapper code={questClosing.body} />
           </div>
         )}
 
         <div className="flex flex-col items-center justify-center w-full gap-2 pb-20">
-          <Button variant={ButtonVariant.primary} size={ButtonSize.lg}>
+          <Button
+            variant={ButtonVariant.primary}
+            size={ButtonSize.lg}
+            disabled={true} // TODO: replace me
+          >
             Complete Quest
           </Button>
           <Text variant="bodyLarge" className="text-foreground/50">
@@ -98,9 +163,29 @@ export default function Quests() {
   )
 }
 
-export function MDXContentWrapper({ code }: { code: string }) {
+export function MDXCoreContentWrapper({ code }: { code: string }) {
   return (
     <div className="flex flex-col gap-5 py-5">
+      <MDXContent
+        code={code}
+        components={{
+          h1: (props) => <Text variant="headline" weight="medium" {...props} />,
+          p: (props) => (
+            <Text
+              variant="bodyLarge"
+              className="text-foreground/50"
+              {...props}
+            />
+          ),
+        }}
+      />
+    </div>
+  )
+}
+
+export function MDXLoreWrapper({ code }: { code: string }) {
+  return (
+    <div className="flex flex-col gap-2">
       <MDXContent
         code={code}
         components={{
