@@ -1,7 +1,6 @@
 {
   "name": "@0xintuition/automation-tools",
   "private": true,
-  "dependencies": {},
   "type": "commonjs",
   "main": "./src/index.js",
   "typings": "./src/index.d.ts",
