@@ -11,12 +11,11 @@ import {
   QuestStatusType,
   Text,
 } from '@0xintuition/1ui'
+import { QuestsService, UserQuestsService } from '@0xintuition/api'
 
-import questPlaceholder from '@assets/quest-placeholder-2.png'
 import { MDXContent } from '@content-collections/mdx/react'
-import { fetchQuestById, searchUserQuests } from '@lib/utils/fetches'
 import logger from '@lib/utils/logger'
-import { invariant } from '@lib/utils/misc'
+import { fetchWrapper, invariant } from '@lib/utils/misc'
 import {
   getQuestContentBySlug,
   getQuestCriteria,
@@ -25,27 +24,29 @@ import {
 } from '@lib/utils/quest'
 import { json, LoaderFunctionArgs } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
-import { requireUser } from '@server/auth'
-import { getPrivyAccessToken } from '@server/privy'
+import { requireUserId } from '@server/auth'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const user = await requireUser(request)
-  invariant(user, 'Unauthorized')
-
   const id = params.id
   invariant(id, 'id is required')
+  const userId = await requireUserId(request)
+  invariant(userId, 'Unauthorized')
 
-  // TODO: Replace me
-  const accessToken = getPrivyAccessToken(request)
-  invariant(accessToken, 'accessToken is required')
-  const quest = await fetchQuestById(id, accessToken)
+  const quest = await fetchWrapper({
+    method: QuestsService.getQuest,
+    args: {
+      questId: id,
+    },
+  })
   logger('Fetched quest', quest)
 
-  const { data } = await searchUserQuests({
-    questId: id,
-    userId: user.id,
+  const status = await fetchWrapper({
+    method: UserQuestsService.checkQuestStatus,
+    args: {
+      questId: id,
+      userId,
+    },
   })
-  const userQuest = data.length ? data[0] : null
 
   const questIntro = getQuestContentBySlug(`${quest.id}-intro`)
   const questContent = getQuestContentBySlug(`${quest.id}-main`)
@@ -57,8 +58,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     logger('No questMain2 found', e)
   }
 
-  const questStatus = userQuest
-    ? getQuestStatus(userQuest.status)
+  const questStatus = status
+    ? getQuestStatus(status)
     : (QuestStatus.notStarted as QuestStatusType)
 
   const criteria = getQuestCriteria(quest.condition)
@@ -69,7 +70,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     questContent,
     questClosing,
     questMain2,
-    userQuest,
+    status,
     questStatus,
     criteria,
   })
@@ -82,7 +83,7 @@ export default function Quests() {
     questContent,
     questMain2,
     questClosing,
-    userQuest,
+    status,
     questStatus,
     criteria,
   } = useLoaderData<typeof loader>()
@@ -112,14 +113,14 @@ export default function Quests() {
           {questIntro.body && <MDXLoreWrapper code={questIntro.body} />}
 
           <QuestCriteriaCard
-            title={quest.title}
+            title={quest.title ?? ''}
             criteria={
               {
                 status: questStatus,
                 criteria,
               } as QuestCriteriaType
             }
-            questStatus={quest.status}
+            questStatus={questStatus}
             points={quest.points}
           />
         </div>

@@ -71,6 +71,8 @@ import type {
   GetPositionByIdData,
   GetPositionByIdResponse,
   GetQueryStructureResponse,
+  GetQuestData,
+  GetQuestResponse,
   GetUserByIdData,
   GetUserByIdPublicData,
   GetUserByIdPublicResponse,
@@ -110,6 +112,8 @@ import type {
   SearchIdentityResponse,
   SearchPositionsData,
   SearchPositionsResponse,
+  SearchQuestsData,
+  SearchQuestsResponse,
   SearchResponse,
   SetFollowPredicateData,
   SetFollowPredicateResponse,
@@ -375,8 +379,6 @@ export class ClaimsService {
    * @param data.displayName
    * @param data.counterVault
    * @param data.status
-   * @param data.forUser
-   * @param data.againstUser
    * @returns unknown Search claims in paginated list
    * @throws ApiError
    */
@@ -401,8 +403,6 @@ export class ClaimsService {
         displayName: data.displayName,
         counterVault: data.counterVault,
         status: data.status,
-        forUser: data.forUser,
-        againstUser: data.againstUser,
       },
     })
   }
@@ -423,8 +423,6 @@ export class ClaimsService {
    * @param data.displayName
    * @param data.counterVault
    * @param data.status
-   * @param data.forUser
-   * @param data.againstUser
    * @returns unknown Summary of claim values based on query
    * @throws ApiError
    */
@@ -449,8 +447,6 @@ export class ClaimsService {
         displayName: data.displayName,
         counterVault: data.counterVault,
         status: data.status,
-        forUser: data.forUser,
-        againstUser: data.againstUser,
       },
     })
   }
@@ -584,7 +580,6 @@ export class IdentitiesService {
    * @param data.timeframe
    * @param data.identityId
    * @param data.description
-   * @param data.linkedAccountUsername
    * @returns unknown Search identities in paginated list
    * @throws ApiError
    */
@@ -613,7 +608,6 @@ export class IdentitiesService {
         timeframe: data.timeframe,
         identityId: data.identityId,
         description: data.description,
-        linkedAccountUsername: data.linkedAccountUsername,
       },
     })
   }
@@ -638,7 +632,6 @@ export class IdentitiesService {
    * @param data.timeframe
    * @param data.identityId
    * @param data.description
-   * @param data.linkedAccountUsername
    * @returns unknown Summary of identity values based on query
    * @throws ApiError
    */
@@ -667,7 +660,6 @@ export class IdentitiesService {
         timeframe: data.timeframe,
         identityId: data.identityId,
         description: data.description,
-        linkedAccountUsername: data.linkedAccountUsername,
       },
     })
   }
@@ -1203,6 +1195,45 @@ export class QuestsService {
       url: '/quest',
       body: data.requestBody,
       mediaType: 'application/json',
+    })
+  }
+
+  /**
+   * This endpoint returns the quests that match the informed values and
+   * return them when suceeded
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @returns unknown Return information about quests
+   * @throws ApiError
+   */
+  public static searchQuests(
+    data: SearchQuestsData,
+  ): CancelablePromise<SearchQuestsResponse> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/quest/search',
+      body: data.requestBody,
+      mediaType: 'application/json',
+    })
+  }
+
+  /**
+   * This endpoint get a quest by the id and returns a [`Quest`] object
+   * when suceeded
+   * @param data The data for the request.
+   * @param data.questId Quest SQL id
+   * @returns unknown Return information about a quest
+   * @throws ApiError
+   */
+  public static getQuest(
+    data: GetQuestData,
+  ): CancelablePromise<GetQuestResponse> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/quest/{quest_id}',
+      path: {
+        quest_id: data.questId,
+      },
     })
   }
 

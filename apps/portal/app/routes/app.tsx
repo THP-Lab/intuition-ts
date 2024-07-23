@@ -49,7 +49,7 @@ export default function Index() {
       <SidebarNav userObject={userObject}>
         <Outlet />
       </SidebarNav>
-      <PrivyLogout wallet={wallet} />
+      {/* <PrivyLogout wallet={wallet} /> */}
     </div>
   )
 }

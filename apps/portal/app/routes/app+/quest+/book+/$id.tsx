@@ -10,52 +10,68 @@ import {
   QuestStatusType,
   Text,
 } from '@0xintuition/1ui'
-import { UserQuest } from '@0xintuition/api'
+import {
+  QuestStatus as APIQuestStatus,
+  QuestsService,
+  UserQuest,
+  UserQuestsService,
+} from '@0xintuition/api'
 
 import questPlaceholder from '@assets/quest-placeholder.png'
-import { fetchQuestById, searchUserQuests } from '@lib/utils/fetches'
 import logger from '@lib/utils/logger'
-import { invariant } from '@lib/utils/misc'
+import { fetchWrapper, invariant } from '@lib/utils/misc'
 import { getQuestCriteria, getQuestThumbnailImage } from '@lib/utils/quest'
 import { json, LoaderFunctionArgs } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
-import { getPrivyAccessToken } from '@server/privy'
+import { requireUserId } from '@server/auth'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const id = params.id
   invariant(id, 'id is required')
+  const userId = await requireUserId(request)
+  invariant(userId, 'Unauthorized')
 
-  // TODO: Replace me
-  const CREATE_ATOM_ID = 'b4b7e0ed-a69a-4a0a-bf9b-8bf0afe979f9'
-  const STAKE_IDENTITY_ID = '3b5315bb-f29b-4320-9997-6928b4bbf3e9'
-  const CREATE_CLAIM_ID = 'dacdd63d-f978-433e-aeb0-54d165e8f936'
-  const STAKE_CLAIM_ID = 'ac22e180-9923-4481-9cba-31e88f223e58'
-  const COUNTER_STAKE_CLAIM_ID = 'daa5d6ff-9a8b-41c6-a259-302816655c5b'
-  const UNDERSTANDING_ID = '90cf4398-f7e5-4ec7-8088-c64d2da6a715'
-  const accessToken = getPrivyAccessToken(request)
-  invariant(accessToken, 'accessToken is required')
-  const quests = await Promise.all([
-    fetchQuestById(CREATE_ATOM_ID, accessToken),
-    fetchQuestById(STAKE_IDENTITY_ID, accessToken),
-    fetchQuestById(CREATE_CLAIM_ID, accessToken),
-    fetchQuestById(STAKE_CLAIM_ID, accessToken),
-    fetchQuestById(COUNTER_STAKE_CLAIM_ID, accessToken),
-    fetchQuestById(UNDERSTANDING_ID, accessToken),
-  ])
+  const quests = (
+    await fetchWrapper({
+      method: QuestsService.searchQuests,
+      args: {
+        requestBody: {
+          narrative: 'Standard',
+          active: true,
+        },
+      },
+    })
+  ).data
   logger('Fetched quest', quests)
 
-  const userQuests = (await searchUserQuests({})).data
+  const userQuests = (
+    await fetchWrapper({
+      method: UserQuestsService.search,
+      args: {
+        requestBody: {
+          userId,
+          narrative: 'Standard',
+        },
+      },
+    })
+  ).data
   // create a mapping of questId to userQuests
   const questToUserQuestMap = new Map<string, UserQuest>()
   userQuests.forEach((userQuest) => {
     questToUserQuestMap.set(userQuest.id, userQuest)
   })
+  const numQuests = quests.length
+  const numCompletedQuests = Object.values(questToUserQuestMap).filter(
+    (userQuest) => userQuest.status === APIQuestStatus.COMPLETED,
+  ).length
+  logger('User Quest Map', questToUserQuestMap)
 
-  return json({ quests, questToUserQuestMap })
+  return json({ quests, questToUserQuestMap, numQuests, numCompletedQuests })
 }
 
 export default function Quests() {
-  const { quests, questToUserQuestMap } = useLoaderData<typeof loader>()
+  const { quests, questToUserQuestMap, numQuests, numCompletedQuests } =
+    useLoaderData<typeof loader>()
 
   return (
     <div className="px-10 w-full max-w-7xl mx-auto flex flex-col gap-10">
@@ -63,7 +79,7 @@ export default function Quests() {
         <img
           src={questPlaceholder}
           alt="Quest Placeholder"
-          className="object-cover w-full h-[350px] border-x border-b border-border/20 rounded-b-lg"
+          className="object-cover object-bottom w-full h-[350px] border-x border-b border-border/20 rounded-b-lg"
         />
         <div className="flex flex-col gap-5">
           <Link to="/app/quest">
@@ -84,8 +100,8 @@ export default function Quests() {
           </div>
           <ProgressCard
             title="Quest Progress"
-            numberCompleted={0}
-            numberTotal={6}
+            numberCompleted={numCompletedQuests}
+            numberTotal={numQuests}
           />
         </div>
       </div>
@@ -119,8 +135,8 @@ export default function Quests() {
                 <div>
                   <QuestCard
                     imgSrc={getQuestThumbnailImage(quest.id)}
-                    title={quest.title}
-                    description={quest.description}
+                    title={quest.title ?? ''}
+                    description={quest.description ?? ''}
                     questStatus={questStatus}
                     label={`Chapter ${i + 1}`}
                     points={quest.points}
