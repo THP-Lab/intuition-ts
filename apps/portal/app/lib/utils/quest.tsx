@@ -1,8 +1,4 @@
-import {
-  QuestStatus as ApiQuestStatus,
-  QuestCondition,
-  UserQuest,
-} from '@0xintuition/api'
+import { QuestStatus as ApiQuestStatus, QuestCondition } from '@0xintuition/api'
 
 import counterStakeClaimThumbnailPlaceholder from '@assets/counter-stake-claim-thumbnail.png'
 import counterStakeClaimPlaceholder from '@assets/counter-stake-claim.png'
