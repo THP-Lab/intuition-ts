@@ -1,11 +1,6 @@
-import { fetchWrapper } from './../lib/utils/misc';
-import {
-  QuestNarrative,
-  QuestsService,
-  QuestStatus,
-} from '@0xintuition/api'
+import { QuestNarrative, QuestsService, QuestStatus } from '@0xintuition/api'
 
-
+import { fetchWrapper } from './../lib/utils/misc'
 
 export async function fetchQuestNarrativeProgress(
   narrative: QuestNarrative,
