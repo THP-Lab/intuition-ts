@@ -11,9 +11,11 @@ import {
 import { ProfileCardHeader } from '@0xintuition/1ui/src/components/ProfileCard/components'
 import { GetUserByWalletResponse, UsersService } from '@0xintuition/api'
 
-import comingSoonPlaceholder from '@assets/coming-soon-placeholder.png'
-import questPlaceholder from '@assets/quest-placeholder.png'
-import { QUEST_LOG_DESCRIPTION } from '@lib/utils/constants/quest'
+import {
+  COMING_SOON_QUEST_SET,
+  QUEST_LOG_DESCRIPTION,
+  STANDARD_QUEST_SET,
+} from '@lib/utils/constants/quest'
 import { fetchWrapper, invariant } from '@lib/utils/misc'
 import { defer, LoaderFunctionArgs } from '@remix-run/node'
 import { Await, Link, useLoaderData, useNavigate } from '@remix-run/react'
@@ -65,12 +67,12 @@ export default function Quests() {
                 <Await resolve={standardQuestsProgress}>
                   {(progress) => (
                     <QuestSetProgressCard
-                      imgSrc={questPlaceholder}
-                      title={'Tutorial Island: The Primitive Elements'}
+                      imgSrc={STANDARD_QUEST_SET.imgSrc}
+                      title={STANDARD_QUEST_SET.title}
                       numberQuests={progress.numQuests}
                       numberCompletedQuests={progress.numCompletedQuests}
                       onButtonClick={() => {
-                        navigate('/app/quest/book/0')
+                        navigate(STANDARD_QUEST_SET.navigatePath)
                       }}
                     />
                   )}
@@ -105,9 +107,9 @@ export default function Quests() {
                   <Link to="/app/quest/book/0">
                     <li className="col-span-1 h-full">
                       <QuestSetCard
-                        imgSrc={questPlaceholder}
-                        title="Tutorial Island: The Primitive Elements"
-                        description="Learn the core elements of the Intuition System"
+                        imgSrc={STANDARD_QUEST_SET.imgSrc}
+                        title={STANDARD_QUEST_SET.title}
+                        description={STANDARD_QUEST_SET.description}
                         numberQuests={progress.numQuests}
                         numberCompletedQuests={progress.numCompletedQuests}
                       />
@@ -120,9 +122,9 @@ export default function Quests() {
               <li className="col-span-1 h-full">
                 <QuestSetCard
                   disabled
-                  imgSrc={comingSoonPlaceholder}
-                  title="Coming soon"
-                  description="Our interns are hard at work."
+                  imgSrc={COMING_SOON_QUEST_SET.imgSrc}
+                  title={COMING_SOON_QUEST_SET.title}
+                  description={COMING_SOON_QUEST_SET.description}
                   numberQuests={0}
                   numberCompletedQuests={0}
                 />
