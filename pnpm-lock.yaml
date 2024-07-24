@@ -587,9 +587,14 @@ importers:
         specifier: ^1.3.1
         version: 1.6.0(@types/node@20.14.2)(@vitest/ui@1.6.0)(jsdom@22.1.0(bufferutil@4.0.8)(utf-8-validate@6.0.4))(terser@5.31.1)
 
-  tools: {}
-
-  tools/attestor:
+  tools:
+    dependencies:
+      csv-parser:
+        specifier: ^3.0.0
+        version: 3.0.0
+      electron:
+        specifier: ^31.2.1
+        version: 31.2.1
     devDependencies:
       '@types/electron':
         specifier: ^1.6.10
@@ -600,6 +605,8 @@ importers:
       typescript:
         specifier: ^4.5.4
         version: 4.9.5
+
+  tools/attestor: {}
 
 packages:
 
@@ -6350,6 +6357,11 @@ packages:
 
   csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
+
+  csv-parser@3.0.0:
+    resolution: {integrity: sha512-s6OYSXAK3IdKqYO33y09jhypG/bSDHPuyCme/IdEHfWpLf/jKcpitVFyOC6UemgGk8v7Q5u2XE0vvwmanxhGlQ==}
+    engines: {node: '>= 10'}
+    hasBin: true
 
   d@1.0.2:
     resolution: {integrity: sha512-MOqHvMWF9/9MX6nza0KgvFH4HpMU0EF5uUDXqX/BtxtU8NfB0QzRtJ8Oe/6SuS4kbhyzVJwjd97EA4PKrzJ8bw==}
@@ -21083,6 +21095,10 @@ snapshots:
       rrweb-cssom: 0.6.0
 
   csstype@3.1.3: {}
+
+  csv-parser@3.0.0:
+    dependencies:
+      minimist: 1.2.8
 
   d@1.0.2:
     dependencies:
