@@ -8,14 +8,5 @@
   "scripts": {
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "lint:fix": "pnpm lint --fix"
-  },
-  "dependencies": {
-    "csv-parser": "^3.0.0",
-    "electron": "^31.2.1"
-  },
-  "devDependencies": {
-    "@types/electron": "^1.6.10",
-    "copyfiles": "^2.4.1",
-    "typescript": "^4.5.4"
   }
 }

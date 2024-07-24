@@ -587,14 +587,9 @@ importers:
         specifier: ^1.3.1
         version: 1.6.0(@types/node@20.14.2)(@vitest/ui@1.6.0)(jsdom@22.1.0(bufferutil@4.0.8)(utf-8-validate@6.0.4))(terser@5.31.1)
 
-  tools:
-    dependencies:
-      csv-parser:
-        specifier: ^3.0.0
-        version: 3.0.0
-      electron:
-        specifier: ^31.2.1
-        version: 31.2.1
+  tools: {}
+
+  tools/attestor:
     devDependencies:
       '@types/electron':
         specifier: ^1.6.10
@@ -602,11 +597,15 @@ importers:
       copyfiles:
         specifier: ^2.4.1
         version: 2.4.1
+      csv-parser:
+        specifier: ^3.0.0
+        version: 3.0.0
+      electron:
+        specifier: ^31.2.1
+        version: 31.2.1
       typescript:
         specifier: ^4.5.4
         version: 4.9.5
-
-  tools/attestor: {}
 
 packages:
 
