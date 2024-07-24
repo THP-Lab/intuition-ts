@@ -13,10 +13,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "csv-parser": "^3.0.0",
-    "electron": "^31.2.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/electron": "^1.6.10",
     "copyfiles": "^2.4.1",

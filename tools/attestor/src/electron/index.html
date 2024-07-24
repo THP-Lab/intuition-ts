@@ -1,23 +1,23 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Intuition Attestor</title>
-</head>
-<body>
-  <h1>Attestor</h1>
-  <button id="open-file">Load .CSV File</button>
-  <div id="preview"></div>
-  <script>
-    document.getElementById('open-file').addEventListener('click', () => {
-      window.electronAPI.openFileDialog();
-    });
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Intuition Attestor</title>
+  </head>
+  <body>
+    <h1>Attestor</h1>
+    <button id="open-file">Load .CSV File</button>
+    <div id="preview"></div>
+    <script>
+      document.getElementById('open-file').addEventListener('click', () => {
+        window.electronAPI.openFileDialog()
+      })
 
-    window.electronAPI.onCSVData((data) => {
-      const preview = document.getElementById('preview');
-      preview.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-    });
-  </script>
-</body>
+      window.electronAPI.onCSVData((data) => {
+        const preview = document.getElementById('preview')
+        preview.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`
+      })
+    </script>
+  </body>
 </html>
