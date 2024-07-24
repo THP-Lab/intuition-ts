@@ -17,7 +17,7 @@ import {
   UserQuestsService,
 } from '@0xintuition/api'
 
-import questPlaceholder from '@assets/quest-placeholder.png'
+import { STANDARD_QUEST_SET } from '@lib/utils/constants/quest'
 import logger from '@lib/utils/logger'
 import { fetchWrapper, invariant } from '@lib/utils/misc'
 import { getQuestCriteria, getQuestThumbnailImage } from '@lib/utils/quest'
@@ -77,8 +77,8 @@ export default function Quests() {
     <div className="px-10 w-full max-w-7xl mx-auto flex flex-col gap-10">
       <div className="space-y-10 mb-5">
         <img
-          src={questPlaceholder}
-          alt="Quest Placeholder"
+          src={STANDARD_QUEST_SET.imgSrc}
+          alt={STANDARD_QUEST_SET.title}
           className="object-cover object-bottom w-full h-[350px] border-x border-b border-border/20 rounded-b-lg"
         />
         <div className="flex flex-col gap-5">
@@ -91,11 +91,10 @@ export default function Quests() {
           </Link>
           <div className="flex flex-col gap-2">
             <Text variant="heading4" weight="medium">
-              {'Tutorial Island: The Primitive Elements'}
+              {STANDARD_QUEST_SET.title}
             </Text>
             <Text variant="bodyLarge" className="text-foreground/50">
-              Complete the chapters below to learn the core primitives that make
-              up the Intuition system.
+              {STANDARD_QUEST_SET.summary}
             </Text>
           </div>
           <ProgressCard
