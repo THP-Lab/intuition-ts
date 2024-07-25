@@ -56,7 +56,7 @@ export default function ExploreLists() {
 
   return (
     <div className="m-8 flex flex-col items-center gap-4 w-full">
-      <ExploreSearch variant="list" />
+      <ExploreSearch variant="list" className="mb-12" />
       <div className="w-full">
         <ListClaimsList
           listClaims={listClaims}
