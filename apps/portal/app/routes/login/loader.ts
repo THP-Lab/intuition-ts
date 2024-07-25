@@ -1,3 +1,4 @@
+import logger from '@lib/utils/logger'
 import { AuthTokenClaims } from '@privy-io/server-auth'
 import { redirect } from '@remix-run/node'
 import { verifyPrivyAccessToken } from '@server/privy'
@@ -8,7 +9,7 @@ export const fetchLoaderData = async (
 ): Promise<LoaderData> => {
   const authTokenClaims = await verifyPrivyAccessToken(request)
   if (authTokenClaims) {
-    console.log('[Loader] User is already authenticated, redirecting to home')
+    logger('[Loader] User is already authenticated, redirecting to home')
     throw redirect('/app/profile')
   }
   return authTokenClaims
