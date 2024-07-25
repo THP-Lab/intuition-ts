@@ -8,12 +8,21 @@
   <body>
     <h1>Attestor</h1>
     <button id="open-file">Load .CSV File</button>
+    <button id="submit-data">Submit Data</button>
     <div id="preview"></div>
     <script>
+
+      // Load .CSV File Button Event Listener
       document.getElementById('open-file').addEventListener('click', () => {
         window.electronAPI.openFileDialog()
       })
 
+      // Submit Data Button Event Listener
+      document.getElementById('submit-data').addEventListener('click', () => {
+        window.electronAPI.submitData()
+      })
+
+      // Render Listener for CSV Data Event
       window.electronAPI.onCSVData((data) => {
         const preview = document.getElementById('preview')
         preview.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`
