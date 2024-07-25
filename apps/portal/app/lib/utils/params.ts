@@ -5,6 +5,11 @@ import {
   SortDirection,
 } from '@0xintuition/api'
 
+export const getSearchParams = (request: Request) => {
+  const url = new URL(request.url)
+  return new URLSearchParams(url.search)
+}
+
 const getParam = ({
   searchParams,
   paramName,

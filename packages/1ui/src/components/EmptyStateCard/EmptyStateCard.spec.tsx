@@ -17,7 +17,7 @@ describe('EmptyStateCard', () => {
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
         <div
-          class="flex flex-col justify-center items-center p-6 theme-border rounded-lg min-h-52"
+          class="flex flex-col justify-center items-center p-6 theme-border rounded-lg min-h-52 w-full"
         >
           <svg
             class="w-12 h-12 mb-4"
