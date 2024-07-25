@@ -7,7 +7,7 @@ import { fetchLoaderData } from './loader'
 import { LoginView } from './view'
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const data = fetchLoaderData(request)
+  const data = await fetchLoaderData(request)
   return json(data)
 }
 export async function action({ request }: ActionFunctionArgs) {
