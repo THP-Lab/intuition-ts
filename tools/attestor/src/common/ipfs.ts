@@ -1,9 +1,5 @@
 import axios from 'axios';
 
-import { CID } from 'multiformats/cid';
-import * as dagCbor from '@ipld/dag-cbor';
-import { sha256 } from 'multiformats/hashes/sha2';
-
 if (!process.env.PINATA_API_KEY || !process.env.PINATA_API_SECRET) {
     throw new Error('PINATA_API_KEY and PINATA_API_SECRET must be set');
 }
@@ -32,9 +28,11 @@ export async function pinJsonToIPFS(json: object): Promise<string> {
 }
 
 // This can be used to check the CID locally without pinning to IPFS
-export async function generateCid(jsonBlob: object): Promise<string> {
-    const bytes = dagCbor.encode(jsonBlob);
-    const hash = await sha256.digest(bytes);
-    const cid = CID.create(1, dagCbor.code, hash);
-    return cid.toString();
-  }
+// TODO: Make this work without electron freaking out about "No exports main defined in package.json"
+export async function generateCid(jsonBlob: any): Promise<string> {
+    // const node = await IPFS.create();
+    // const { cid } = await node.add(JSON.stringify(jsonBlob));
+    // await node.stop();
+    // return cid.toString();
+    return await pinJsonToIPFS(jsonBlob);
+}

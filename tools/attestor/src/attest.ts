@@ -51,13 +51,10 @@ async function getAtomIdFromURI(uri: string): Promise<string> {
 export async function attest(json: object): Promise<string> {
     try {
         // Check if already exists without Pinata
-        // const cid = await getCIDFromIPFS(json);
         const cid = await generateCid(json);
-        console.log('CID:', cid);
         const atomId = await getAtomIdFromURI(cid);
-        console.log('Atom ID:', atomId);
 
-        if (atomId !== '0') {
+        if (atomId !== "0") {
             console.log('Atom already exists');
             return cid;
         }

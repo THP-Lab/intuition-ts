@@ -65,22 +65,15 @@ async function performCommands(data: CSVData[]): Promise<void> {
   try {
     latestURIs = []
     latestSubmitedData = []
-    // data.forEach(async (item) => {
-    //   console.log('Performing command with:', item)
-    //   // Add your command logic here
-    //   const URI = await attest(item)
-    //   latestURIs.push(URI)
-    //   latestSubmitedData.push({ ...item, URI })
-    //   // Use the same callback since it works
-    //   mainWindow.webContents.send('csv-data', latestSubmitedData)
-    // })
-      console.log('Performing command with:', data[0])
+    data.forEach(async (item) => {
+      console.log('Performing command with:', item)
       // Add your command logic here
-      const URI = await attest(data[0])
+      const URI = await attest(item)
       latestURIs.push(URI)
-      latestSubmitedData.push({ ...data[0], URI })
+      latestSubmitedData.push({ ...item, URI })
       // Use the same callback since it works
       mainWindow.webContents.send('csv-data', latestSubmitedData)
+    })
   } catch (error) {
     console.error('Error performing commands:', error)
     throw error
