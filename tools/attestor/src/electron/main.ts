@@ -1,23 +1,29 @@
-// import * as fs from 'fs'
 import * as path from 'path'
+import { configDotenv, config } from 'dotenv'
+import { resolve } from 'path'
+
+configDotenv({
+  path: resolve(__dirname, "../../.env")
+})
 
 // import csv from 'csv-parser'
 import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import { CSVData, readCSVFile } from '../common/csv'
+import { attest } from '../attest'
 
-// // Todo: Modify this to match the structure of our data
-// interface CSVData {
-//   // Define the structure of your data here
-//   field1: string
-//   field2: string
-//   field3: string
-//   field4: string
-//   field5: string
-//   // ...
-// }
+let latestData: CSVData[] = []
+let latestURIs: string[] = []
+let latestSubmitedData: CSVDataWithURI[] = []
+let mainWindow: BrowserWindow
 
+interface CSVDataWithURI extends CSVData {
+  URI: string
+}
+
+// Window Definition
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+  // Construct window
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -27,41 +33,58 @@ const createWindow = () => {
     },
   })
 
+  // Load HTML file
   mainWindow.loadFile(path.join(__dirname, 'index.html'))
 
   // Listen for the open-file-dialog event from renderer process
   ipcMain.handle('open-file-dialog', async () => {
-    console.log('Hit open file dialog')
-    const result = await dialog.showOpenDialog(mainWindow, {
-      properties: ['openFile'],
-      filters: [{ name: 'CSV Files', extensions: ['csv'] }],
-    })
+    await openFileDialog()
+  })
 
-    if (!result.canceled && result.filePaths.length > 0) {
-      const filePath = result.filePaths[0]
-      const data: CSVData[] = await readCSVFile(filePath)
-      mainWindow.webContents.send('csv-data', data)
-      performCommands(data)
-    }
+  // Listen for Submit Data Event from renderer
+  ipcMain.handle('submit-data', async () => {
+    console.log("performing commands")
+    await performCommands(latestData)
   })
 }
 
-// const readCSVFile = (filePath: string): Promise<CSVData[]> => {
-//   return new Promise((resolve, reject) => {
-//     const results: CSVData[] = []
-//     fs.createReadStream(filePath)
-//       .pipe(csv())
-//       .on('data', (data: CSVData) => results.push(data))
-//       .on('end', () => resolve(results))
-//       .on('error', (error: Error) => reject(error))
-//   })
-// }
-
-const performCommands = (data: CSVData[]) => {
-  data.forEach((item) => {
-    console.log('Performing command with:', item)
-    // Add your command logic here
+async function openFileDialog(): Promise<void> {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openFile'],
+    filters: [{ name: 'CSV Files', extensions: ['csv'] }],
   })
+
+  if (!result.canceled && result.filePaths.length > 0) {
+    const filePath = result.filePaths[0]
+    latestData = await readCSVFile(filePath)
+    mainWindow.webContents.send('csv-data', latestData)
+  }
+}
+
+async function performCommands(data: CSVData[]): Promise<void> {
+  try {
+    latestURIs = []
+    latestSubmitedData = []
+    // data.forEach(async (item) => {
+    //   console.log('Performing command with:', item)
+    //   // Add your command logic here
+    //   const URI = await attest(item)
+    //   latestURIs.push(URI)
+    //   latestSubmitedData.push({ ...item, URI })
+    //   // Use the same callback since it works
+    //   mainWindow.webContents.send('csv-data', latestSubmitedData)
+    // })
+      console.log('Performing command with:', data[0])
+      // Add your command logic here
+      const URI = await attest(data[0])
+      latestURIs.push(URI)
+      latestSubmitedData.push({ ...data[0], URI })
+      // Use the same callback since it works
+      mainWindow.webContents.send('csv-data', latestSubmitedData)
+  } catch (error) {
+    console.error('Error performing commands:', error)
+    throw error
+  }
 }
 
 app.on('ready', createWindow)

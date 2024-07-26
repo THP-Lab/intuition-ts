@@ -1,29 +1,111 @@
-import {EVMCallRequest, callAndConfirm} from './common/evm';
-import { pinJsonToIPFS } from './common/ipfs';
+import {EVMCallRequest, callAndConfirm, evmRead} from './common/evm';
+import { pinJsonToIPFS, generateCid } from './common/ipfs';
 
-if (!process.env.EVM_RPC || !process.env.ATTESTEUR_ADDRESS) {
-    throw new Error('EVM_RPC and ATTESTEUR_ADDRESS must be set');
+import { ethers } from 'ethers';
+
+if (!process.env.EVM_RPC || !process.env.ATTESTEUR_ADDRESS || !process.env.MULTIVAULT_ADDRESS || !process.env.PRIVATE_KEY) {
+    throw new Error('EVM_RPC and ATTESTEUR_ADDRESS and MULTIVAULT_ADDRESS and PRIVATE_KEY must be set');
 }
+
+function createAtomRequest(ipfsHash: string): EVMCallRequest {
+    return {
+        RPC: process.env.EVM_RPC as string,
+        address: process.env.ATTESTEUR_ADDRESS as string,
+        fnName: 'createAtom',
+        fnDeclaration: ['function createAtom(bytes calldata atomUri) external payable returns (uint256)'],
+        args: [ethers.toUtf8Bytes(ipfsHash)],
+        txParams: {
+            gasLimit: 500000,
+            value: "10000000000000000",
+        },
+    }
+}
+
+function depositAtomRequest(atomId: string, depositAmount: string): EVMCallRequest {
+    return {
+        RPC: process.env.EVM_RPC as string,
+        address: process.env.ATTESTEUR_ADDRESS as string,
+        fnName: 'depositAtom',
+        fnDeclaration: ['function depositAtom(address receiver, uint256 atomId) external payable returns (uint256)'],
+        args: [atomId],
+        txParams: {
+            gasLimit: 500000,
+            value: depositAmount,
+        },
+    }
+}
+
+async function getAtomIdFromURI(uri: string): Promise<string> {
+    const call : EVMCallRequest = {
+        RPC: process.env.EVM_RPC as string,
+        address: process.env.MULTIVAULT_ADDRESS as string,
+        fnName: 'atomsByHash',
+        fnDeclaration: ['function atomsByHash(bytes32 calldata atomUri) external view returns (uint256)'],
+        args: [hashURI(uri)],
+        txParams: {},
+    }
+    return await evmRead(call) as string;
+}
+
 
 export async function attest(json: object): Promise<string> {
     try {
-        const ipfsHash = await pinJsonToIPFS(json);
+        // Check if already exists without Pinata
+        // const cid = await getCIDFromIPFS(json);
+        const cid = await generateCid(json);
+        console.log('CID:', cid);
+        const atomId = await getAtomIdFromURI(cid);
+        console.log('Atom ID:', atomId);
 
-        const call : EVMCallRequest = {
-            RPC: process.env.EVM_RPC as string,
-            address: process.env.ATTESTEUR_ADDRESS as string,
-            fnName: 'attest',
-            fnDeclaration: ['function attest(string memory _ipfsHash) public'],
-            args: [ipfsHash],
-            txParams: {
-                gasLimit: 500000,
-            },
+        if (atomId !== '0') {
+            console.log('Atom already exists');
+            return cid;
         }
 
+        const ipfsHash = await pinJsonToIPFS(json);
+        console.log('IPFS Hash:', ipfsHash);
+
+        const call = createAtomRequest(ipfsHash);
+
         const txHash = await callAndConfirm(call);
+
+        // const atomId = await getAtomIdFromURI(ipfsHash);
+        console.log("Atom ID:", atomId);
         return ipfsHash;
     } catch (error) {
         console.error('Error attesting:', error);
         throw error;
     }
+}
+
+export async function depositAtomURI(atomUri: string): Promise<string> {
+    try {
+        const atomId = await getAtomIdFromURI(atomUri);
+        console.log('Atom ID:', atomId);
+
+        return await depositAtom(atomId);
+    } catch (error) {
+        console.error('Error depositing atom:', error);
+        throw error;
+    }
+}
+
+export async function depositAtom(atomId: string): Promise<string> {
+    try {
+        // TODO: Move this to env/config file or UI
+        const depositAmount = "10000000000000000";
+
+        const call = depositAtomRequest(atomId, depositAmount);
+
+        const txHash = await callAndConfirm(call);
+        console.log("Transaction confirmed: ", txHash);
+        return atomId;
+    } catch (error) {
+        console.error('Error depositing atom:', error);
+        throw error;
+    }
+}
+
+function hashURI(uri: string): string {
+    return ethers.keccak256(ethers.toUtf8Bytes(uri));
 }
