@@ -54,8 +54,8 @@ export async function attest(json: object): Promise<string> {
         const cid = await generateCid(json);
         const atomId = await getAtomIdFromURI(cid);
 
-        if (atomId !== "0") {
-            console.log('Atom already exists');
+        if (typeof atomId === 'bigint' && atomId !== 0n) {
+            console.log("Atom already exists: ", atomId, "for CID", cid);
             return cid;
         }
 
