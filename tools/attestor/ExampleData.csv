@@ -1,0 +1,30 @@
+@context,@type,name,description,image,url
+https://schema.org,Thing,Foo,Lorem Ipsum,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Bar,Place where dreams go to sleep,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Dog,Man's best friend,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Alien,"Responsible for: The moon, fiat currency, DNA",https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Cat,Vicious little monsters (cute),https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Mouse,Cat food,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Turtle,Opposite of Lion Energy,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Pony,Cute but relatively unaffordable,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Alligator,Average Floridian,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Fish,Some kind of hippie music,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Dinosaur,See Politician,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Politician,See Dinosaur,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Tree,Our 99.5% Cousins,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Shrub,Distant Cousins,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Succulent,"Deceptive Title, Do Not Eat",https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Cactus,The future of currency,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Moss,Grows in forests mostly,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Algae,Grows in ponds mostly,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Flower,Different from a sandwich,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Fungus,Created the aliens,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Mineral,Another currency,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Fossil,Sus,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Antimatter,Not sure if real,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Ectoplasm,Usually a sign of ghosts,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Celestial Fire,Really hot fire,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Orgone Energy,Totally real,https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Ascension Symptoms,"Headaches, upset stomach, sudden interest in pop music, etc",https://example.com/cat.png,https://example.com
+https://schema.org,Thing,Gold,"Originally mined for aliens by humans, primitive currency, useful for reflecting artificial light back from the atmosphere",https://example.com/cat.png,https://example.com
+https://schema.org,Thing,US Dollar,Fake,https://example.com/cat.png,https://example.com

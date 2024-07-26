@@ -3,8 +3,15 @@ import { pinJsonToIPFS, generateCid } from './common/ipfs';
 
 import { ethers } from 'ethers';
 
-if (!process.env.EVM_RPC || !process.env.ATTESTEUR_ADDRESS || !process.env.MULTIVAULT_ADDRESS || !process.env.PRIVATE_KEY) {
-    throw new Error('EVM_RPC and ATTESTEUR_ADDRESS and MULTIVAULT_ADDRESS and PRIVATE_KEY must be set');
+if (
+    !process.env.EVM_RPC || 
+    !process.env.ATTESTEUR_ADDRESS || 
+    !process.env.MULTIVAULT_ADDRESS || 
+    !process.env.PRIVATE_KEY || 
+    !process.env.CREATE_ATOM_ETH || 
+    !process.env.DEPOSIT_ATOM_ETH
+    ) {
+    throw new Error('EVM_RPC and ATTESTEUR_ADDRESS and MULTIVAULT_ADDRESS and PRIVATE_KEY and CREATE_ATOM_ETH must be set');
 }
 
 function createAtomRequest(ipfsHash: string): EVMCallRequest {
@@ -16,7 +23,21 @@ function createAtomRequest(ipfsHash: string): EVMCallRequest {
         args: [ethers.toUtf8Bytes(ipfsHash)],
         txParams: {
             gasLimit: 500000,
-            value: "10000000000000000",
+            value: process.env.CREATE_ATOM_ETH,
+        },
+    }
+}
+
+function createAtomWithoutAttesteurRequest(ipfsHash: string): EVMCallRequest {
+    return {
+        RPC: process.env.EVM_RPC as string,
+        address: process.env.MULTIVAULT_ADDRESS as string,
+        fnName: 'createAtom',
+        fnDeclaration: ['function createAtom(bytes calldata atomUri) external payable returns (uint256)'],
+        args: [ethers.toUtf8Bytes(ipfsHash)],
+        txParams: {
+            gasLimit: 500000,
+            value: process.env.CREATE_ATOM_ETH,
         },
     }
 }
@@ -52,7 +73,7 @@ export async function attest(json: object): Promise<string> {
     try {
         // Check if already exists without Pinata
         const cid = await generateCid(json);
-        const atomId = await getAtomIdFromURI(cid);
+        let atomId = await getAtomIdFromURI(cid);
 
         if (typeof atomId === 'bigint' && atomId !== 0n) {
             console.log("Atom already exists: ", atomId, "for CID", cid);
@@ -62,11 +83,16 @@ export async function attest(json: object): Promise<string> {
         const ipfsHash = await pinJsonToIPFS(json);
         console.log('IPFS Hash:', ipfsHash);
 
-        const call = createAtomRequest(ipfsHash);
+        // Wait for propagation
+        // await new Promise(resolve => setTimeout(resolve, 10000));
+        // console.log("Waited for 10 seconds");
+
+        // const call = createAtomRequest(ipfsHash);
+        const call = createAtomWithoutAttesteurRequest(ipfsHash);
 
         const txHash = await callAndConfirm(call);
 
-        // const atomId = await getAtomIdFromURI(ipfsHash);
+        atomId = await getAtomIdFromURI(ipfsHash);
         console.log("Atom ID:", atomId);
         return ipfsHash;
     } catch (error) {
