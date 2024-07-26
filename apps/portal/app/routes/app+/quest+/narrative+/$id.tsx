@@ -7,6 +7,7 @@ import {
   Text,
 } from '@0xintuition/1ui'
 import {
+  QuestNarrative,
   QuestPresenter,
   QuestSortColumn,
   QuestsService,
@@ -14,6 +15,7 @@ import {
   SortDirection,
   UserQuest,
   UserQuestsService,
+  UsersService,
 } from '@0xintuition/api'
 
 import { QuestCard } from '@components/quest/quest-card'
@@ -27,67 +29,23 @@ import {
   redirect,
 } from '@remix-run/node'
 import { Link, useLoaderData, useSubmit } from '@remix-run/react'
-import { requireUser, requireUserId } from '@server/auth'
+import { requireUser } from '@server/auth'
+import { getQuestsProgress } from '@server/quest'
 import { STANDARD_QUEST_SET } from 'consts'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const id = params.id
   invariant(id, 'id is required')
-  const userId = await requireUserId(request)
-  invariant(userId, 'Unauthorized')
 
-  const quests = (
-    await fetchWrapper({
-      method: QuestsService.searchQuests,
-      args: {
-        requestBody: {
-          narrative: 'Standard',
-          active: true,
-          sortBy: QuestSortColumn.POSITION,
-          direction: SortDirection.ASC,
-        },
-      },
-    })
-  ).data
-
-  const userQuests = (
-    await fetchWrapper({
-      method: UserQuestsService.search,
-      args: {
-        requestBody: {
-          userId,
-          narrative: 'Standard',
-        },
-      },
-    })
-  ).data
-  logger('Fetched user quests', userQuests)
-  // create a mapping of questId to userQuests
-  const questToUserQuestMap = new Map<string, UserQuest>()
-  userQuests.forEach((userQuest) => {
-    questToUserQuestMap.set(userQuest.quest_id, userQuest)
+  const details = await getQuestsProgress({
+    request,
+    options: {
+      narrative: QuestNarrative.STANDARD,
+    },
   })
-  const numQuests = quests.length
-
-  const completedQuestsMap = new Map<string, boolean>()
-  quests.forEach((quest) => {
-    const userQuest = questToUserQuestMap.get(quest.id)
-    completedQuestsMap.set(
-      quest.id,
-      userQuest?.status === QuestStatus.COMPLETED,
-    )
-  })
-  // derive number of completed quests from completedQuestsMap
-  const numCompletedQuests = Object.values(completedQuestsMap).filter(
-    (completed) => completed,
-  ).length
 
   return json({
-    quests,
-    numQuests,
-    numCompletedQuests,
-    questToUserQuestMap: Object.fromEntries(questToUserQuestMap),
-    completedQuestsMap: Object.fromEntries(completedQuestsMap),
+    ...details,
   })
 }
 
@@ -102,9 +60,11 @@ export async function action({ request }: ActionFunctionArgs) {
   invariant(redirectTo, 'redirectTo is required')
   const questStatus = formData.get('questStatus') as QuestStatus
   invariant(questStatus, 'questStatus is required')
+  const available = formData.get('available') === 'true'
 
   // start quest
-  if (questStatus === QuestStatus.NOT_STARTED) {
+  if (questStatus === QuestStatus.NOT_STARTED && available) {
+    logger('Starting quest', questId)
     const { status } = await fetchWrapper({
       method: UserQuestsService.startQuest,
       args: {
@@ -121,36 +81,38 @@ export default function Quests() {
     quests,
     numQuests,
     numCompletedQuests,
-    completedQuestsMap,
-    questToUserQuestMap,
+    userQuestMap,
+    completedQuestsIds,
   } = useLoaderData<typeof loader>()
   const submit = useSubmit()
-  logger('questToUserQuestMap', JSON.stringify(questToUserQuestMap, null, 2)) // ENG-2821 TODO: Remove after testing all quests
 
   function isQuestAvailable(quest: QuestPresenter) {
     if (!quest.depends_on_quest) {
       return true
     }
-    return completedQuestsMap[quest.depends_on_quest] ?? false
+    return completedQuestsIds.includes(quest.depends_on_quest) ?? false
   }
 
   function getUserQuestStatus(quest: QuestPresenter) {
-    return questToUserQuestMap[quest.id]?.status
+    return userQuestMap[quest.id]?.status ?? QuestStatus.NOT_STARTED
   }
 
   async function handleClick({
     questId,
     redirectTo,
     status,
+    available,
   }: {
     questId: string
     redirectTo: string
     status: QuestStatus
+    available: boolean
   }) {
     const formData = new FormData()
     formData.append('questId', questId)
     formData.append('redirectTo', redirectTo)
     formData.append('questStatus', status)
+    formData.append('available', available.toString())
     submit(formData, { method: 'post' })
   }
 
@@ -203,7 +165,7 @@ export default function Quests() {
                 label={`Chapter ${quest.position}`}
                 points={quest.points}
                 questCriteria={getQuestCriteria(quest.condition)}
-                disabled={!available}
+                disabled={false}
                 handleClick={(e) => {
                   e.preventDefault()
                   handleClick({
@@ -211,7 +173,8 @@ export default function Quests() {
                     redirectTo: `${quest.narrative === 'Standard' ? '1' : '2'}-${
                       quest.position
                     }-${quest.condition}`,
-                    status: userQuestStatus,
+                    status: userQuestStatus ?? QuestStatus.NOT_STARTED,
+                    available,
                   })
                 }}
               />

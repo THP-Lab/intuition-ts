@@ -7,7 +7,11 @@ import {
   Text,
 } from '@0xintuition/1ui'
 import { ProfileCardHeader } from '@0xintuition/1ui/src/components/ProfileCard/components'
-import { GetUserByWalletResponse, UsersService } from '@0xintuition/api'
+import {
+  GetUserByWalletResponse,
+  QuestNarrative,
+  UsersService,
+} from '@0xintuition/api'
 
 import { QuestSetCard } from '@components/quest/quest-set-card'
 import { QuestSetProgressCard } from '@components/quest/quest-set-progress-card'
@@ -15,7 +19,7 @@ import { fetchWrapper, invariant } from '@lib/utils/misc'
 import { defer, LoaderFunctionArgs } from '@remix-run/node'
 import { Await, Link, useLoaderData } from '@remix-run/react'
 import { requireUserWallet } from '@server/auth'
-import { fetchQuestNarrativeProgress } from '@server/quest'
+import { getQuestsProgress } from '@server/quest'
 import {
   COMING_SOON_QUEST_SET,
   QUEST_LOG_DESCRIPTION,
@@ -27,24 +31,29 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const userWallet = await requireUserWallet(request)
   invariant(userWallet, 'Unauthorized')
 
-  const userProfile = await fetchWrapper({
+  const userProfile = fetchWrapper({
     method: UsersService.getUserByWalletPublic,
     args: {
       wallet: userWallet,
     },
   })
 
-  const standardQuestsProgress = fetchQuestNarrativeProgress('Standard')
+  const details = getQuestsProgress({
+    request,
+    options: {
+      narrative: QuestNarrative.STANDARD,
+    },
+  })
 
   return defer({
+    details,
     userWallet,
     userProfile,
-    standardQuestsProgress,
   })
 }
 
 export default function Quests() {
-  const { standardQuestsProgress } = useLoaderData<typeof loader>()
+  const { userWallet, userProfile, details } = useLoaderData<typeof loader>()
 
   return (
     <div className="p-10 w-full max-w-7xl mx-auto flex flex-col gap-5">
@@ -63,14 +72,14 @@ export default function Quests() {
               </div>
             </div>
             <div className="flex-1">
-              <Suspense fallback={<Skeleton className="h-full w-full" />}>
-                <Await resolve={standardQuestsProgress}>
-                  {(progress) => (
+              <Suspense fallback={<Skeleton className="h-52 w-full" />}>
+                <Await resolve={details}>
+                  {(resolvedDetails) => (
                     <QuestSetProgressCard
                       imgSrc={STANDARD_QUEST_SET.imgSrc}
                       title={STANDARD_QUEST_SET.title}
-                      numberQuests={progress.numQuests}
-                      numberCompletedQuests={progress.numCompletedQuests}
+                      numberQuests={resolvedDetails.numQuests}
+                      numberCompletedQuests={resolvedDetails.numCompletedQuests}
                       to={STANDARD_QUEST_SET.navigatePath}
                     />
                   )}
@@ -100,16 +109,18 @@ export default function Quests() {
           </div>
           <ul className="grid grid-cols-1 gap-10 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2">
             <Suspense fallback={<Skeleton className="h-full w-full" />}>
-              <Await resolve={standardQuestsProgress}>
-                {(progress) => (
+              <Await resolve={details}>
+                {(resolvedDetails) => (
                   <Link to={STANDARD_QUEST_SET.navigatePath} prefetch="intent">
                     <li className="col-span-1 h-full">
                       <QuestSetCard
                         imgSrc={STANDARD_QUEST_SET.imgSrc}
                         title={STANDARD_QUEST_SET.title}
                         description={STANDARD_QUEST_SET.description}
-                        numberQuests={progress.numQuests}
-                        numberCompletedQuests={progress.numCompletedQuests}
+                        numberQuests={resolvedDetails.numQuests}
+                        numberCompletedQuests={
+                          resolvedDetails.numCompletedQuests
+                        }
                       />
                     </li>
                   </Link>
