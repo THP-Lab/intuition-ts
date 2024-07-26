@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 
 import { Button, ButtonSize, ButtonVariant } from '@0xintuition/1ui'
 import {
+  ClaimPresenter,
+  ClaimsService,
   IdentitiesService,
   IdentityPresenter,
   QuestsService,
@@ -12,6 +14,7 @@ import {
 
 import CreateIdentityModal from '@components/create-identity-modal'
 import CreateAtomActivity from '@components/quest/create-atom-activity'
+import CreateClaimActivity from '@components/quest/create-claim-activity'
 import {
   Header,
   Hero,
@@ -31,6 +34,7 @@ import {
 import { ActionFunctionArgs, json, LoaderFunctionArgs } from '@remix-run/node'
 import {
   Form,
+  Link,
   useFetcher,
   useLoaderData,
   useRevalidator,
@@ -39,7 +43,8 @@ import { CheckQuestSuccessLoaderData } from '@routes/resources+/check-quest-succ
 import { requireUser, requireUserId } from '@server/auth'
 import { MDXContentVariant } from 'types'
 
-const ROUTE_ID = QuestRouteId.CREATE_ATOM
+const ROUTE_ID = QuestRouteId.CREATE_CLAIM
+const DEFAULT_CLAIM_ID = '19ac84b0-4db2-403c-a236-e09a60ce02da'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const id = getQuestId(ROUTE_ID)
@@ -77,16 +82,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   )
   logger('Fetched user quest', userQuest)
 
-  let identity: IdentityPresenter | undefined
-  if (userQuest && userQuest.quest_completion_object_id) {
-    identity = await fetchWrapper({
-      method: IdentitiesService.getIdentityById,
-      args: {
-        id: userQuest.quest_completion_object_id,
-      },
-    })
-    logger('Fetched identity', identity)
-  }
+  let claim: ClaimPresenter | undefined
+  // if (userQuest && userQuest.quest_completion_object_id) {
+  claim = await fetchWrapper({
+    method: ClaimsService.getClaimById,
+    args: {
+      id: DEFAULT_CLAIM_ID,
+    },
+  })
+  logger('Fetched claim', claim)
+  // }
 
   const questIntro = getQuestContentBySlug(`${quest.id}-intro`)
   const questContent = getQuestContentBySlug(`${quest.id}-main`)
@@ -97,7 +102,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     questContent,
     questClosing,
     userQuest,
-    identity,
+    claim,
   })
 }
 
@@ -126,7 +131,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Quests() {
-  const { quest, questIntro, questContent, questClosing, userQuest, identity } =
+  const { quest, questIntro, questContent, questClosing, userQuest, claim } =
     useLoaderData<typeof loader>()
   const [activityModalOpen, setActivityModalOpen] = useState(false)
   const fetcher = useFetcher<CheckQuestSuccessLoaderData>()
@@ -177,9 +182,9 @@ export default function Quests() {
           />
         </div>
         <MDXContentView body={questContent?.body} />
-        <CreateAtomActivity
+        <CreateClaimActivity
+          claim={claim}
           status={userQuest?.status ?? QuestStatus.NOT_STARTED}
-          identity={identity}
           handleClick={handleOpenActivityModal}
         />
         <MDXContentView

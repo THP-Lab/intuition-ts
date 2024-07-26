@@ -21,6 +21,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url)
   const userQuestId = url.searchParams.get('userQuestId')
   invariant(userQuestId, 'userQuestId is required')
+  logger('Checking quest success for userQuestId', userQuestId)
 
   let attempts = 0
 

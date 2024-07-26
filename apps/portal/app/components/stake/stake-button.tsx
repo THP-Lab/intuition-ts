@@ -103,6 +103,7 @@ const StakeButton: React.FC<StakeButtonProps> = ({
   return (
     <Button
       variant="primary"
+      size="lg"
       onClick={(e) => {
         e.preventDefault()
         if (

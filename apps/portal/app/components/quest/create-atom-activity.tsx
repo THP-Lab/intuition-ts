@@ -28,7 +28,7 @@ export default function CreateAtomActivity({
   ...props
 }: CreateAtomActivityProps) {
   return (
-    <ActivityContainer status={status} {...props}>
+    <ActivityContainer status={status} {...props} className="pb-5">
       {identity ? (
         <div className="flex flex-col gap-5 theme-border rounded-md p-5">
           <ProfileCard
