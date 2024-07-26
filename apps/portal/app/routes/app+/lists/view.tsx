@@ -8,51 +8,30 @@ import {
   ListClaimsSkeletonLayout,
   TabsSkeleton,
 } from '@components/list/list-skeletons'
-import { getUserCreatedLists, getUserSavedLists } from '@lib/services/lists'
 import logger from '@lib/utils/logger'
-import { invariant } from '@lib/utils/misc'
-import { defer, LoaderFunctionArgs } from '@remix-run/node'
-import {
-  Await,
-  useLoaderData,
-  useNavigation,
-  useSearchParams,
-} from '@remix-run/react'
-import { requireUserWallet } from '@server/auth'
-import { NO_WALLET_ERROR } from 'consts'
+import { Await, useNavigation, useSearchParams } from '@remix-run/react'
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const wallet = await requireUserWallet(request)
-  invariant(wallet, NO_WALLET_ERROR)
+import { LoaderData } from './loader'
 
-  const url = new URL(request.url)
-  const searchParams = new URLSearchParams(url.search)
+const TabValue = {
+  saved: 'saved',
+  created: 'created',
+} as const
 
-  return defer({
-    userCreatedListClaims: getUserCreatedLists({
-      userWallet: wallet,
-      searchParams,
-    }),
-    savedListClaims: getUserSavedLists({
-      userWallet: wallet,
-      searchParams,
-    }),
-  })
-}
+type TabValueType = keyof typeof TabValue
 
-export default function ListsRoute() {
-  const { userCreatedListClaims, savedListClaims } =
-    useLoaderData<typeof loader>()
-  logger('userCreatedListClaims', userCreatedListClaims)
-  logger('savedListClaims', savedListClaims)
-
+export const ListsView = (data: LoaderData) => {
+  const { userCreatedListClaims, savedListClaims } = data
   const [searchParams, setSearchParams] = useSearchParams()
   const [isNavigating, setIsNavigating] = useState(false)
-
   const { state } = useNavigation()
-  const defaultTab = searchParams.get('tab') || 'created'
 
-  function handleTabChange(value: 'saved' | 'created') {
+  const defaultTab = searchParams.get('tab') || TabValue.created
+
+  logger('userCreatedListClaims: ', userCreatedListClaims)
+  logger('savedListClaims: ', savedListClaims)
+
+  function handleTabChange(value: TabValueType) {
     const newParams = new URLSearchParams(searchParams)
     newParams.set('tab', value)
     newParams.delete('search')
@@ -66,7 +45,6 @@ export default function ListsRoute() {
       setIsNavigating(false)
     }
   }, [state])
-
   return (
     <div className="m-8 flex flex-col">
       <ListOverview />
@@ -79,25 +57,25 @@ export default function ListsRoute() {
               <>
                 <TabsList>
                   <TabsTrigger
-                    value="saved"
+                    value={TabValue.saved}
                     label="Saved"
                     totalCount={savedListClaims?.pagination.totalEntries}
                     onClick={(e) => {
                       e.preventDefault()
-                      handleTabChange('saved')
+                      handleTabChange(TabValue.saved)
                     }}
                   />
                   <TabsTrigger
-                    value="created"
+                    value={TabValue.created}
                     label="Created"
                     totalCount={userCreatedListClaims?.pagination.totalEntries}
                     onClick={(e) => {
                       e.preventDefault()
-                      handleTabChange('created')
+                      handleTabChange(TabValue.created)
                     }}
                   />
                 </TabsList>
-                <TabsContent value="saved">
+                <TabsContent value={TabValue.saved}>
                   {isNavigating ? (
                     <ListClaimsSkeletonLayout
                       totalItems={savedListClaims?.pagination.totalEntries || 6}
@@ -125,7 +103,7 @@ export default function ListsRoute() {
                     </Suspense>
                   )}
                 </TabsContent>
-                <TabsContent value="created">
+                <TabsContent value={TabValue.created}>
                   {isNavigating ? (
                     <ListClaimsSkeletonLayout
                       totalItems={

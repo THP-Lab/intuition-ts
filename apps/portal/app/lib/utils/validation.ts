@@ -3,7 +3,8 @@ import { NO_WALLET_ERROR } from 'consts'
 
 import { invariant } from './misc'
 
-export const validateUser = async (request: Request) => {
+export const validateUser = async (request: Request): Promise<string> => {
   const wallet = await requireUserWallet(request)
   invariant(wallet, NO_WALLET_ERROR)
+  return wallet
 }

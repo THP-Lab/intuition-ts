@@ -8,16 +8,12 @@ import {
 
 import { calculateTotalPages, fetchWrapper } from '@lib/utils/misc'
 import { getSearchParams, getStandardPageParams } from '@lib/utils/params'
+import { PaginationType } from 'types'
 
 export type LoaderData = {
   identities: IdentityPresenter[]
   claims: ClaimPresenter[]
-  claimsPagination: {
-    currentPage: number
-    limit: number
-    totalEntries: number
-    totalPages: number
-  }
+  claimsPagination: PaginationType
 }
 
 export const fetchLoaderData = async (

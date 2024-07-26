@@ -11,12 +11,12 @@ export const LoginView = () => {
     isNewUser: boolean,
     wasAlreadyAuthenticated: boolean,
   ) {
-    logger('user', user)
-    logger('isNewUser', isNewUser)
-    logger('wasAlreadyAuthenticated', wasAlreadyAuthenticated)
+    logger('user: ', user)
+    logger('isNewUser: ', isNewUser)
+    logger('wasAlreadyAuthenticated: ', wasAlreadyAuthenticated)
 
     const formData = new FormData()
-    formData.append('userId', user.id)
+    formData.append('userId: ', user.id)
     submit(formData, { method: 'post' })
   }
 

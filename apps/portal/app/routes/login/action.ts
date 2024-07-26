@@ -8,13 +8,13 @@ export const performAction = async (request: Request) => {
   const formData = await request.formData()
   // not necessary but just to show its being properly passed to the action post privy-auth
   const userId = formData.get('userId')
-  logger('[Action] userId', userId)
+  logger('[Action] userId: ', userId)
 
   const redirectUrl = url.searchParams.get('redirectTo') ?? '/app/profile'
-  logger('[Action] Redirecting to', redirectUrl)
+  logger('[Action] Redirecting to: ', redirectUrl)
   const cookies = parse(request.headers.get('cookie') ?? '')
   // not necessary but just to show its being properly set by privy post auth
   const privyToken = cookies['privy-token']
-  logger('[Action] Redirecting w/ privyToken', privyToken)
+  logger('[Action] Redirecting w/ privyToken: ', privyToken)
   throw redirect(redirectUrl)
 }
