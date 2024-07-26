@@ -40,10 +40,7 @@ const AvatarFallback = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AvatarPrimitive.Fallback
     ref={ref}
-    className={cn(
-      'bg-muted flex h-full w-full items-center justify-center',
-      className,
-    )}
+    className={cn('flex h-full w-full items-center justify-center', className)}
     {...props}
   />
 ))
@@ -52,8 +49,8 @@ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
 const avatarVariants = cva('aspect-square bg-background theme-border', {
   variants: {
     variant: {
-      [Identity.user]: 'rounded-full',
-      [Identity.nonUser]: 'rounded',
+      [Identity.user]: 'rounded-full bg-muted',
+      [Identity.nonUser]: 'rounded-md bg-background theme-border',
     },
   },
   defaultVariants: {
