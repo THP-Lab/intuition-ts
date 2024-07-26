@@ -17,12 +17,12 @@ const EmptyStateCard = ({
   return (
     <div
       className={cn(
-        `flex flex-col justify-center items-center p-6 theme-border rounded-lg min-h-52 w-full`,
+        `flex flex-col justify-center items-center p-6 theme-border rounded-lg min-h-64 w-full gap-2`,
         className,
       )}
     >
-      <Icon name={IconName.inboxEmpty} className="w-12 h-12 mb-2" />
-      <Text variant="body" className="text-muted-foreground mb-5">
+      <Icon name={IconName.inboxEmpty} className="w-12 h-12" />
+      <Text variant="body" className="text-muted-foreground">
         {message}
       </Text>
       {children}
