@@ -53,8 +53,24 @@ export default function Login() {
   }
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <PrivyLoginButton handleLogin={handleLogin} />
+    <div className="relative flex items-center justify-center h-screen overflow-hidden">
+      <div className="absolute z-0 w-[650px] h-[650px]">
+        <video 
+          className="w-full h-full object-cover" 
+          width="450" 
+          height="450" 
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+        >
+          <source src="app/assets/intuition_hero_v5.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <div className="relative z-10">
+        <PrivyLoginButton handleLogin={handleLogin} />
+      </div>
     </div>
   )
 }
