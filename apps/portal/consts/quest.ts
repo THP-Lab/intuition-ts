@@ -1,12 +1,12 @@
 import comingSoonImage from '@assets/coming-soon-image.png'
-import narrativeStandardImage from '@assets/narrative-standard-image.png'
+//import narrativeStandardImage from '@assets/narrative-standard-image.png'
 import { QuestSet } from 'types/quest'
 
 export const QUEST_LOG_DESCRIPTION =
   'Something inside you stirs, urging you to rekindle and reclaim humanity’s lost intuition...'
 
 export const STANDARD_QUEST_SET: QuestSet = {
-  imgSrc: narrativeStandardImage,
+  imgSrc: 'https://storage.googleapis.com/intuition-ts-assets-v1/f5f589de.gif',
   title: 'Tutorial Island: The Primitive Elements',
   description: 'Learn the core elements of the Intuition System',
   summary:
