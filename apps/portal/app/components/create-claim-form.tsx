@@ -451,18 +451,18 @@ function CreateClaimForm({
                             }
                             name={
                               selectedIdentities.subject?.is_user === true
-                                ? selectedIdentities.subject?.user
-                                    ?.display_name ?? ''
+                                ? (selectedIdentities.subject?.user
+                                    ?.display_name ?? '')
                                 : selectedIdentities.subject?.display_name
                             }
                             walletAddress={
                               selectedIdentities.subject?.is_user === true
-                                ? selectedIdentities.subject?.user?.ens_name ??
+                                ? (selectedIdentities.subject?.user?.ens_name ??
                                   sliceString(
                                     selectedIdentities.subject?.user?.wallet,
                                     6,
                                     4,
-                                  )
+                                  ))
                                 : selectedIdentities.subject?.identity_id
                             }
                             stats={
@@ -482,9 +482,10 @@ function CreateClaimForm({
                             }
                             bio={
                               selectedIdentities.subject?.is_user === true
-                                ? selectedIdentities.subject?.user
-                                    ?.description ?? ''
-                                : selectedIdentities.subject?.description ?? ''
+                                ? (selectedIdentities.subject?.user
+                                    ?.description ?? '')
+                                : (selectedIdentities.subject?.description ??
+                                  '')
                             }
                           >
                             {selectedIdentities.subject?.is_user === true && (
@@ -544,20 +545,20 @@ function CreateClaimForm({
                               }
                               name={
                                 selectedIdentities.predicate?.is_user === true
-                                  ? selectedIdentities.predicate?.user
-                                      ?.display_name ?? ''
+                                  ? (selectedIdentities.predicate?.user
+                                      ?.display_name ?? '')
                                   : selectedIdentities.predicate?.display_name
                               }
                               walletAddress={
                                 selectedIdentities.predicate?.is_user === true
-                                  ? selectedIdentities.predicate?.user
+                                  ? (selectedIdentities.predicate?.user
                                       ?.ens_name ??
                                     sliceString(
                                       selectedIdentities.predicate?.user
                                         ?.wallet,
                                       6,
                                       4,
-                                    )
+                                    ))
                                   : selectedIdentities.predicate?.identity_id
                               }
                               stats={
@@ -577,10 +578,10 @@ function CreateClaimForm({
                               }
                               bio={
                                 selectedIdentities.predicate?.is_user === true
-                                  ? selectedIdentities.predicate?.user
-                                      ?.description ?? ''
-                                  : selectedIdentities.predicate?.description ??
-                                    ''
+                                  ? (selectedIdentities.predicate?.user
+                                      ?.description ?? '')
+                                  : (selectedIdentities.predicate
+                                      ?.description ?? '')
                               }
                             >
                               {selectedIdentities.predicate?.is_user ===
@@ -659,18 +660,18 @@ function CreateClaimForm({
                             }
                             name={
                               selectedIdentities.object?.is_user === true
-                                ? selectedIdentities.object?.user
-                                    ?.display_name ?? ''
+                                ? (selectedIdentities.object?.user
+                                    ?.display_name ?? '')
                                 : selectedIdentities.object?.display_name
                             }
                             walletAddress={
                               selectedIdentities.object?.is_user === true
-                                ? selectedIdentities.object?.user?.ens_name ??
+                                ? (selectedIdentities.object?.user?.ens_name ??
                                   sliceString(
                                     selectedIdentities.object?.user?.wallet,
                                     6,
                                     4,
-                                  )
+                                  ))
                                 : selectedIdentities.object?.identity_id
                             }
                             stats={
@@ -690,9 +691,9 @@ function CreateClaimForm({
                             }
                             bio={
                               selectedIdentities.object?.is_user === true
-                                ? selectedIdentities.object?.user
-                                    ?.description ?? ''
-                                : selectedIdentities.object?.description ?? ''
+                                ? (selectedIdentities.object?.user
+                                    ?.description ?? '')
+                                : (selectedIdentities.object?.description ?? '')
                             }
                           >
                             {selectedIdentities.object?.is_user === true && (

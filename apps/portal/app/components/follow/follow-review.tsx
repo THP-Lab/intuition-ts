@@ -99,27 +99,27 @@ export default function FollowReview({
                 imgSrc: claim?.subject?.user?.image ?? claim?.subject?.image,
                 label: !claim
                   ? 'I'
-                  : claim?.subject?.user?.display_name ??
+                  : (claim?.subject?.user?.display_name ??
                     claim?.subject?.display_name ??
-                    '',
+                    ''),
                 variant: Identity.nonUser,
               }}
               predicate={{
                 imgSrc: claim?.predicate?.image,
                 label: !claim
                   ? 'am following'
-                  : claim?.predicate?.display_name ?? '',
+                  : (claim?.predicate?.display_name ?? ''),
                 variant: Identity.nonUser,
               }}
               object={{
                 imgSrc: !claim
                   ? identity?.user?.image
-                  : claim?.object?.user?.image ?? claim?.object?.image,
+                  : (claim?.object?.user?.image ?? claim?.object?.image),
                 label: !claim
-                  ? identity?.user?.display_name ?? ''
-                  : claim?.object?.user?.display_name ??
+                  ? (identity?.user?.display_name ?? '')
+                  : (claim?.object?.user?.display_name ??
                     claim?.object?.display_name ??
-                    '',
+                    ''),
                 variant: !claim
                   ? identity?.user
                     ? Identity.user

@@ -118,14 +118,14 @@ export default function ClaimDetails() {
   let user_assets: string = '0'
   user_assets =
     (vaultDetails.user_conviction ?? claim.user_conviction_for) > '0'
-      ? vaultDetails.user_assets ?? claim.user_assets_for
-      : vaultDetails.user_assets_against ?? claim.user_assets_against
+      ? (vaultDetails.user_assets ?? claim.user_assets_for)
+      : (vaultDetails.user_assets_against ?? claim.user_assets_against)
 
   let assets_sum: string = '0'
   assets_sum =
     (vaultDetails.assets_sum ?? claim.for_assets_sum) > '0'
-      ? vaultDetails.assets_sum ?? claim.for_assets_sum
-      : vaultDetails.against_assets_sum ?? claim.against_assets_sum
+      ? (vaultDetails.assets_sum ?? claim.for_assets_sum)
+      : (vaultDetails.against_assets_sum ?? claim.against_assets_sum)
 
   const userConviction =
     vaultDetails.user_conviction ?? claim.user_conviction_for
@@ -144,30 +144,31 @@ export default function ClaimDetails() {
           subject={{
             variant: claim.subject?.is_user ? 'user' : 'non-user',
             label: claim.subject?.is_user
-              ? claim.subject?.user?.display_name ?? claim.subject?.display_name
-              : claim.subject?.display_name ?? '',
+              ? (claim.subject?.user?.display_name ??
+                claim.subject?.display_name)
+              : (claim.subject?.display_name ?? ''),
             imgSrc: claim.subject?.is_user
-              ? claim.subject?.user?.image ?? claim.subject?.image
-              : claim.subject?.image ?? null,
+              ? (claim.subject?.user?.image ?? claim.subject?.image)
+              : (claim.subject?.image ?? null),
           }}
           predicate={{
             variant: claim.predicate?.is_user ? 'user' : 'non-user',
             label: claim.predicate?.is_user
-              ? claim.predicate?.user?.display_name ??
-                claim.predicate?.display_name
-              : claim.predicate?.display_name ?? '',
+              ? (claim.predicate?.user?.display_name ??
+                claim.predicate?.display_name)
+              : (claim.predicate?.display_name ?? ''),
             imgSrc: claim.predicate?.is_user
-              ? claim.predicate?.user?.image ?? claim.predicate?.image
-              : claim.predicate?.image ?? null,
+              ? (claim.predicate?.user?.image ?? claim.predicate?.image)
+              : (claim.predicate?.image ?? null),
           }}
           object={{
             variant: claim.object?.is_user ? 'user' : 'non-user',
             label: claim.object?.is_user
-              ? claim.object?.user?.display_name ?? claim.object?.display_name
-              : claim.object?.display_name ?? '',
+              ? (claim.object?.user?.display_name ?? claim.object?.display_name)
+              : (claim.object?.display_name ?? ''),
             imgSrc: claim.object?.is_user
-              ? claim.object?.user?.image ?? claim.object?.image
-              : claim.object?.image ?? null,
+              ? (claim.object?.user?.image ?? claim.object?.image)
+              : (claim.object?.image ?? null),
           }}
         />
       </div>

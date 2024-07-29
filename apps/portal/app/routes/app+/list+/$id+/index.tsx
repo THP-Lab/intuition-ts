@@ -65,22 +65,22 @@ export default function ListOverview() {
                   predicate={{
                     variant: claim.predicate?.is_user ? 'user' : 'non-user',
                     label: claim.predicate?.is_user
-                      ? claim.predicate?.user?.display_name ??
-                        claim.predicate?.display_name
-                      : claim.predicate?.display_name ?? '',
+                      ? (claim.predicate?.user?.display_name ??
+                        claim.predicate?.display_name)
+                      : (claim.predicate?.display_name ?? ''),
                     imgSrc: claim.predicate?.is_user
-                      ? claim.predicate?.user?.image ?? claim.predicate?.image
-                      : claim.predicate?.image ?? null,
+                      ? (claim.predicate?.user?.image ?? claim.predicate?.image)
+                      : (claim.predicate?.image ?? null),
                   }}
                   object={{
                     variant: claim.object?.is_user ? 'user' : 'non-user',
                     label: claim.object?.is_user
-                      ? claim.object?.user?.display_name ??
-                        claim.object?.display_name
-                      : claim.object?.display_name ?? '',
+                      ? (claim.object?.user?.display_name ??
+                        claim.object?.display_name)
+                      : (claim.object?.display_name ?? ''),
                     imgSrc: claim.object?.is_user
-                      ? claim.object?.user?.image ?? claim.object?.image
-                      : claim.object?.image ?? null,
+                      ? (claim.object?.user?.image ?? claim.object?.image)
+                      : (claim.object?.image ?? null),
                   }}
                 />
               </ListHeaderCard>
