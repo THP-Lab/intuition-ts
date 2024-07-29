@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 
 import { IdentityPresenter } from '@0xintuition/api'
 
-import { SEARCH_IDENTITIES_RESOURCE_ROUTE } from '@lib/utils/constants'
 import logger from '@lib/utils/logger'
 import { useFetcher } from '@remix-run/react'
+import { SEARCH_IDENTITIES_RESOURCE_ROUTE } from 'consts'
 
 export function useIdentityServerSearch() {
   const [searchQuery, setSearchQuery] = useState('')

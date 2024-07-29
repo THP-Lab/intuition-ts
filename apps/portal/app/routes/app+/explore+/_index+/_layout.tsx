@@ -1,7 +1,7 @@
 import { NestedVerticalLayout } from '@components/nested-vertical-layout'
-import { exploreRouteOptions } from '@lib/utils/constants'
 import logger from '@lib/utils/logger'
 import { json, Outlet, useLoaderData } from '@remix-run/react'
+import { exploreRouteOptions } from 'consts'
 
 export async function loader() {
   return json({

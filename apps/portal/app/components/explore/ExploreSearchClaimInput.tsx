@@ -3,9 +3,9 @@ import * as React from 'react'
 import { Separator, Text } from '@0xintuition/1ui'
 import { IdentityPresenter } from '@0xintuition/api'
 
-import { GET_IDENTITIES_BY_IDS_RESOURCE_ROUTE } from '@lib/utils/constants'
 import { pascalCaseString } from '@lib/utils/misc'
 import { useFetcher, useLocation, useNavigate } from '@remix-run/react'
+import { GET_IDENTITIES_BY_IDS_RESOURCE_ROUTE } from 'consts'
 import { Identity, IdentityType } from 'types/identity'
 
 import { IdentityInput, IdentityInputButtonProps } from '../identity-input'

@@ -30,8 +30,6 @@ import {
   editSocialLinksModalAtom,
   stakeModalAtom,
 } from '@lib/state/store'
-import { userProfileRouteOptions } from '@lib/utils/constants'
-import { NO_WALLET_ERROR } from '@lib/utils/errors'
 import logger from '@lib/utils/logger'
 import {
   calculatePercentageOfTvl,
@@ -51,6 +49,7 @@ import {
 import { requireUser, requireUserWallet } from '@server/auth'
 import { getVaultDetails } from '@server/multivault'
 import * as blockies from 'blockies-ts'
+import { NO_WALLET_ERROR, userProfileRouteOptions } from 'consts'
 import { useAtom } from 'jotai'
 import { VaultDetailsType } from 'types/vault'
 
@@ -69,7 +68,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       method: IdentitiesService.getIdentityById,
       args: { id: userWallet },
     })
-    logger('userIdentity', userIdentity)
   } catch (error) {
     logger('Error fetching userIdentity', error)
     return redirect('/create')

@@ -11,8 +11,8 @@ import { IdentityPresenter } from '@0xintuition/api'
 
 import { IdentitySearchCombobox } from '@components/identity/identity-search-combo-box'
 import { useIdentityServerSearch } from '@lib/hooks/useIdentityServerSearch'
-import { GET_IDENTITIES_BY_IDS_RESOURCE_ROUTE } from '@lib/utils/constants'
 import { useFetcher } from '@remix-run/react'
+import { GET_IDENTITIES_BY_IDS_RESOURCE_ROUTE } from 'consts'
 import { TagType } from 'types/tags'
 
 import {

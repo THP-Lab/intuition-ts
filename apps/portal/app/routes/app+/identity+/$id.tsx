@@ -11,14 +11,12 @@ import {
   TagsContent,
   TagWithValue,
 } from '@0xintuition/1ui'
-import { IdentitiesService } from '@0xintuition/api'
+import { IdentitiesService, IdentityPresenter } from '@0xintuition/api'
 
 import { NestedLayout } from '@components/nested-layout'
 import StakeModal from '@components/stake/stake-modal'
 import TagsModal from '@components/tags/tags-modal'
 import { stakeModalAtom, tagsModalAtom } from '@lib/state/store'
-import { identityRouteOptions } from '@lib/utils/constants'
-import { NO_WALLET_ERROR } from '@lib/utils/errors'
 import logger from '@lib/utils/logger'
 import {
   calculatePercentageOfTvl,
@@ -31,6 +29,7 @@ import { json, LoaderFunctionArgs } from '@remix-run/node'
 import { Outlet, useLoaderData, useNavigate } from '@remix-run/react'
 import { requireUser, requireUserWallet } from '@server/auth'
 import { getVaultDetails } from '@server/multivault'
+import { identityRouteOptions, NO_WALLET_ERROR } from 'consts'
 import { useAtom } from 'jotai'
 import { ExtendedIdentityPresenter } from 'types/identity'
 import { VaultDetailsType } from 'types/vault'
@@ -81,6 +80,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     vaultDetails,
     userWallet,
   })
+}
+
+export interface IdentityLoaderData {
+  identity: IdentityPresenter
+  vaultDetails: VaultDetailsType
+  userWallet: string
 }
 
 export default function IdentityDetails() {

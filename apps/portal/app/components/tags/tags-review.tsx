@@ -14,13 +14,13 @@ import { IdentityPresenter } from '@0xintuition/api'
 import { multivaultAbi } from '@lib/abis/multivault'
 import { useBatchCreateTriple } from '@lib/hooks/useBatchCreateTriple'
 import { useLoaderFetcher } from '@lib/hooks/useLoaderFetcher'
-import {
-  CREATE_RESOURCE_ROUTE,
-  MULTIVAULT_CONTRACT_ADDRESS,
-} from '@lib/utils/constants'
-import { GENERIC_ERROR_MSG } from '@lib/utils/errors'
 import logger from '@lib/utils/logger'
 import { CreateLoaderData } from '@routes/resources+/create'
+import {
+  CREATE_RESOURCE_ROUTE,
+  GENERIC_ERROR_MSG,
+  MULTIVAULT_CONTRACT_ADDRESS,
+} from 'consts'
 import { TransactionActionType } from 'types/transaction'
 import { formatUnits } from 'viem'
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi'

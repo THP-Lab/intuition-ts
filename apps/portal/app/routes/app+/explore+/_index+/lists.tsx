@@ -6,13 +6,12 @@ import {
 
 import { ExploreSearch } from '@components/explore/ExploreSearch'
 import { ListClaimsList } from '@components/list/list-claims'
-import { TAG_PREDICATE_VAULT_ID_TESTNET } from '@lib/utils/constants'
-import { NO_WALLET_ERROR } from '@lib/utils/errors'
 import { calculateTotalPages, fetchWrapper, invariant } from '@lib/utils/misc'
 import { getStandardPageParams } from '@lib/utils/params'
 import { json, LoaderFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { requireUserWallet } from '@server/auth'
+import { NO_WALLET_ERROR, TAG_PREDICATE_VAULT_ID_TESTNET } from 'consts'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const wallet = await requireUserWallet(request)
@@ -56,13 +55,15 @@ export default function ExploreLists() {
   const { listClaims, pagination } = useLoaderData<typeof loader>()
 
   return (
-    <div className="m-8 flex flex-col items-center gap-4">
+    <div className="m-8 flex flex-col items-center gap-4 w-full">
       <ExploreSearch variant="list" />
-      <ListClaimsList
-        listClaims={listClaims}
-        pagination={pagination}
-        enableSort={true}
-      />
+      <div className="w-full">
+        <ListClaimsList
+          listClaims={listClaims}
+          pagination={pagination}
+          enableSort={true}
+        />
+      </div>
     </div>
   )
 }

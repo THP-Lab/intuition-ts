@@ -1,24 +1,21 @@
 import { Suspense } from 'react'
 
-import { Skeleton } from '@0xintuition/1ui'
+import { ErrorStateCard, Text } from '@0xintuition/1ui'
 import { ClaimsService } from '@0xintuition/api'
 
 import { ClaimsList as ClaimsAboutIdentity } from '@components/list/claims'
 import { PositionsOnIdentity } from '@components/list/positions-on-identity'
 import DataAboutHeader from '@components/profile/data-about-header'
+import { RevalidateButton } from '@components/revalidate-button'
+import { DataHeaderSkeleton, PaginatedListSkeleton } from '@components/skeleton'
 import { useLiveLoader } from '@lib/hooks/useLiveLoader'
 import { getClaimsAboutIdentity } from '@lib/services/claims'
 import { getPositionsOnIdentity } from '@lib/services/positions'
-import { NO_USER_IDENTITY_ERROR, NO_WALLET_ERROR } from '@lib/utils/errors'
-import {
-  DataErrorDisplay,
-  fetchWrapper,
-  formatBalance,
-  invariant,
-} from '@lib/utils/misc'
+import { fetchWrapper, formatBalance, invariant } from '@lib/utils/misc'
 import { defer, LoaderFunctionArgs } from '@remix-run/node'
 import { Await, useRouteLoaderData } from '@remix-run/react'
 import { requireUserWallet } from '@server/auth'
+import { NO_USER_IDENTITY_ERROR, NO_WALLET_ERROR } from 'consts'
 
 import { ProfileLoaderData } from './_layout'
 
@@ -58,29 +55,40 @@ export default function ProfileDataAbout() {
   return (
     <div className="flex-col justify-start items-start flex w-full gap-6">
       <div className="flex flex-col w-full pb-4">
-        <DataAboutHeader
-          variant="claims"
-          title="Claims about this Identity"
-          userIdentity={userIdentity}
-          totalClaims={
-            <Suspense fallback={<Skeleton className="h-6 w-6 inline-flex" />}>
-              <Await resolve={claims}>
-                {(resolvedClaims) => resolvedClaims.pagination.totalEntries}
-              </Await>
-            </Suspense>
-          }
-          totalStake={
-            <Suspense fallback={<Skeleton className="h-6 w-14 inline-flex" />}>
-              <Await resolve={claimsSummary}>
-                {(cs) => `${formatBalance(cs?.assets_sum ?? 0, 18, 4)} ETH`}
-              </Await>
-            </Suspense>
-          }
-        />
-        <Suspense fallback={<Skeleton className="w-full h-28 mt-6" />}>
+        <div className="self-stretch justify-between items-center inline-flex mb-6">
+          <Text
+            variant="headline"
+            weight="medium"
+            className="theme-secondary-foreground w-full"
+          >
+            Claims about this Identity
+          </Text>
+        </div>
+        <Suspense fallback={<DataHeaderSkeleton />}>
+          <Await
+            resolve={Promise.all([claims, claimsSummary])}
+            errorElement={<></>}
+          >
+            {([resolvedClaims, resolvedClaimsSummary]) => (
+              <DataAboutHeader
+                variant="claims"
+                userIdentity={userIdentity}
+                totalClaims={resolvedClaims.pagination.totalEntries}
+                totalStake={
+                  +formatBalance(resolvedClaimsSummary?.assets_sum ?? 0, 18, 4)
+                }
+              />
+            )}
+          </Await>
+        </Suspense>
+        <Suspense fallback={<PaginatedListSkeleton />}>
           <Await
             resolve={claims}
-            errorElement={<DataErrorDisplay dataType={'claims'} />}
+            errorElement={
+              <ErrorStateCard>
+                <RevalidateButton />
+              </ErrorStateCard>
+            }
           >
             {(resolvedClaims) => (
               <ClaimsAboutIdentity
@@ -88,23 +96,42 @@ export default function ProfileDataAbout() {
                 pagination={resolvedClaims.pagination}
                 paramPrefix="claims"
                 enableSearch
+                enableSort
               />
             )}
           </Await>
         </Suspense>
       </div>
       <div className="flex flex-col pt-4 w-full">
-        <DataAboutHeader
-          variant="positions"
-          title="Positions on this Identity"
-          userIdentity={userIdentity}
-          totalPositions={userIdentity.num_positions}
-          totalStake={+formatBalance(userIdentity.assets_sum, 18, 4)}
-        />
-        <Suspense fallback={<Skeleton className="w-full h-28 mt-6" />}>
+        <div className="self-stretch justify-between items-center inline-flex mb-6">
+          <Text
+            variant="headline"
+            weight="medium"
+            className="theme-secondary-foreground w-full"
+          >
+            Positions on this Identity
+          </Text>
+        </div>
+        <Suspense fallback={<DataHeaderSkeleton />}>
+          <Await resolve={positions} errorElement={<></>}>
+            {(resolvedPositions) => (
+              <DataAboutHeader
+                variant="positions"
+                userIdentity={userIdentity}
+                totalPositions={resolvedPositions.pagination.totalEntries}
+                totalStake={+formatBalance(userIdentity.assets_sum, 18, 4)}
+              />
+            )}
+          </Await>
+        </Suspense>
+        <Suspense fallback={<PaginatedListSkeleton />}>
           <Await
             resolve={positions}
-            errorElement={<DataErrorDisplay dataType={'positions'} />}
+            errorElement={
+              <ErrorStateCard>
+                <RevalidateButton />
+              </ErrorStateCard>
+            }
           >
             {(resolvedPositions) => (
               <PositionsOnIdentity

@@ -8,9 +8,9 @@ import {
   TransactionType,
 } from '@0xintuition/1ui'
 
-import { BLOCK_EXPLORER_URL } from '@lib/utils/constants'
 import { Link } from '@remix-run/react'
 import clsx from 'clsx'
+import { BLOCK_EXPLORER_URL } from 'consts'
 
 interface TransactionStateProps {
   status: TransactionStatusType

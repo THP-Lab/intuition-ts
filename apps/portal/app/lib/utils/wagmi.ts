@@ -1,8 +1,7 @@
 import { createConfig } from '@privy-io/wagmi'
+import { CURRENT_ENV } from 'consts'
 import { base, baseSepolia, mainnet } from 'viem/chains'
 import { Config, http } from 'wagmi'
-
-import { CURRENT_ENV } from './constants'
 
 const alchemyMainnetRpcUrl =
   typeof window !== 'undefined'

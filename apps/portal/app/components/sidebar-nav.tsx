@@ -19,7 +19,7 @@ import { UserPresenter } from '@0xintuition/api'
 
 import { PrivyButton } from '@client/privy-button'
 import { createClaimModalAtom, createIdentityModalAtom } from '@lib/state/store'
-import { useNavigate, useSubmit } from '@remix-run/react'
+import { NavLink, useNavigate, useSubmit } from '@remix-run/react'
 import * as blockies from 'blockies-ts'
 import { useAtom } from 'jotai'
 import { isAddress } from 'viem'
@@ -45,8 +45,18 @@ const sidebarNavRoutes: SidebarNavRoute[] = [
     iconName: 'magnifying-glass',
   },
   {
+    route: '/app/lists',
+    label: 'Lists',
+    iconName: 'tag',
+  },
+  {
+    route: '/app/activity',
+    label: 'Activity',
+    iconName: 'calendar',
+  },
+  {
     route: '/app/quest',
-    label: 'Quests',
+    label: 'Quest',
     iconName: 'crystal-ball',
   },
 ]
@@ -93,7 +103,7 @@ export default function SidebarNav({
     <>
       <SidebarLayoutProvider>
         <SidebarLayout className="h-screen">
-          <SidebarLayoutNav collapsedSize={4} minSize={12} maxSize={15}>
+          <SidebarLayoutNav collapsedSize={5} minSize={16} maxSize={18}>
             <SidebarLayoutNavHeader>
               <SidebarLayoutNavHeaderButton
                 imgLogo={
@@ -149,12 +159,17 @@ export default function SidebarNav({
             </SidebarLayoutNavHeader>
             <SidebarLayoutNavItems>
               {sidebarNavRoutes.map((sidebarNavItem) => (
-                <SidebarLayoutNavItem
+                <NavLink
                   key={sidebarNavItem.label}
-                  iconName={sidebarNavItem.iconName}
-                  label={sidebarNavItem.label}
-                  onClick={() => navigate(`${sidebarNavItem.route}`)}
-                />
+                  to={sidebarNavItem.route}
+                  prefetch="intent"
+                >
+                  <SidebarLayoutNavItem
+                    key={sidebarNavItem.label}
+                    iconName={sidebarNavItem.iconName}
+                    label={sidebarNavItem.label}
+                  />
+                </NavLink>
               ))}
             </SidebarLayoutNavItems>
             <SidebarLayoutNavFooter>

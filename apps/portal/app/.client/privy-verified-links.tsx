@@ -8,11 +8,10 @@ import {
 } from '@0xintuition/1ui'
 
 import { useSocialLinking } from '@lib/hooks/usePrivySocialLinking'
-import { verifiedPlatforms } from '@lib/utils/constants'
 import logger from '@lib/utils/logger'
 import { Discord, Farcaster, Github, Twitter } from '@privy-io/react-auth'
-import { PlatformUserDetails, PrivyPlatform } from 'types/privy'
-import { ExtendedPrivyUser } from 'types/user'
+import { verifiedPlatforms } from 'consts'
+import { ExtendedPrivyUser, PlatformUserDetails, PrivyPlatform } from 'types'
 
 export function PrivyVerifiedLinks({
   privyUser,

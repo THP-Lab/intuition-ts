@@ -1,8 +1,8 @@
 import { Icon, Text } from '@0xintuition/1ui'
 
-import { BLOCK_EXPLORER_URL } from '@lib/utils/constants'
 import { cn, formatBalance } from '@lib/utils/misc'
 import { Link } from '@remix-run/react'
+import { BLOCK_EXPLORER_URL } from 'consts'
 
 interface ToastProps {
   action: string

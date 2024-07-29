@@ -1,7 +1,7 @@
-import { MULTIVAULT_CONTRACT_ADDRESS } from '@lib/utils/constants'
 import logger from '@lib/utils/logger'
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
 import { getVaultDetails } from '@server/multivault'
+import { MULTIVAULT_CONTRACT_ADDRESS } from 'consts'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const searchParams = new URL(request.url).searchParams

@@ -20,8 +20,6 @@ import {
   useTransactionState,
 } from '@lib/hooks/useTransactionReducer'
 import { editProfileModalAtom } from '@lib/state/store'
-import { MULTIVAULT_CONTRACT_ADDRESS } from '@lib/utils/constants'
-import { NO_WALLET_ERROR } from '@lib/utils/errors'
 import logger from '@lib/utils/logger'
 import { fetchWrapper, invariant, sliceString } from '@lib/utils/misc'
 import { json, LoaderFunctionArgs } from '@remix-run/node'
@@ -29,12 +27,13 @@ import { useFetcher, useLoaderData, useNavigate } from '@remix-run/react'
 import { CreateLoaderData } from '@routes/resources+/create'
 import { requireUserWallet } from '@server/auth'
 import * as blockies from 'blockies-ts'
+import { MULTIVAULT_CONTRACT_ADDRESS, NO_WALLET_ERROR } from 'consts'
 import { useAtom } from 'jotai'
 import { ClientOnly } from 'remix-utils/client-only'
 import {
   IdentityTransactionActionType,
   IdentityTransactionStateType,
-} from 'types/transaction'
+} from 'types'
 import { toHex } from 'viem'
 import { useConnectorClient, usePublicClient } from 'wagmi'
 

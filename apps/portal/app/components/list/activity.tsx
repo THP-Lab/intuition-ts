@@ -1,6 +1,12 @@
 import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
   Claim,
   ClaimRow,
+  EmptyStateCard,
+  Icon,
+  IconName,
   Identity,
   IdentityContentRow,
   IdentityTag,
@@ -9,11 +15,58 @@ import {
 import { ActivityPresenter, SortColumn } from '@0xintuition/api'
 
 import { formatBalance } from '@lib/utils/misc'
-import { useNavigate } from '@remix-run/react'
+import { Link, useNavigate } from '@remix-run/react'
 import { formatDistance } from 'date-fns'
 import { PaginationType } from 'types/pagination'
 
 import { List } from './list'
+
+export function ActivityList({
+  activities,
+  pagination,
+  paramPrefix,
+}: {
+  activities: ActivityPresenter[]
+  pagination: PaginationType
+  paramPrefix?: string
+}) {
+  const navigate = useNavigate()
+
+  const eventMessages: EventMessages = {
+    createAtom: 'created an identity',
+    createTriple: 'created a claim',
+    depositAtom: (value: string) =>
+      `deposited ${formatBalance(value, 18, 4)} ETH on an identity`,
+    redeemAtom: (value: string) =>
+      `redeemed ${formatBalance(value, 18, 4)} ETH from an identity`,
+    depositTriple: (value: string) =>
+      `deposited ${formatBalance(value, 18, 4)} ETH on a claim`,
+    redeemTriple: (value: string) =>
+      `redeemed ${formatBalance(value, 18, 4)} ETH from a claim`,
+  }
+
+  if (!activities.length) {
+    return <EmptyStateCard message="No activities found." />
+  }
+
+  return (
+    <List<SortColumn>
+      pagination={pagination}
+      paginationLabel="identities"
+      paramPrefix={paramPrefix}
+      enableSearch={false}
+    >
+      {activities.map((activity) => (
+        <ActivityItem
+          key={activity.id}
+          activity={activity}
+          eventMessages={eventMessages}
+          navigate={navigate}
+        />
+      ))}
+    </List>
+  )
+}
 
 type EventMessages = {
   createAtom: string
@@ -23,8 +76,6 @@ type EventMessages = {
   depositTriple: (value: string) => string
   redeemTriple: (value: string) => string
 }
-
-// ... existing code ...
 
 function ActivityItem({
   activity,
@@ -45,7 +96,7 @@ function ActivityItem({
   return (
     <div
       key={activity.id}
-      className={`grow shrink basis-0 self-stretch p-6 bg-black first:rounded-t-xl last:rounded-b-xl border border-neutral-300/20 flex-col justify-start items-start gap-5 inline-flex w-full`}
+      className={`grow shrink basis-0 self-stretch p-6 bg-black rounded-xl my-4 border border-neutral-300/20 flex-col justify-start items-start gap-5 inline-flex w-full`}
     >
       <div className="flex flex-row items-center justify-between min-w-full">
         <div className="flex flex-row items-center gap-2">
@@ -62,44 +113,62 @@ function ActivityItem({
           {formatDistance(new Date(activity.timestamp), new Date())} ago
         </Text>
       </div>
-      <div className="flex w-full px-6">
+      <div className="flex w-full">
         {activity.identity && (
-          <IdentityContentRow
-            variant={
-              activity.identity.is_user ? Identity.user : Identity.nonUser
-            }
-            avatarSrc={
-              activity.identity.user?.image ?? activity.identity.image ?? ''
-            }
-            name={
-              activity.identity.user?.display_name ??
-              activity.identity.display_name
-            }
-            walletAddress={
-              activity.identity.user?.wallet ?? activity.identity.identity_id
-            }
-            amount={
-              +formatBalance(
-                BigInt(activity.identity.user_assets ?? '0'),
-                18,
-                4,
-              )
-            }
-            totalFollowers={activity.identity.num_positions}
-            onClick={() => {
-              if (activity.identity) {
-                navigate(
-                  activity.identity.is_user
-                    ? `/app/profile/${activity.identity.identity_id}`
-                    : `/app/identity/${activity.identity.identity_id}`,
+          <div className="hover:cursor-pointer bg-secondary-foreground/10 pl-12 pr-6 py-4 rounded-xl flex flex-row w-full gap-6 items-center">
+            <IdentityContentRow
+              variant={
+                activity.identity.is_user ? Identity.user : Identity.nonUser
+              }
+              avatarSrc={
+                activity.identity.user?.image ?? activity.identity.image ?? ''
+              }
+              name={
+                activity.identity.user?.display_name ??
+                activity.identity.display_name
+              }
+              walletAddress={
+                activity.identity.user?.wallet ?? activity.identity.identity_id
+              }
+              amount={
+                +formatBalance(
+                  BigInt(activity.identity.user_assets ?? '0'),
+                  18,
+                  4,
                 )
               }
-            }}
-            className="hover:cursor-pointer"
-          />
+              totalFollowers={activity.identity.num_positions}
+              onClick={() => {
+                if (activity.identity) {
+                  navigate(
+                    activity.identity.is_user
+                      ? `/app/profile/${activity.identity.identity_id}`
+                      : `/app/identity/${activity.identity.identity_id}`,
+                  )
+                }
+              }}
+            />
+            <Link
+              to={
+                activity.identity.is_user
+                  ? `/app/profile/${activity.identity.identity_id}`
+                  : `/app/identity/${activity.identity.id}`
+              }
+              prefetch="intent"
+            >
+              <Button
+                variant={ButtonVariant.secondary}
+                size={ButtonSize.md}
+                className="w-40 h-fit"
+              >
+                View Identity{' '}
+                <Icon name={IconName.arrowUpRightFromCircleIcon} />
+              </Button>
+            </Link>
+          </div>
         )}
         {activity.claim && (
-          <div className="flex flex-row w-full">
+          <div className="hover:cursor-pointer bg-secondary-foreground/10 pl-12 pr-6 py-4 rounded-xl flex flex-row w-full gap-6 items-center">
             <ClaimRow
               claimsFor={activity.claim.for_num_positions}
               claimsAgainst={activity.claim.against_num_positions}
@@ -147,61 +216,21 @@ function ActivityItem({
                 }}
               />
             </ClaimRow>
+            <Link
+              to={`/app/claim/${activity.claim.claim_id}`}
+              prefetch="intent"
+            >
+              <Button
+                variant={ButtonVariant.secondary}
+                size={ButtonSize.md}
+                className="w-40 h-fit"
+              >
+                View Claim <Icon name={IconName.arrowUpRightFromCircleIcon} />
+              </Button>
+            </Link>
           </div>
         )}
       </div>
     </div>
-  )
-}
-
-export function ActivityList({
-  activities,
-  pagination,
-  paramPrefix,
-}: {
-  activities: ActivityPresenter[]
-  pagination: PaginationType
-  paramPrefix?: string
-}) {
-  const navigate = useNavigate()
-
-  type EventMessages = {
-    createAtom: string
-    createTriple: string
-    depositAtom: (value: string) => string
-    redeemAtom: (value: string) => string
-    depositTriple: (value: string) => string
-    redeemTriple: (value: string) => string
-  }
-
-  const eventMessages: EventMessages = {
-    createAtom: 'created an identity',
-    createTriple: 'created a claim',
-    depositAtom: (value: string) =>
-      `deposited ${formatBalance(value, 18, 4)} ETH on an identity`,
-    redeemAtom: (value: string) =>
-      `redeemed ${formatBalance(value, 18, 4)} ETH from an identity`,
-    depositTriple: (value: string) =>
-      `deposited ${formatBalance(value, 18, 4)} ETH on a claim`,
-    redeemTriple: (value: string) =>
-      `redeemed ${formatBalance(value, 18, 4)} ETH from a claim`,
-  }
-
-  return (
-    <List<SortColumn>
-      pagination={pagination}
-      paginationLabel="identities"
-      paramPrefix={paramPrefix}
-      enableSearch={false}
-    >
-      {activities?.map((activity) => (
-        <ActivityItem
-          key={activity.id}
-          activity={activity}
-          eventMessages={eventMessages}
-          navigate={navigate}
-        />
-      ))}
-    </List>
   )
 }
