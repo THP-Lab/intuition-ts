@@ -20,7 +20,7 @@ import { HoverableIdentityTag } from './detail/claim-example'
 export interface StakeClaimActivityUnderlyingIdentitiesProps
   extends React.HTMLAttributes<HTMLDivElement> {
   status: QuestStatus
-  identities: Record<
+  identities?: Record<
     string,
     {
       vaultDetails: VaultDetailsType

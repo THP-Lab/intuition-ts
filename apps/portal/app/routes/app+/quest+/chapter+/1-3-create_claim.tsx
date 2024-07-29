@@ -102,6 +102,12 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     })
     if (updatedUserQuest.status === QuestStatus.COMPLETED) {
+      await fetchWrapper({
+        method: UserQuestsService.checkQuestStatus,
+        args: {
+          questId,
+        },
+      })
       return json({ success: true })
     }
   } catch (error) {

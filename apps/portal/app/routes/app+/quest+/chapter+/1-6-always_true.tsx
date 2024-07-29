@@ -58,7 +58,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
   })
 
-  let userQuest = await fetchWrapper({
+  const userQuest = await fetchWrapper({
     method: UserQuestsService.getUserQuestByQuestId,
     args: {
       questId: id,

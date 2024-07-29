@@ -63,10 +63,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
         console.log('returning')
         return json({
           quest_completion_object_id: userQuest.quest_completion_object_id,
-          status: status,
+          status,
           success: true,
         } as CheckQuestSuccessLoaderData)
       }
+      attempts++
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY))
     } catch (error) {
       if (error instanceof ApiError && error.status === 404) {
         logger('UserQuest not found, retrying...')
@@ -74,8 +76,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
         throw error
       }
     }
-    attempts++
-    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY))
   }
 
   return json({

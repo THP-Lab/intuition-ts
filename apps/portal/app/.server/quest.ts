@@ -1,19 +1,29 @@
-import { QuestNarrative, QuestPresenter, QuestSortColumn, QuestsService, QuestStatus, SortDirection, UserQuest, UserQuestsService, UsersService } from '@0xintuition/api'
+import {
+  QuestNarrative,
+  QuestPresenter,
+  QuestSortColumn,
+  QuestsService,
+  QuestStatus,
+  SortDirection,
+  UserQuest,
+  UserQuestsService,
+  UsersService,
+} from '@0xintuition/api'
+
+import logger from '@lib/utils/logger'
+import { User } from 'types'
 
 import { fetchWrapper, invariant } from './../lib/utils/misc'
 import { requireUser } from './auth'
-import logger from '@lib/utils/logger'
-import { User } from 'types'
 
 export interface QuestProgressProps {
   request: Request
   options?: {
     narrative: QuestNarrative
     active?: boolean
-    sortBy?: QuestSortColumn,
+    sortBy?: QuestSortColumn
     direction?: SortDirection
   }
-
 }
 
 export async function getQuestsProgress({
@@ -37,17 +47,19 @@ export async function getQuestsProgress({
   invariant(user, 'User not found')
 
   const { narrative, active, sortBy, direction } = options
-  const quests = (await fetchWrapper({
-    method: QuestsService.searchQuests,
-    args: {
-      requestBody: {
-        narrative,
-        active,
-        sortBy,
-        direction,
-      }
-    },
-  })).data
+  const quests = (
+    await fetchWrapper({
+      method: QuestsService.searchQuests,
+      args: {
+        requestBody: {
+          narrative,
+          active,
+          sortBy,
+          direction,
+        },
+      },
+    })
+  ).data
   invariant(quests, 'Failed to fetch quests')
 
   const { id: userId } = await fetchWrapper({
@@ -57,7 +69,7 @@ export async function getQuestsProgress({
     },
   })
 
-  let userQuests = (
+  const userQuests = (
     await fetchWrapper({
       method: UserQuestsService.search,
       args: {
@@ -68,15 +80,28 @@ export async function getQuestsProgress({
     })
   ).data
 
-  const userQuestMap = userQuests.reduce((acc, userQuest) => {
-    acc[userQuest.quest_id] = userQuest
-    return acc
-  }, {} as Record<string, UserQuest>)
+  const userQuestMap = userQuests.reduce(
+    (acc, userQuest) => {
+      acc[userQuest.quest_id] = userQuest
+      return acc
+    },
+    {} as Record<string, UserQuest>,
+  )
 
   const numQuests = quests.length
-  const numCompletedQuests = userQuests.filter(userQuest => userQuest.status === QuestStatus.COMPLETED && userQuest.user_id === userId).length
+  const numCompletedQuests = userQuests.filter(
+    (userQuest) =>
+      userQuest.status === QuestStatus.COMPLETED &&
+      userQuest.user_id === userId,
+  ).length
 
-  const completedQuestsIds = userQuests.filter(userQuest => userQuest.status === QuestStatus.COMPLETED && userQuest.user_id === userId).map(userQuest => userQuest.quest_id)
+  const completedQuestsIds = userQuests
+    .filter(
+      (userQuest) =>
+        userQuest.status === QuestStatus.COMPLETED &&
+        userQuest.user_id === userId,
+    )
+    .map((userQuest) => userQuest.quest_id)
   logger('userQuestMap', JSON.stringify(userQuestMap, null, 2))
   logger('completedQuestsIds', JSON.stringify(completedQuestsIds, null, 2))
   logger('numCompletedQuests', numCompletedQuests)
@@ -91,4 +116,3 @@ export async function getQuestsProgress({
     userQuestMap,
   }
 }
-

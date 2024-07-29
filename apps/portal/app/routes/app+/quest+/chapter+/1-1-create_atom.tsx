@@ -10,7 +10,6 @@ import {
   SortColumn,
   SortDirection,
   UserQuestsService,
-  UsersService,
 } from '@0xintuition/api'
 
 import CreateIdentityModal from '@components/create-identity-modal'
@@ -23,14 +22,10 @@ import {
 } from '@components/quest/detail/layout'
 import { QuestCriteriaCard } from '@components/quest/quest-criteria-card'
 import { QuestPointsDisplay } from '@components/quest/quest-points-display'
+import { useQuestMdxContent } from '@lib/hooks/useQuestMdxContent'
 import logger from '@lib/utils/logger'
 import { fetchWrapper, invariant } from '@lib/utils/misc'
-import {
-  getQuestContentBySlug,
-  getQuestCriteria,
-  getQuestId,
-  QuestRouteId,
-} from '@lib/utils/quest'
+import { getQuestCriteria, getQuestId, QuestRouteId } from '@lib/utils/quest'
 import { ActionFunctionArgs, json, LoaderFunctionArgs } from '@remix-run/node'
 import {
   Form,
@@ -104,14 +99,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     logger('Fetched identity', identity)
   }
 
-  const questIntro = getQuestContentBySlug(`${quest.id}-intro`)
-  const questContent = getQuestContentBySlug(`${quest.id}-main`)
-  const questClosing = getQuestContentBySlug(`${quest.id}-closing`)
   return json({
     quest,
-    questIntro,
-    questContent,
-    questClosing,
     userQuest,
     identity,
   })
@@ -142,11 +131,11 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Quests() {
-  const { quest, questIntro, questContent, questClosing, userQuest, identity } =
-    useLoaderData<typeof loader>()
+  const { quest, userQuest, identity } = useLoaderData<typeof loader>()
   const [activityModalOpen, setActivityModalOpen] = useState(false)
   const fetcher = useFetcher<CheckQuestSuccessLoaderData>()
   const { revalidate } = useRevalidator()
+  const { introBody, mainBody, closingBody } = useQuestMdxContent(quest?.id)
 
   function handleOpenActivityModal() {
     setActivityModalOpen(true)
@@ -166,10 +155,8 @@ export default function Quests() {
 
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {
-      logger('Fetched fetcher', fetcher.data)
       if (fetcher.data.success) {
-        logger('Detected quest completion object id')
-        logger('Revalidating')
+        logger('Loaded fetcher data, revalidating')
         revalidate()
       }
     }
@@ -182,24 +169,21 @@ export default function Quests() {
         <div className="flex flex-col gap-10">
           <QuestBackButton />
           <Header title={quest.title} questStatus={userQuest?.status} />
-          <MDXContentView
-            body={questIntro?.body}
-            variant={MDXContentVariant.LORE}
-          />
+          <MDXContentView body={introBody} variant={MDXContentVariant.LORE} />
           <QuestCriteriaCard
             criteria={getQuestCriteria(quest.condition)}
             questStatus={userQuest?.status ?? QuestStatus.NOT_STARTED}
             points={quest.points}
           />
         </div>
-        <MDXContentView body={questContent?.body} />
+        <MDXContentView body={mainBody} />
         <CreateAtomActivity
           status={userQuest?.status ?? QuestStatus.NOT_STARTED}
           identity={identity}
           handleClick={handleOpenActivityModal}
         />
         <MDXContentView
-          body={questClosing?.body}
+          body={closingBody}
           variant={MDXContentVariant.LORE}
           shouldDisplay={
             userQuest?.status === QuestStatus.CLAIMABLE ||

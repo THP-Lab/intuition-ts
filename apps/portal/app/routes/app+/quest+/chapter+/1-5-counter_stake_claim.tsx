@@ -94,11 +94,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   let position: GetPositionByIdResponse | PositionPresenter | undefined
   let claim: ClaimPresenter | undefined
-  let identities: {
-    vaultDetails: VaultDetailsType
-    identity: IdentityPresenter
-    type: IdentityType
-  }[] = []
+  let identities: Record<
+    string,
+    {
+      vaultDetails: VaultDetailsType
+      identity: IdentityPresenter
+      type: IdentityType
+    }
+  > = {}
   if (userQuest && userQuest.quest_completion_object_id) {
     position = await fetchWrapper({
       method: PositionsService.getPositionById,
@@ -162,23 +165,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
         user.wallet?.address as `0x${string}`,
       ),
     ])
-    identities = [
-      {
-        vaultDetails: vaultDetails[0],
-        identity: subject!,
-        type: Identity.Subject,
+    identities = [subject, predicate, object].reduce(
+      (acc, identity, index) => {
+        if (identity) {
+          acc[identity.id] = {
+            vaultDetails: vaultDetails[index],
+            identity,
+            type: [Identity.Subject, Identity.Predicate, Identity.Object][
+              index
+            ],
+          }
+        }
+        return acc
       },
-      {
-        vaultDetails: vaultDetails[1],
-        identity: predicate!,
-        type: Identity.Predicate,
-      },
-      {
-        vaultDetails: vaultDetails[2],
-        identity: object!,
-        type: Identity.Object,
-      },
-    ]
+      {} as Record<
+        string,
+        {
+          vaultDetails: VaultDetailsType
+          identity: IdentityPresenter
+          type: IdentityType
+        }
+      >,
+    )
   }
   console.log(identities)
 
@@ -310,7 +318,10 @@ export default function Quests() {
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {
       logger('Fetched fetcher', fetcher.data)
-      if (fetcher.data.success) {
+      if (
+        fetcher.data.success &&
+        fetcher.data.status === QuestStatus.COMPLETED
+      ) {
         logger('Detected quest completion object id')
         logger('Revalidating')
         revalidate()

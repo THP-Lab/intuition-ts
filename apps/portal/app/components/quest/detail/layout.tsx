@@ -49,7 +49,9 @@ export function MDXContentView({
   variant = MDXContentVariant.DEFAULT,
   shouldDisplay = true,
 }: MDXContentViewProps) {
-  if (!body || !shouldDisplay) return null
+  if (!body || !shouldDisplay) {
+    return null
+  }
   return <MDXContentWrapper code={body} variant={variant} />
 }
 
