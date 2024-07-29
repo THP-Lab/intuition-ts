@@ -1,15 +1,16 @@
 import * as path from 'path'
-import { configDotenv, config } from 'dotenv'
 import { resolve } from 'path'
 
-configDotenv({
-  path: resolve(__dirname, "../../.env")
-})
-
+import { configDotenv } from 'dotenv'
 // import csv from 'csv-parser'
 import { app, BrowserWindow, dialog, ipcMain } from 'electron'
-import { CSVData, readCSVFile } from '../common/csv'
+
 import { attest } from '../attest'
+import { CSVData, readCSVFile } from '../common/csv'
+
+configDotenv({
+  path: resolve(__dirname, '../../.env'),
+})
 
 let latestData: CSVData[] = []
 let latestURIs: string[] = []
@@ -43,7 +44,7 @@ const createWindow = () => {
 
   // Listen for Submit Data Event from renderer
   ipcMain.handle('submit-data', async () => {
-    console.log("performing commands")
+    console.log('performing commands')
     await performCommands(latestData)
   })
 }

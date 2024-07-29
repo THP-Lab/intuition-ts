@@ -1,4 +1,5 @@
 import fs from 'fs'
+
 import csv from 'csv-parser'
 
 export interface CSVData {
@@ -12,12 +13,12 @@ export interface CSVData {
 }
 
 export const readCSVFile = (filePath: string): Promise<CSVData[]> => {
-    return new Promise((resolve, reject) => {
-      const results: CSVData[] = []
-      fs.createReadStream(filePath)
-        .pipe(csv())
-        .on('data', (data: CSVData) => results.push(data))
-        .on('end', () => resolve(results))
-        .on('error', (error: Error) => reject(error))
-    })
-  }
+  return new Promise((resolve, reject) => {
+    const results: CSVData[] = []
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (data: CSVData) => results.push(data))
+      .on('end', () => resolve(results))
+      .on('error', (error: Error) => reject(error))
+  })
+}
