@@ -69,7 +69,7 @@ export const themes = {
     accentForeground: palette.white.base,
     destructive: palette.red[500],
     destructiveForeground: palette.white.base,
-    border: palette.white.base,
+    border: palette.gray[300],
     input: palette.white.base,
     ring: palette.white.base,
     radius: radiusValue,

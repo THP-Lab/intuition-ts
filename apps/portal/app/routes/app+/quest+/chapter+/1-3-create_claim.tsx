@@ -4,7 +4,6 @@ import { Button, ButtonSize, ButtonVariant } from '@0xintuition/1ui'
 import {
   ClaimPresenter,
   ClaimsService,
-  IdentitiesService,
   IdentityPresenter,
   QuestsService,
   QuestStatus,
@@ -12,8 +11,8 @@ import {
   UsersService,
 } from '@0xintuition/api'
 
+import CreateClaimModal from '@components/create-claim-modal'
 import CreateIdentityModal from '@components/create-identity-modal'
-import CreateAtomActivity from '@components/quest/create-atom-activity'
 import CreateClaimActivity from '@components/quest/create-claim-activity'
 import {
   Header,
@@ -34,7 +33,6 @@ import {
 import { ActionFunctionArgs, json, LoaderFunctionArgs } from '@remix-run/node'
 import {
   Form,
-  Link,
   useFetcher,
   useLoaderData,
   useRevalidator,
@@ -44,7 +42,6 @@ import { requireUser, requireUserId } from '@server/auth'
 import { MDXContentVariant } from 'types'
 
 const ROUTE_ID = QuestRouteId.CREATE_CLAIM
-const DEFAULT_CLAIM_ID = '19ac84b0-4db2-403c-a236-e09a60ce02da'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const id = getQuestId(ROUTE_ID)
@@ -59,39 +56,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
       questId: id,
     },
   })
-  const { id: userId } = await fetchWrapper({
-    method: UsersService.getUserByWalletPublic,
+  const userQuest = await fetchWrapper({
+    method: UserQuestsService.getUserQuestByQuestId,
     args: {
-      wallet: user.wallet?.address!,
+      questId: id,
     },
   })
-  const userQuests = (
-    await fetchWrapper({
-      method: UserQuestsService.search,
-      args: {
-        requestBody: {
-          questId: id,
-          userId,
-        },
-      },
-    })
-  ).data
-
-  const userQuest = userQuests.find(
-    (userQuest) => userQuest.quest_id === id && userQuest.user_id === userId,
-  )
   logger('Fetched user quest', userQuest)
 
   let claim: ClaimPresenter | undefined
-  // if (userQuest && userQuest.quest_completion_object_id) {
-  claim = await fetchWrapper({
-    method: ClaimsService.getClaimById,
-    args: {
-      id: DEFAULT_CLAIM_ID,
-    },
-  })
-  logger('Fetched claim', claim)
-  // }
+  if (userQuest && userQuest.quest_completion_object_id) {
+    claim = await fetchWrapper({
+      method: ClaimsService.getClaimById,
+      args: {
+        id: userQuest.quest_completion_object_id,
+      },
+    })
+  }
 
   const questIntro = getQuestContentBySlug(`${quest.id}-intro`)
   const questContent = getQuestContentBySlug(`${quest.id}-main`)
@@ -145,10 +126,10 @@ export default function Quests() {
     setActivityModalOpen(false)
   }
 
-  function handleActivitySuccess(identity: IdentityPresenter) {
-    logger('Activity success', identity)
+  function handleActivitySuccess(claim: ClaimPresenter) {
+    logger('Activity success', claim)
     if (userQuest) {
-      logger('Submitting fetcher', identity.id, userQuest.id)
+      logger('Submitting fetcher', claim.claim_id, userQuest.id)
       fetcher.load(`/resources/check-quest-success?userQuestId=${userQuest.id}`)
     }
   }
@@ -216,7 +197,7 @@ export default function Quests() {
           />
         </div>
       </div>
-      <CreateIdentityModal
+      <CreateClaimModal
         successAction="close"
         onClose={handleCloseActivityModal}
         open={activityModalOpen}

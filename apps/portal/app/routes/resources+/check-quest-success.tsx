@@ -1,9 +1,14 @@
-import { ApiError, QuestStatus, UserQuestsService } from '@0xintuition/api'
+import {
+  ApiError,
+  QuestStatus,
+  UserQuestsService,
+  UsersService,
+} from '@0xintuition/api'
 
 import logger from '@lib/utils/logger'
 import { fetchWrapper, invariant } from '@lib/utils/misc'
 import { json, LoaderFunctionArgs } from '@remix-run/node'
-import { requireUserId } from '@server/auth'
+import { requireUser, requireUserId } from '@server/auth'
 
 export type CheckQuestSuccessLoaderData = {
   quest_completion_object_id?: string
@@ -15,8 +20,14 @@ const RETRY_LIMIT = 10
 const RETRY_DELAY = 3000
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request)
-  invariant(userId, 'Unauthorized')
+  const user = await requireUser(request)
+  invariant(user, 'Unauthorized')
+  const { id: userId } = await fetchWrapper({
+    method: UsersService.getUserByWalletPublic,
+    args: {
+      wallet: user.wallet?.address!,
+    },
+  })
 
   const url = new URL(request.url)
   const userQuestId = url.searchParams.get('userQuestId')
@@ -25,24 +36,34 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   let attempts = 0
 
+  const userQuest = await fetchWrapper({
+    method: UserQuestsService.getUserQuestById,
+    args: {
+      userQuestId,
+    },
+  })
+
   // poll n number of times
   while (attempts < RETRY_LIMIT) {
     try {
-      const userQuest = await fetchWrapper({
-        method: UserQuestsService.getUserQuestById,
+      const status = await fetchWrapper({
+        method: UserQuestsService.checkQuestStatus,
         args: {
-          userQuestId,
+          questId: userQuest.quest_id,
+          userId,
         },
       })
 
       logger(
-        'Checking quest_completion_object_id',
+        'Checking quest_completion_object_id & status',
         userQuest.quest_completion_object_id,
+        status,
       )
-      if (userQuest.quest_completion_object_id) {
+      if (status === QuestStatus.CLAIMABLE) {
+        console.log('returning')
         return json({
           quest_completion_object_id: userQuest.quest_completion_object_id,
-          status: userQuest.status,
+          status: status,
           success: true,
         } as CheckQuestSuccessLoaderData)
       }

@@ -171,7 +171,7 @@ export default function StakeForm({
             </Tabs>
             <div className="pt-2.5">
               <ActivePositionCard
-                value={Number(formatBalance(user_assets, 18, 4))}
+                value={Number(formatBalance(user_assets, 18, 6))}
                 claimPosition={
                   direction !== undefined
                     ? direction === 'for'

@@ -1,3 +1,5 @@
+import { ScrollArea } from '@0xintuition/1ui'
+
 import { Outlet } from '@remix-run/react'
 
 import { OptionType, SegmentedNav } from './segmented-nav'
@@ -14,18 +16,20 @@ export function NestedLayout({
   options,
 }: NestedLayoutProps) {
   return (
-    <div className="flex">
-      <div className="flex px-10 py-10 w-[400px] flex-shrink-0 min-h-screen">
-        <div className="flex flex-col items-center w-full">{children}</div>
-      </div>
-      <div className="flex flex-col flex-grow h-screen min-h-screen gap-8 pr-10 py-10">
-        {options && (
-          <div className="flex flex-row justify-end">
-            <SegmentedNav options={options} />
+    <div className="w-full h-full min-h-screen">
+      <div className="flex items-start w-full gap-5">
+        <div className="w-[400px] pl-8 py-6">
+          <div className="flex flex-col items-start w-full">{children}</div>
+        </div>
+        <div className="flex flex-col flex-grow min-h-screen gap-4 flex-grow w-full">
+          {options && (
+            <div className="flex flex-row justify-end pt-10 pr-6">
+              <SegmentedNav options={options} />
+            </div>
+          )}
+          <div className="w-full pr-6 pb-20">
+            <OutletComponent />
           </div>
-        )}
-        <div className="pb-10">
-          <OutletComponent />
         </div>
       </div>
     </div>

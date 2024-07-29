@@ -22,9 +22,10 @@ export interface SidebarLayoutNavProps {
 }
 
 export const SidebarLayoutNav = ({
-  minSize = 25,
-  maxSize = 50,
+  minSize = 20,
+  maxSize = 24,
   collapsedSize = 7.5,
+  defaultSize = 24,
   ...props
 }) => {
   const { isCollapsed, setIsCollapsed } = useSidebarLayoutContext()
@@ -36,16 +37,19 @@ export const SidebarLayoutNav = ({
   return (
     <>
       <ResizablePanel
-        defaultSize={isCollapsed ? collapsedSize : maxSize}
+        defaultSize={defaultSize}
         minSize={minSize}
         maxSize={maxSize}
         collapsible
         collapsedSize={collapsedSize}
-        onCollapse={() => updateIsCollapsedValues(true)}
-        onExpand={() => updateIsCollapsedValues(false)}
+        onCollapse={() => {
+          updateIsCollapsedValues(true)
+        }}
+        onExpand={() => {
+          updateIsCollapsedValues(false)
+        }}
         className={cn(
-          isCollapsed &&
-            `min-w-[${minSize}rem] transition-all duration-300 ease-in-out`,
+          isCollapsed && `min-w-[50px] transition-all duration-300 ease-in-out`,
         )}
         {...props}
       >

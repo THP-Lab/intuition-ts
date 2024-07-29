@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { UserPresenter, UsersService } from '@0xintuition/api'
 
@@ -39,14 +39,17 @@ export default function Index() {
     userObject: UserPresenter
   }>()
   const { pathname } = useLocation()
+  const viewportRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    window.scrollTo(0, 0)
+    if (viewportRef.current) {
+      viewportRef.current.scrollTo(0, 0)
+    }
   }, [pathname])
 
   return (
-    <div className="flex items-start h-screen">
-      <SidebarNav userObject={userObject}>
+    <div className="flex items-start w-full h-screen">
+      <SidebarNav userObject={userObject} viewportRef={viewportRef}>
         <Outlet />
       </SidebarNav>
       <PrivyLogout wallet={wallet} />

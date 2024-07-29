@@ -186,13 +186,23 @@ export default function Quests() {
   const fetcher = useFetcher<CheckQuestSuccessLoaderData>()
   const { revalidate } = useRevalidator()
 
-  function handleOpenActivityModal() {
+  function handleDepositActivityClick() {
     setStakeModalActive((prevState) => ({
       ...prevState,
       isOpen: true,
       id: identity.id,
       modalType: 'identity',
       mode: 'deposit',
+    }))
+  }
+
+  function handleRedeemActivityClick() {
+    setStakeModalActive((prevState) => ({
+      ...prevState,
+      isOpen: true,
+      id: identity.id,
+      modalType: 'identity',
+      mode: 'redeem',
     }))
   }
 
@@ -250,7 +260,9 @@ export default function Quests() {
           status={userQuest?.status ?? QuestStatus.NOT_STARTED}
           identity={identity}
           position={position}
-          handleClick={handleOpenActivityModal}
+          vaultDetails={vaultDetails}
+          handleDepositIdentityClick={handleDepositActivityClick}
+          handleRedeemIdentityClick={handleRedeemActivityClick}
         />
         <MDXContentView
           body={questClosing?.body}

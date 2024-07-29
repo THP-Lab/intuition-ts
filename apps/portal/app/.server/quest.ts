@@ -63,14 +63,10 @@ export async function getQuestsProgress({
       args: {
         requestBody: {
           userId,
-          narrative,
         },
       },
     })
   ).data
-  // TODO: Remove
-  // TEMP: filter out userQuests where user_id is not userId
-  userQuests = userQuests.filter(userQuest => userQuest.user_id === userId)
 
   const userQuestMap = userQuests.reduce((acc, userQuest) => {
     acc[userQuest.quest_id] = userQuest

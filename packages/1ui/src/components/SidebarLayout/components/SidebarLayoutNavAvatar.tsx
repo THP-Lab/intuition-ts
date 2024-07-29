@@ -59,6 +59,7 @@ export const SidebarLayoutNavAvatar = ({
         }),
         containerBaseClass,
         'justify-start',
+        'text-foreground/70',
       )}
     >
       <AvatarComponent />

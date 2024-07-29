@@ -102,11 +102,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   let position: GetPositionByIdResponse | PositionPresenter | undefined
   let claim: ClaimPresenter | undefined
-  let identities: {
-    vaultDetails: VaultDetailsType
-    identity: IdentityPresenter
-    type: IdentityType
-  }[] = []
+  let identities: Record<
+    string,
+    {
+      vaultDetails: VaultDetailsType
+      identity: IdentityPresenter
+      type: IdentityType
+    }
+  > = {}
   if (userQuest && userQuest.quest_completion_object_id) {
     position = await fetchWrapper({
       method: PositionsService.getPositionById,
@@ -118,7 +121,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   if (position) {
-    invariant(position.identity_id, 'position must be on an identity')
+    invariant(position.claim_id, 'position must be on an claim')
     claim = await fetchWrapper({
       method: ClaimsService.getClaimById,
       args: {
@@ -148,32 +151,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     user.wallet?.address as `0x${string}`,
   )
 
-  // Temp
-  let toggle = true
-  if (toggle) {
-    position =
-      (
-        await fetchWrapper({
-          method: PositionsService.searchPositions,
-          args: {
-            claim: claim.claim_id,
-            vault: claim.vault_id,
-            creatorId: userId,
-            sort: {
-              sortBy: PositionSortColumn.CREATED_AT,
-              direction: SortDirection.DESC,
-            },
-            paging: {
-              page: 1,
-              limit: 1,
-              offset: 0,
-            },
-          },
-        })
-      ).data[0] ?? undefined
-  }
-
-  // if position fetch underlying vault details
   if (position && claim) {
     const { subject, predicate, object } = claim
     const subjectVaultId = subject?.vault_id
@@ -196,23 +173,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
         user.wallet?.address as `0x${string}`,
       ),
     ])
-    identities = [
-      {
-        vaultDetails: vaultDetails[0],
-        identity: subject!,
-        type: Identity.Subject,
+    identities = [subject, predicate, object].reduce(
+      (acc, identity, index) => {
+        if (identity) {
+          acc[identity.id] = {
+            vaultDetails: vaultDetails[index],
+            identity,
+            type: [Identity.Subject, Identity.Predicate, Identity.Object][
+              index
+            ],
+          }
+        }
+        return acc
       },
-      {
-        vaultDetails: vaultDetails[1],
-        identity: predicate!,
-        type: Identity.Predicate,
-      },
-      {
-        vaultDetails: vaultDetails[2],
-        identity: object!,
-        type: Identity.Object,
-      },
-    ]
+      {} as Record<
+        string,
+        {
+          vaultDetails: VaultDetailsType
+          identity: IdentityPresenter
+          type: IdentityType
+        }
+      >,
+    )
   }
   console.log(identities)
 
@@ -318,6 +300,7 @@ export default function Quests() {
       modalType: 'identity',
       mode: 'redeem',
     }))
+    console.log('Selling identity', identity)
   }
 
   function handleCloseActivityModal() {
@@ -383,23 +366,27 @@ export default function Quests() {
           body={questContentSecondary?.body}
           shouldDisplay={
             userQuest?.status === QuestStatus.CLAIMABLE ||
-            userQuest?.status === QuestStatus.COMPLETED ||
-            !!position
+            (userQuest?.status === QuestStatus.COMPLETED && !!position)
           }
         />
-        <StakeClaimUnderlyingIdentitiesActivity
-          identities={identities}
-          handleSellClick={handleSellIdentityClick}
-          status={QuestStatus.NOT_STARTED}
-          userWallet={userWallet}
-        />
+        {(userQuest?.status === QuestStatus.CLAIMABLE ||
+          userQuest?.status === QuestStatus.COMPLETED) &&
+          !!position &&
+          !!identities && (
+            <StakeClaimUnderlyingIdentitiesActivity
+              identities={identities}
+              handleSellClick={handleSellIdentityClick}
+              status={QuestStatus.NOT_STARTED}
+              userWallet={userWallet}
+            />
+          )}
 
         <MDXContentView
           body={questClosing?.body}
           variant={MDXContentVariant.LORE}
           shouldDisplay={
-            userQuest?.status === QuestStatus.CLAIMABLE ||
-            userQuest?.status === QuestStatus.COMPLETED ||
+            (userQuest?.status === QuestStatus.CLAIMABLE ||
+              userQuest?.status === QuestStatus.COMPLETED) &&
             !!position
           }
         />
@@ -426,10 +413,23 @@ export default function Quests() {
       </div>
       <StakeModal
         open={stakeModalActive.isOpen}
-        claim={claim}
+        claim={stakeModalActive.modalType === 'claim' ? claim : undefined}
+        identity={
+          stakeModalActive.modalType === 'identity' && position && identities
+            ? identities[stakeModalActive.id!]?.identity
+            : undefined
+        }
         userWallet={userWallet}
-        contract={claim.contract}
-        vaultDetails={vaultDetails}
+        contract={
+          stakeModalActive.modalType === 'claim'
+            ? claim.contract
+            : identities[stakeModalActive.id!]?.identity.contract!
+        }
+        vaultDetails={
+          stakeModalActive.modalType === 'identity' && position && identities
+            ? identities[stakeModalActive.id!]?.vaultDetails
+            : vaultDetails
+        }
         onClose={handleCloseActivityModal}
         onSuccess={handleActivitySuccess}
         direction={stakeModalActive.direction}

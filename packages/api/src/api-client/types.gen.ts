@@ -1251,9 +1251,9 @@ export type UserQuestPaginatedResponse = {
 export type UserQuestQuery = {
   direction?: SortDirection | null
   limit?: number | null
-  narrative?: QuestNarrative | null
   offset?: number | null
   page?: number | null
+  questCondition?: QuestCondition | null
   questId?: string | null
   sortBy?: UserQuestSortColumn | null
   status?: QuestStatus | null
@@ -2432,6 +2432,23 @@ export type DeleteQuestResponse = {
   updated_at: string
 }
 
+export type GetUserQuestByQuestIdData = {
+  questId: string
+}
+
+export type GetUserQuestByQuestIdResponse = {
+  date_completed?: string | null
+  date_started: string
+  id: string
+  point_multiplier: number
+  progress: number
+  quest_completion_object_id?: string | null
+  quest_condition: QuestCondition
+  quest_id: string
+  status: QuestStatus
+  user_id: string
+}
+
 export type SearchData = {
   requestBody: UserQuestQuery
 }
@@ -2848,6 +2865,20 @@ export type GetUserByIdResponse = {
   role: Role
   updated_at: string
   wallet: string
+}
+
+export type GetUserTagsData = {
+  /**
+   * User sql id or wallet
+   */
+  id: Identifier
+}
+
+export type GetUserTagsResponse = {
+  data: Array<IdentityPresenter>
+  limit: number
+  page: number
+  total: number
 }
 
 export type GetUserTotalsData = {
@@ -4287,6 +4318,30 @@ export type $OpenApiTs = {
       }
     }
   }
+  '/user_quest/quest/{quest_id}': {
+    get: {
+      req: {
+        questId: string
+      }
+      res: {
+        /**
+         * Get the user quest associated with the quest id and the user
+         */
+        200: {
+          date_completed?: string | null
+          date_started: string
+          id: string
+          point_multiplier: number
+          progress: number
+          quest_completion_object_id?: string | null
+          quest_condition: QuestCondition
+          quest_id: string
+          status: QuestStatus
+          user_id: string
+        }
+      }
+    }
+  }
   '/user_quest/search': {
     post: {
       req: {
@@ -4845,6 +4900,27 @@ export type $OpenApiTs = {
           role: Role
           updated_at: string
           wallet: string
+        }
+      }
+    }
+  }
+  '/users/{id}/tags': {
+    get: {
+      req: {
+        /**
+         * User sql id or wallet
+         */
+        id: Identifier
+      }
+      res: {
+        /**
+         * get identities tagged by user
+         */
+        200: {
+          data: Array<IdentityPresenter>
+          limit: number
+          page: number
+          total: number
         }
       }
     }

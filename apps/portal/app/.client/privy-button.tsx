@@ -3,7 +3,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSubContent,
   DropdownMenuTrigger,
   Text,
   Trunctacular,
@@ -41,48 +43,55 @@ export function PrivyButton({
       <>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="border-none p-0">
+            <Button variant="ghost" className="p-0">
               {triggerComponent}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="bg-popover w-48">
-            <DropdownMenuItem className="flex items-center gap-2" disabled>
+          <DropdownMenuContent side="top" className="bg-popover w-48">
+            <DropdownMenuLabel className="flex items-center gap-2">
               <div className="space-y-1">
-                <Text
-                  variant="footnote"
-                  weight="medium"
-                  className="text-secondary-foreground"
-                >
+                <Text variant="footnote" className="text-muted-foreground">
                   Signed in as:
                 </Text>
-                <Trunctacular value={privyUser?.wallet?.address ?? ''} />
+                <Trunctacular
+                  value={privyUser?.wallet?.address ?? ''}
+                  variant="body"
+                  weight="medium"
+                  className="text-foreground cursor-default"
+                />
               </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer justify-start"
-              onSelect={(e) => {
-                e.preventDefault()
-                navigate(PATHS.PROFILE)
-              }}
-            >
-              <NavLink to={`/app/profile`} className="font-semibold">
-                <div className="space-y-1">
-                  <Text>View Profile</Text>
-                </div>
-              </NavLink>
-            </DropdownMenuItem>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onSelect={(e) => {
-                e.preventDefault()
-                handleSignout()
-              }}
-              className="cursor-pointer justify-start"
-            >
-              <div className="space-y-1">
-                <Text>Logout</Text>
-              </div>
-            </DropdownMenuItem>
+            <div className="py-1">
+              <DropdownMenuItem
+                className="cursor-pointer justify-start"
+                onSelect={(e) => {
+                  e.preventDefault()
+                  navigate('/app/profile')
+                }}
+              >
+                <NavLink to={`/app/profile`} className="font-semibold">
+                  <div className="space-y-1">
+                    <Text className="text-foreground/70" weight="normal">
+                      Profile
+                    </Text>
+                  </div>
+                </NavLink>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault()
+                  handleSignout()
+                }}
+                className="cursor-pointer justify-start"
+              >
+                <div className="space-y-1">
+                  <Text className="text-foreground/70" weight="normal">
+                    Sign Out
+                  </Text>
+                </div>
+              </DropdownMenuItem>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </>

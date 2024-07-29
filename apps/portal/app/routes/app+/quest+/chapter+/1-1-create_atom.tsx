@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react'
 
 import { Button, ButtonSize, ButtonVariant } from '@0xintuition/1ui'
 import {
+  ApiError,
   IdentitiesService,
   IdentityPresenter,
   QuestsService,
   QuestStatus,
+  SortColumn,
+  SortDirection,
   UserQuestsService,
   UsersService,
 } from '@0xintuition/api'
@@ -54,37 +57,50 @@ export async function loader({ request }: LoaderFunctionArgs) {
       questId: id,
     },
   })
-  const { id: userId } = await fetchWrapper({
-    method: UsersService.getUserByWalletPublic,
+  const userQuest = await fetchWrapper({
+    method: UserQuestsService.getUserQuestByQuestId,
     args: {
-      wallet: user.wallet?.address!,
+      questId: id,
     },
   })
-  const userQuests = (
-    await fetchWrapper({
-      method: UserQuestsService.search,
-      args: {
-        requestBody: {
-          questId: id,
-          userId,
-        },
-      },
-    })
-  ).data
-
-  const userQuest = userQuests.find(
-    (userQuest) => userQuest.quest_id === id && userQuest.user_id === userId,
-  )
   logger('Fetched user quest', userQuest)
 
   let identity: IdentityPresenter | undefined
   if (userQuest && userQuest.quest_completion_object_id) {
-    identity = await fetchWrapper({
-      method: IdentitiesService.getIdentityById,
-      args: {
-        id: userQuest.quest_completion_object_id,
-      },
-    })
+    try {
+      identity = await fetchWrapper({
+        method: IdentitiesService.getIdentityById,
+        args: {
+          id: userQuest.quest_completion_object_id,
+        },
+      })
+    } catch (error) {
+      // if error is APIError and status is 404
+      if (error instanceof ApiError && error.status === 404) {
+        logger(
+          'Identity not found and status is claimable, check pending identities for user wallet',
+        )
+        const pendingIdentities = (
+          await fetchWrapper({
+            method: IdentitiesService.getPendingIdentities,
+            args: {
+              direction: SortDirection.ASC,
+              userWallet: user.wallet?.address!,
+              sortBy: SortColumn.CREATED_AT,
+              page: 1,
+              limit: 10,
+              offset: 0,
+            },
+          })
+        ).data
+        if (pendingIdentities.length > 0) {
+          // check if identity is pending
+          identity = pendingIdentities.find(
+            (identity) => identity.id === userQuest.quest_completion_object_id,
+          )
+        }
+      }
+    }
     logger('Fetched identity', identity)
   }
 

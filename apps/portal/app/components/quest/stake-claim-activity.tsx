@@ -5,8 +5,6 @@ import {
   ButtonSize,
   ButtonVariant,
   ClaimStakeCard,
-  Icon,
-  IconName,
   PositionCard,
   PositionCardFeesAccrued,
   PositionCardLastUpdated,
@@ -36,6 +34,7 @@ export interface StakeClaimActivityProps
   claim: ClaimPresenter
   vaultDetails: VaultDetailsType
   position?: PositionPresenter | GetPositionByIdResponse | null
+  direction?: 'for' | 'against'
   handleAgainstClick: () => void
   handleForClick: () => void
   handleSellClick: () => void
@@ -49,15 +48,17 @@ export default function StakeClaimActivity({
   handleAgainstClick,
   handleForClick,
   handleSellClick,
+  direction = 'for',
   ...props
 }: StakeClaimActivityProps) {
-  let direction: 'for' | 'against' = 'for'
-  direction =
-    (vaultDetails.user_conviction ?? claim.user_conviction_for) > '0' ||
-    (vaultDetails.user_conviction_against ?? claim.user_conviction_against) ===
-      '0'
+  let userPositionDirection
+  userPositionDirection =
+    (vaultDetails.user_conviction ?? claim.user_conviction_for) > '0'
       ? 'for'
-      : 'against'
+      : (vaultDetails.user_conviction_against ??
+            claim.user_conviction_against) > '0'
+        ? 'against'
+        : (null as 'for' | 'against' | null)
 
   let user_assets: string = '0'
   user_assets =
@@ -154,12 +155,15 @@ export default function StakeClaimActivity({
             object={claim.object!}
           />
           <Button
-            variant={ButtonVariant.accent}
+            variant={
+              direction === 'for' ? ButtonVariant.for : ButtonVariant.against
+            }
             size={ButtonSize.lg}
-            onClick={handleForClick}
+            disabled={direction === userPositionDirection}
+            onClick={direction === 'for' ? handleForClick : handleAgainstClick}
             className="w-fit"
           >
-            Deposit For
+            {direction === 'for' ? 'Deposit For' : 'Deposit Against'}
           </Button>
         </div>
       )}

@@ -1,3 +1,5 @@
+import { cn } from 'styles'
+
 import { useSidebarLayoutContext } from './SidebarLayoutProvider'
 
 export interface SidebarLayoutNavHeaderButtonProps
@@ -9,11 +11,12 @@ export interface SidebarLayoutNavHeaderButtonProps
 export const SidebarLayoutNavHeaderButton = ({
   imgLogo,
   textLogo,
+  className,
   ...props
 }: SidebarLayoutNavHeaderButtonProps) => {
   const { isCollapsed } = useSidebarLayoutContext()
   return (
-    <button className="flex gap-3 items-center" {...props}>
+    <button className={cn('flex gap-3 items-center', className)} {...props}>
       {imgLogo}
       {!isCollapsed && textLogo}
     </button>

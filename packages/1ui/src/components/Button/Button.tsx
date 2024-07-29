@@ -45,7 +45,7 @@ const buttonVariants = cva(
         [ButtonVariant.secondary]:
           'primary-gradient-subtle text-primary/60 border-primary/10 rounded-lg hover:text-primary disabled:from-muted disabled:to-muted shadow-md-subtle',
         [ButtonVariant.ghost]:
-          'bg-gradient-to-b from-transparent to-transparent text-primary/70 border-primary/70 rounded-lg hover:text-primary hover:border-primary disabled:bg-transparent aria-selected:primary-gradient-subtle aria-selected:border-primary/10 shadow-md-subtle',
+          'bg-gradient-to-b from-transparent to-transparent text-primary/70 theme-border rounded-lg hover:text-primary hover:border-primary/60 disabled:bg-transparent aria-selected:primary-gradient-subtle aria-selected:border-primary/50 shadow-md-subtle focus:outline-none',
         [ButtonVariant.text]:
           'bg-transparent text-primary/70 border-transparent hover:text-primary disabled:border-transparent disabled:bg-transparent shadow-md-subtle',
         [ButtonVariant.accent]:

@@ -1,19 +1,22 @@
 import { Dialog, DialogContent } from '@0xintuition/1ui'
+import { ClaimPresenter } from '@0xintuition/api'
+
+import { TransactionSuccessAction, TransactionSuccessActionType } from 'types'
 
 import { ClaimForm } from './create-claim-form'
-
-// import { ClaimForm } from './create-identity-form'
 
 export interface CreateClaimModalProps {
   open?: boolean
   onClose: () => void
-  onSuccess?: () => void
+  onSuccess?: (claim: ClaimPresenter) => void
+  successAction?: TransactionSuccessActionType
 }
 
 export default function CreateClaimModal({
   open,
   onClose,
   onSuccess,
+  successAction = TransactionSuccessAction.VIEW,
 }: CreateClaimModalProps) {
   return (
     <Dialog
@@ -23,7 +26,11 @@ export default function CreateClaimModal({
       }}
     >
       <DialogContent className="bg-neutral-950 rounded-xl shadow border border-solid border-black/10">
-        <ClaimForm onClose={onClose} onSuccess={onSuccess} />
+        <ClaimForm
+          onClose={onClose}
+          onSuccess={onSuccess}
+          successAction={successAction}
+        />
       </DialogContent>
     </Dialog>
   )

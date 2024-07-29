@@ -1,3 +1,17 @@
+import { cn } from 'styles'
+
+import { useSidebarLayoutContext } from './SidebarLayoutProvider'
+
 export const SidebarLayoutNavItems = ({ ...props }) => {
-  return <div className="flex w-full flex-col gap-2 p-2" {...props}></div>
+  const { isCollapsed } = useSidebarLayoutContext()
+
+  return (
+    <div
+      className={cn(
+        'flex w-full items-center flex-col gap-2 py-2',
+        isCollapsed ? 'justify-center px-1' : 'px-1.5',
+      )}
+      {...props}
+    ></div>
+  )
 }

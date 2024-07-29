@@ -43,6 +43,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       narrative: QuestNarrative.STANDARD,
     },
   })
+  console.log('Details', details.quests)
 
   return json({
     ...details,
@@ -62,8 +63,10 @@ export async function action({ request }: ActionFunctionArgs) {
   invariant(questStatus, 'questStatus is required')
   const available = formData.get('available') === 'true'
 
+  console.log('Available', available)
   // start quest
   if (questStatus === QuestStatus.NOT_STARTED && available) {
+    console.log('Starting quest', questId)
     logger('Starting quest', questId)
     const { status } = await fetchWrapper({
       method: UserQuestsService.startQuest,
@@ -117,7 +120,7 @@ export default function Quests() {
   }
 
   return (
-    <div className="px-10 w-full max-w-7xl mx-auto flex flex-col gap-10">
+    <div className="px-10 w-full max-w-7xl mx-auto flex flex-col gap-10 pb-20">
       <div className="space-y-10 mb-5">
         <img
           src={STANDARD_QUEST_SET.imgSrc}
@@ -152,7 +155,6 @@ export default function Quests() {
 
         <div className="flex flex-col gap-10">
           {quests.map((quest) => {
-            // check if userQuestMap is empty, if it is, the quest hasnt started
             const available = isQuestAvailable(quest)
             const userQuestStatus = getUserQuestStatus(quest)
             return (
@@ -165,7 +167,7 @@ export default function Quests() {
                 label={`Chapter ${quest.position}`}
                 points={quest.points}
                 questCriteria={getQuestCriteria(quest.condition)}
-                disabled={false}
+                disabled={!available}
                 handleClick={(e) => {
                   e.preventDefault()
                   handleClick({

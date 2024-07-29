@@ -79,7 +79,7 @@ const QuestStatusCardComponent = ({
   return (
     <div
       className={cn(
-        'flex items-center gap-2 rounded-md theme-border p-3',
+        'flex items-center gap-2 rounded-md theme-border px-3 h-auto',
         statusComponentData.bgClass,
       )}
       {...props}

@@ -37,7 +37,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function PersonalActivityFeed() {
   const { activity } = useLiveLoader<typeof loader>(['attest', 'create'])
-
   return (
     <div className="m-8 flex flex-col items-center gap-4">
       <Suspense fallback={<ActivitySkeleton />}>

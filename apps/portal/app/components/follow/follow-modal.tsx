@@ -233,6 +233,7 @@ export default function FollowModal({
   }, [txReceipt, userWallet, mode, reset, lastTxHash])
 
   useEffect(() => {
+    console.log('hit -- dispatch')
     if (awaitingWalletConfirmation) {
       dispatch({ type: 'APPROVE_TRANSACTION' })
     }
@@ -259,10 +260,11 @@ export default function FollowModal({
   })
 
   useEffect(() => {
+    console.log('hit -- blockNumber', blockNumber)
     if (blockNumber && blockNumber % 5n === 0n) {
       queryClient.invalidateQueries({ queryKey })
     }
-  }, [blockNumber, queryClient, queryKey])
+  }, [blockNumber, queryKey])
 
   const walletBalance = formatUnits(balance?.value ?? 0n, 18)
 

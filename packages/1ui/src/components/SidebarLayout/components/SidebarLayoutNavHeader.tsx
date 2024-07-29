@@ -1,14 +1,22 @@
+import { HTMLAttributes, ReactNode } from 'react'
+
 import { cn } from 'styles'
 
 import { useSidebarLayoutContext } from './SidebarLayoutProvider'
 
-export const SidebarLayoutNavHeader = ({ ...props }) => {
+interface SidebarLayoutNavHeaderProps extends HTMLAttributes<HTMLDivElement> {}
+
+export const SidebarLayoutNavHeader = ({
+  className,
+  ...props
+}: SidebarLayoutNavHeaderProps) => {
   const { isCollapsed } = useSidebarLayoutContext()
   return (
     <div
       className={cn(
-        'border-border/20 flex w-full items-center border-0 border-b-[1px] py-4',
-        isCollapsed ? 'justify-center' : 'px-6',
+        'flex items-center justify-center h-[80px]',
+        isCollapsed ?? 'px-2',
+        className,
       )}
       {...props}
     ></div>

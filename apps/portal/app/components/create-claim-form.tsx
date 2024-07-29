@@ -48,7 +48,12 @@ import {
   SEARCH_IDENTITIES_RESOURCE_ROUTE,
 } from 'consts'
 import { Identity, IdentityType } from 'types/identity'
-import { TransactionActionType, TransactionStateType } from 'types/transaction'
+import {
+  TransactionActionType,
+  TransactionStateType,
+  TransactionSuccessAction,
+  TransactionSuccessActionType,
+} from 'types/transaction'
 import { parseUnits } from 'viem'
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
 
@@ -57,11 +62,16 @@ import { IdentitySearchCombobox } from './identity/identity-search-combo-box'
 import { TransactionState } from './transaction-state'
 
 interface ClaimFormProps {
-  onSuccess?: () => void
+  onSuccess?: (claim: ClaimPresenter) => void
   onClose: () => void
+  successAction?: TransactionSuccessActionType
 }
 
-export function ClaimForm({ onClose }: ClaimFormProps) {
+export function ClaimForm({
+  onClose,
+  onSuccess,
+  successAction = TransactionSuccessAction.VIEW,
+}: ClaimFormProps) {
   const { state, dispatch } = useTransactionState<
     TransactionStateType,
     TransactionActionType
@@ -100,6 +110,8 @@ export function ClaimForm({ onClose }: ClaimFormProps) {
           state={state}
           dispatch={dispatch}
           onClose={onClose}
+          onSuccess={onSuccess}
+          successAction={successAction}
           setTransactionResponseData={setTransactionResponseData}
           transactionResponseData={transactionResponseData}
         />
@@ -116,6 +128,8 @@ interface CreateClaimFormProps {
   >
   transactionResponseData: ClaimPresenter | null
   onClose: () => void
+  onSuccess?: (claim: ClaimPresenter) => void
+  successAction?: TransactionSuccessActionType
 }
 
 function CreateClaimForm({
@@ -124,6 +138,8 @@ function CreateClaimForm({
   setTransactionResponseData,
   transactionResponseData,
   onClose,
+  onSuccess,
+  successAction = TransactionSuccessAction.VIEW,
 }: CreateClaimFormProps) {
   const feeFetcher = useLoaderFetcher<CreateLoaderData>(CREATE_RESOURCE_ROUTE)
   const { atomCost: atomCostAmount, tripleCost: tripleCostAmount } =
@@ -388,6 +404,14 @@ function CreateClaimForm({
       setIdentities([])
     }
   }, [isSubjectPopoverOpen, isPredicatePopoverOpen, isObjectPopoverOpen])
+
+  useEffect(() => {
+    if (state.status === 'complete') {
+      if (transactionResponseData) {
+        onSuccess?.(transactionResponseData)
+      }
+    }
+  }, [state.status, transactionResponseData])
 
   const isTransactionStarted = [
     'approve',
@@ -770,11 +794,17 @@ function CreateClaimForm({
                     type="button"
                     variant="primary"
                     onClick={() => {
-                      navigate(`/app/claim/${transactionResponseData.claim_id}`)
+                      if (successAction === TransactionSuccessAction.VIEW) {
+                        navigate(
+                          `/app/claim/${transactionResponseData.claim_id}`,
+                        )
+                      }
                       onClose()
                     }}
                   >
-                    View claim
+                    {successAction === TransactionSuccessAction.VIEW
+                      ? 'View claim'
+                      : 'Close'}
                   </Button>
                 )
               }

@@ -29,6 +29,7 @@ import NavigationButton from '@components/navigation-link'
 import { getChainEnvConfig } from '@lib/utils/environment'
 import logger from '@lib/utils/logger'
 import { cn } from '@lib/utils/misc'
+import { QuestRouteId } from '@lib/utils/quest'
 import { setupAPI } from '@server/auth'
 import { CURRENT_ENV, PATHS, SUPPORT_EMAIL_ADDRESS } from 'consts'
 import { ClientOnly } from 'remix-utils/client-only'
@@ -145,7 +146,7 @@ export function AppLayout() {
   }, [chain, switchChain])
 
   return (
-    <main className="relative flex min-h-screen w-full flex-col justify-between antialiased">
+    <main className="flex min-h-screen w-full flex-col justify-between antialiased">
       <Outlet />
     </main>
   )

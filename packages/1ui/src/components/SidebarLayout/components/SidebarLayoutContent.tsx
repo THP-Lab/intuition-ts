@@ -1,12 +1,23 @@
-import { ResizablePanel } from '../../../'
+import { HTMLAttributes, Ref } from 'react'
 
-export const SidebarLayoutContent = ({ ...props }) => {
+import { ScrollAreaProps } from '@radix-ui/react-scroll-area'
+import { ResizablePanel, ScrollArea } from 'components'
+
+export interface SidebarLayoutContentProps extends ScrollAreaProps {
+  viewportRef?: Ref<HTMLDivElement> | null
+}
+
+export const SidebarLayoutContent = ({
+  viewportRef,
+  ...props
+}: SidebarLayoutContentProps) => {
   return (
     <ResizablePanel defaultSize={70}>
-      <div
-        className="flex h-full items-center justify-center py-3 px-1"
+      <ScrollArea
+        className="h-screen"
         {...props}
-      ></div>
+        viewportRef={viewportRef}
+      ></ScrollArea>
     </ResizablePanel>
   )
 }

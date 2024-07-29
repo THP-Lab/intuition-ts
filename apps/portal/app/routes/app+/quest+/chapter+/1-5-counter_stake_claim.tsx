@@ -1,25 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import { Button, ButtonSize, ButtonVariant } from '@0xintuition/1ui'
 import {
   ClaimPresenter,
   ClaimsService,
   GetPositionByIdResponse,
-  IdentitiesService,
   IdentityPresenter,
   PositionPresenter,
-  PositionSortColumn,
   PositionsService,
   QuestsService,
   QuestStatus,
-  SortDirection,
   UserQuestsService,
   UsersService,
 } from '@0xintuition/api'
 
-import CreateIdentityModal from '@components/create-identity-modal'
-import CreateAtomActivity from '@components/quest/create-atom-activity'
-import CreateClaimActivity from '@components/quest/create-claim-activity'
 import {
   Header,
   Hero,
@@ -43,7 +37,6 @@ import {
 import { ActionFunctionArgs, json, LoaderFunctionArgs } from '@remix-run/node'
 import {
   Form,
-  Link,
   useFetcher,
   useLoaderData,
   useRevalidator,
@@ -60,8 +53,7 @@ import {
 } from 'types'
 
 const ROUTE_ID = QuestRouteId.COUNTER_STAKE_CLAIM
-const DEFAULT_CLAIM_ID = '19ac84b0-4db2-403c-a236-e09a60ce02da'
-const FALLBACK_IDENTITY_ID = '19ac84b0-4db2-403c-a236-e09a60ce02da'
+const DEFAULT_CLAIM_ID = '503942e6-ab35-4bb3-b075-ba07959fc89c'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const id = getQuestId(ROUTE_ID)
@@ -118,7 +110,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   if (position) {
-    invariant(position.identity_id, 'position must be on an identity')
+    invariant(position.claim_id, 'position must be on an claim')
     claim = await fetchWrapper({
       method: ClaimsService.getClaimById,
       args: {
@@ -131,8 +123,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         userQuest.quest_id === quest.depends_on_quest &&
         userId === userQuest.user_id,
     )
-    const dependsOnClaimId =
-      dependsOnUserQuest?.quest_completion_object_id ?? FALLBACK_IDENTITY_ID
+    const dependsOnClaimId = DEFAULT_CLAIM_ID
     claim = await fetchWrapper({
       method: ClaimsService.getClaimById,
       args: {
@@ -147,31 +138,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     claim.vault_id,
     user.wallet?.address as `0x${string}`,
   )
-
-  // Temp
-  let toggle = true
-  if (toggle) {
-    position =
-      (
-        await fetchWrapper({
-          method: PositionsService.searchPositions,
-          args: {
-            claim: claim.claim_id,
-            vault: claim.vault_id,
-            creatorId: userId,
-            sort: {
-              sortBy: PositionSortColumn.CREATED_AT,
-              direction: SortDirection.DESC,
-            },
-            paging: {
-              page: 1,
-              limit: 1,
-              offset: 0,
-            },
-          },
-        })
-      ).data[0] ?? undefined
-  }
 
   // if position fetch underlying vault details
   if (position && claim) {
@@ -378,29 +344,30 @@ export default function Quests() {
           handleAgainstClick={handleOpenAgainstActivityModal}
           handleSellClick={handleSellClick}
           vaultDetails={vaultDetails}
+          direction={'against'}
         />
         <MDXContentView
           body={questContentSecondary?.body}
           shouldDisplay={
             userQuest?.status === QuestStatus.CLAIMABLE ||
-            userQuest?.status === QuestStatus.COMPLETED ||
-            !!position
+            (userQuest?.status === QuestStatus.COMPLETED && !!position)
           }
         />
-        <StakeClaimUnderlyingIdentitiesActivity
-          identities={identities}
-          handleSellClick={handleSellIdentityClick}
-          status={QuestStatus.NOT_STARTED}
-          userWallet={userWallet}
-        />
+        {!!identities.length && !!position && (
+          <StakeClaimUnderlyingIdentitiesActivity
+            identities={identities}
+            handleSellClick={handleSellIdentityClick}
+            status={QuestStatus.NOT_STARTED}
+            userWallet={userWallet}
+          />
+        )}
 
         <MDXContentView
           body={questClosing?.body}
           variant={MDXContentVariant.LORE}
           shouldDisplay={
             userQuest?.status === QuestStatus.CLAIMABLE ||
-            userQuest?.status === QuestStatus.COMPLETED ||
-            !!position
+            (userQuest?.status === QuestStatus.COMPLETED && !!position)
           }
         />
 
