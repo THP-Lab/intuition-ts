@@ -1,0 +1,17 @@
+import{j as e}from"./jsx-runtime-Cw0GR0a5.js";import{D as n,y as s,B as l,z as g,E as c,F as m,G as p}from"./TransactionStatusIndicator-C2rhLdVG.js";import"./Icon.types-xxOQRm7p.js";import"./Label-CLv4BT0x.js";import"./PieChart-B_dtFskq.js";import"./ProgressBar-Bfgyotpp.js";import"./ProgressCard-BYKzYHAL.js";import"./SegmentedControl-DQCOk3Kf.js";import"./Separator-BEma7yvq.js";import"./Skeleton-pYLGnhFW.js";import"./Table-JXx_s4Wj.js";import"./Text-COZqca-9.js";import"./Textarea-CSqXU4Tb.js";import"./ValueDisplay-BLpqF4VW.js";const d={title:"Components/Dialog",component:n},o={args:{},render:t=>e.jsxs(n,{...t,children:[e.jsx(s,{children:e.jsx(l,{size:"lg",children:"Open dialog"})}),e.jsx(g,{children:e.jsxs(c,{children:[e.jsx(m,{children:"Are you absolutely sure?"}),e.jsx(p,{children:"This action cannot be undone. This will permanently delete your account and remove your data from our servers."})]})})]})};var r,i,a;o.parameters={...o.parameters,docs:{...(r=o.parameters)==null?void 0:r.docs,source:{originalSource:`{
+  args: {},
+  render: args => <Dialog {...args}>
+      <DialogTrigger>
+        <Button size="lg">Open dialog</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you absolutely sure?</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. This will permanently delete your
+            account and remove your data from our servers.
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+}`,...(a=(i=o.parameters)==null?void 0:i.docs)==null?void 0:a.source}}};const u=["BasicUsage"],C=Object.freeze(Object.defineProperty({__proto__:null,BasicUsage:o,__namedExportsOrder:u,default:d},Symbol.toStringTag,{value:"Module"}));export{o as B,C as S};
