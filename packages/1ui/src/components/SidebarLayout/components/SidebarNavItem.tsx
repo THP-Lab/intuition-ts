@@ -23,12 +23,14 @@ export interface SidebarNavItemProps
   iconName: IconNameType | ReactNode
   label: string
   onClick?: () => void
+  isLoading?: boolean
 }
 
 export const SidebarNavItem = ({
   iconName,
   label,
   onClick,
+  isLoading = false,
   ...props
 }: SidebarNavItemProps) => {
   const { isMobileView, isCollapsed, setIsCollapsed } =
@@ -41,6 +43,7 @@ export const SidebarNavItem = ({
       onClick && onClick()
       isMobileView && setIsCollapsed(true)
     },
+    isLoading,
     ...props,
   }
 
@@ -60,7 +63,7 @@ export const SidebarNavItem = ({
             {...buttonProps}
             className="justify-center"
           >
-            {ImageComponent}
+            {!isLoading && ImageComponent}
           </Button>
         </TooltipTrigger>
         <TooltipContent side="right" sideOffset={16}>
@@ -73,7 +76,7 @@ export const SidebarNavItem = ({
       size={isMobileView ? ButtonSize.xl : ButtonSize.lg}
       {...buttonProps}
     >
-      {ImageComponent}
+      {!isLoading && ImageComponent}
       {label}
     </Button>
   )

@@ -162,10 +162,14 @@ export default function SidebarNav({
                     to={sidebarNavItem.route}
                     prefetch="intent"
                   >
-                    <SidebarNavItem
-                      iconName={sidebarNavItem.iconName}
-                      label={sidebarNavItem.label}
-                    />
+                    {({ isActive, isPending }) => (
+                      <SidebarNavItem
+                        iconName={sidebarNavItem.iconName}
+                        label={sidebarNavItem.label}
+                        aria-selected={isActive || isPending}
+                        isLoading={isPending}
+                      />
+                    )}
                   </NavLink>
                 ))}
               </div>
