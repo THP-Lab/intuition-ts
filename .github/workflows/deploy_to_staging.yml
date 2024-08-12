@@ -1,4 +1,4 @@
-name: Deploy apps/portal
+name: Deploy Portal to Staging
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy
+    name: Deploy to Staging
     runs-on: ubuntu-latest
 
     steps:
