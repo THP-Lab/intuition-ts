@@ -20,8 +20,10 @@ export function atomWithToggle(
   return anAtom
 }
 
-export const createIdentityModalAtom = atomWithToggle(false)
-export const createClaimModalAtom = atomWithToggle(false)
+export const globalCreateIdentityModalAtom = atomWithToggle(false)
+export const detailCreateIdentityModalAtom = atomWithToggle(false)
+export const globalCreateClaimModalAtom = atomWithToggle(false)
+export const detailCreateClaimModalAtom = atomWithToggle(false)
 export const editProfileModalAtom = atomWithToggle(false)
 export const editSocialLinksModalAtom = atomWithToggle(false)
 

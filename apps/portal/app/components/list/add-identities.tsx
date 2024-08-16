@@ -19,7 +19,10 @@ import { IdentitySearchCombobox } from '@components/identity/identity-search-com
 import { InfoTooltip } from '@components/info-tooltip'
 import useFilteredIdentitySearch from '@lib/hooks/useFilteredIdentitySearch'
 import useInvalidItems from '@lib/hooks/useInvalidItems'
-import { createIdentityModalAtom, saveListModalAtom } from '@lib/state/store'
+import {
+  detailCreateIdentityModalAtom,
+  saveListModalAtom,
+} from '@lib/state/store'
 import { useFetcher } from '@remix-run/react'
 import { TagLoaderData } from '@routes/resources+/tag'
 import { TAG_PREDICATE_VAULT_ID_TESTNET, TAG_RESOURCE_ROUTE } from 'app/consts'
@@ -55,7 +58,9 @@ export function AddIdentities({
   invalidIdentities,
   setInvalidIdentities,
 }: AddIdentitiesProps) {
-  const [, setCreateIdentityModalActive] = useAtom(createIdentityModalAtom)
+  const [, setCreateIdentityModalActive] = useAtom(
+    detailCreateIdentityModalAtom,
+  )
   const [saveListModalActive, setSaveListModalActive] =
     useAtom(saveListModalAtom)
 

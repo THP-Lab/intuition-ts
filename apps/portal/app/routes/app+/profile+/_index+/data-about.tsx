@@ -13,7 +13,7 @@ import { DataHeaderSkeleton, PaginatedListSkeleton } from '@components/skeleton'
 import { useLiveLoader } from '@lib/hooks/useLiveLoader'
 import { getClaimsAboutIdentity } from '@lib/services/claims'
 import { getPositionsOnIdentity } from '@lib/services/positions'
-import { createClaimModalAtom } from '@lib/state/store'
+import { detailCreateClaimModalAtom } from '@lib/state/store'
 import logger from '@lib/utils/logger'
 import { formatBalance, invariant } from '@lib/utils/misc'
 import { defer, LoaderFunctionArgs, redirect } from '@remix-run/node'
@@ -78,8 +78,9 @@ export default function ProfileDataAbout() {
     ) ?? {}
   invariant(userIdentity, NO_USER_IDENTITY_ERROR)
 
-  const [createClaimModalActive, setCreateClaimModalActive] =
-    useAtom(createClaimModalAtom)
+  const [createClaimModalActive, setCreateClaimModalActive] = useAtom(
+    detailCreateClaimModalAtom,
+  )
 
   return (
     <>

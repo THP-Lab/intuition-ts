@@ -24,7 +24,10 @@ import {
 import { UserPresenter } from '@0xintuition/api'
 
 import PrivyButton from '@client/privy-button'
-import { createClaimModalAtom, createIdentityModalAtom } from '@lib/state/store'
+import {
+  globalCreateClaimModalAtom,
+  globalCreateIdentityModalAtom,
+} from '@lib/state/store'
 import { NavLink, useLocation, useNavigate, useSubmit } from '@remix-run/react'
 import { PATHS } from 'app/consts'
 import { useAtom } from 'jotai'
@@ -104,11 +107,12 @@ export default function SidebarNav({
   const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false)
 
   const [createIdentityModalActive, setCreateIdentityModalActive] = useAtom(
-    createIdentityModalAtom,
+    globalCreateIdentityModalAtom,
   )
 
-  const [createClaimModalActive, setCreateClaimModalActive] =
-    useAtom(createClaimModalAtom)
+  const [createClaimModalActive, setCreateClaimModalActive] = useAtom(
+    globalCreateClaimModalAtom,
+  )
 
   function onLogout() {
     submit(null, {
