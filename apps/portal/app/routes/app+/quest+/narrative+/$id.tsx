@@ -149,7 +149,7 @@ export default function Quests() {
           Chapters
         </Text>
 
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-10 pb-20">
           {quests.map((quest) => {
             const available = isQuestAvailable(quest)
             const userQuestStatus = getUserQuestStatus(quest)
@@ -180,26 +180,6 @@ export default function Quests() {
             )
           })}
         </div>
-        <QuestCard
-          key={`${'test'}-quest-card`}
-          imgSrc={quests[0].image}
-          title={'Test Quest'}
-          description={'Quest to test success modal + help with handoff'}
-          questStatus={getUserQuestStatus(quests[0])}
-          label={`Chapter ${quests[0].position}`}
-          points={quests[0].points}
-          questCriteria={getQuestCriteria(quests[0].condition)}
-          disabled={false}
-          handleClick={(e) => {
-            e.preventDefault()
-            handleClick({
-              questId: quests[0].id,
-              redirectTo: `1-7-test_atom`,
-              status: getUserQuestStatus(quests[0]),
-              available: true,
-            })
-          }}
-        />
       </div>
     </div>
   )

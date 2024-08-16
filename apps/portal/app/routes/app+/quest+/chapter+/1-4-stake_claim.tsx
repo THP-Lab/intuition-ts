@@ -245,6 +245,8 @@ export default function Quests() {
   } = useQuestCompletion(userQuest)
   const [stakeModalActive, setStakeModalActive] = useAtom(stakeModalAtom)
 
+  console.log('checkQuestSuccess', checkQuestSuccessLoading)
+  console.log('userQuest.status', userQuest.status)
   function handleOpenForActivityModal() {
     setStakeModalActive((prevState) => ({
       ...prevState,

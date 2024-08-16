@@ -79,6 +79,7 @@ export default function StakeClaimActivity({
   const directionTagVariant =
     +userConviction > 0 ? TagVariant.for : TagVariant.against
   const directionTagText = +userConviction > 0 ? 'FOR' : 'AGAINST'
+
   return (
     <ActivityContainer status={status} {...props} className="pb-5">
       {position ? (
@@ -164,12 +165,19 @@ export default function StakeClaimActivity({
               direction === 'for' ? ButtonVariant.for : ButtonVariant.against
             }
             size={ButtonSize.lg}
-            disabled={direction !== userPositionDirection || isDisabled}
+            disabled={
+              (userPositionDirection && direction !== userPositionDirection) ||
+              isDisabled
+            }
             onClick={direction === 'for' ? handleForClick : handleAgainstClick}
             className="w-fit"
             isLoading={isLoading && direction === userPositionDirection}
           >
-            {direction === 'for' ? 'Deposit For' : 'Deposit Against'}
+            {isLoading
+              ? 'Loading...'
+              : direction === 'for'
+                ? 'Deposit For'
+                : 'Deposit Against'}
           </Button>
         </div>
       )}
