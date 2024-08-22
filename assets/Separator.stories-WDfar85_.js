@@ -1,0 +1,5 @@
+import{j as t}from"./jsx-runtime-Cw0GR0a5.js";import{S as o}from"./Separator-r-Tg2QWT.js";const i={title:"Components/Separator",component:o,argTypes:{orientation:{description:"The orientation of the separator.",options:["horizontal","vertical"],table:{type:{summary:"string"},defaultValue:{summary:"horizontal"}},control:"select"},decorative:{description:"When true, signifies that it is purely visual, carries no semantic meaning, and ensures it is not present in the accessibility tree.",table:{type:{summary:"boolean"}},control:"boolean"}}},e={render:n=>t.jsx("div",{className:"w-[400px] h-[200px] flex justify-center items-center",children:t.jsx(o,{...n})})};var r,s,a;e.parameters={...e.parameters,docs:{...(r=e.parameters)==null?void 0:r.docs,source:{originalSource:`{
+  render: args => <div className="w-[400px] h-[200px] flex justify-center items-center">
+      <Separator {...args} />
+    </div>
+}`,...(a=(s=e.parameters)==null?void 0:s.docs)==null?void 0:a.source}}};const c=["BasicUsage"],m=Object.freeze(Object.defineProperty({__proto__:null,BasicUsage:e,__namedExportsOrder:c,default:i},Symbol.toStringTag,{value:"Module"}));export{e as B,m as S};
