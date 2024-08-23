@@ -226,8 +226,8 @@ importers:
         specifier: 1.74.1
         version: 1.74.1(@babel/core@7.24.7)(@types/react@18.3.1)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(typescript@5.4.5)(utf-8-validate@6.0.4)
       '@privy-io/server-auth':
-        specifier: 1.9.1
-        version: 1.9.1
+        specifier: 1.10.0
+        version: 1.10.0
       '@privy-io/wagmi':
         specifier: 0.2.11
         version: 0.2.11(@privy-io/react-auth@1.74.1(@babel/core@7.24.7)(@types/react@18.3.1)(bufferutil@4.0.8)(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(typescript@5.4.5)(utf-8-validate@6.0.4))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(viem@2.13.8(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@6.0.4)(zod@3.23.8))(wagmi@2.10.0(@tanstack/query-core@5.45.0)(@tanstack/react-query@5.45.0(react@18.3.1))(@types/react@18.3.1)(bufferutil@4.0.8)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react-i18next@13.5.0(i18next@22.5.1)(react-dom@18.3.1(react@18.3.1))(react-native@0.74.2(@babel/core@7.24.7)(@babel/preset-env@7.24.7(@babel/core@7.24.7))(@types/react@18.3.1)(bufferutil@4.0.8)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@6.0.4))(react@18.3.1))(react-native@0.74.2(@babel/core@7.24.7)(@babel/preset-env@7.24.7(@babel/core@7.24.7))(@types/react@18.3.1)(bufferutil@4.0.8)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@6.0.4))(react@18.3.1)(rollup@4.18.0)(typescript@5.4.5)(utf-8-validate@6.0.4)(viem@2.13.8(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@6.0.4)(zod@3.23.8))(zod@3.23.8))
@@ -3229,8 +3229,8 @@ packages:
       react: ^18
       react-dom: ^18
 
-  '@privy-io/server-auth@1.9.1':
-    resolution: {integrity: sha512-jl/jID8CB0TSi8dzdTeT4fJFdG/uyeVCDPhBbjS5lxf5v7K17G+QP96ZSo7KQH8aFqPWbtR1euBR/kjo8jM3kQ==}
+  '@privy-io/server-auth@1.10.0':
+    resolution: {integrity: sha512-8dUNXW2FvWqeUUPYcv3LZElFOYE0PKeX/VW7J84moeac7Jot+7GMc5wcy6f/SXXpb/M7oVovobAG5ouQ3Vd2zA==}
 
   '@privy-io/wagmi@0.2.11':
     resolution: {integrity: sha512-1ZO5uPD/IVzE9gQHdT4Oh5boOqWLCCMR3sE4yVboRHpc2k6ClOXBzRItzdm9HkdaG2yvKlG36aZyJ3O1Puwg3A==}
@@ -16682,7 +16682,7 @@ snapshots:
       - uWebSockets.js
       - utf-8-validate
 
-  '@privy-io/server-auth@1.9.1':
+  '@privy-io/server-auth@1.10.0':
     dependencies:
       dotenv: 16.4.5
       jose: 4.15.5
