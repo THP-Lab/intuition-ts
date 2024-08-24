@@ -70,12 +70,14 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const envvars = await getEnv();
+
   setupAPI(request)
 
-  logger('env', getEnv())
+  logger('env', envvars)
 
   return json({
-    env: getEnv(),
+    env: envvars,
     requestInfo: {
       hints: getHints(request),
       path: new URL(request.url).pathname,

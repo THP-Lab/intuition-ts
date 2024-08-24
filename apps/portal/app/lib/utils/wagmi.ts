@@ -4,22 +4,22 @@ import { Config, http } from 'wagmi'
 
 const alchemyMainnetRpcUrl =
   typeof window !== 'undefined'
-    ? window.ENV?.ALCHEMY_MAINNET_RPC_URL
+    ? (await window.ENV)?.ALCHEMY_MAINNET_RPC_URL
     : process.env.ALCHEMY_MAINNET_RPC_URL
 
 const alchemyBaseRpcUrl =
   typeof window !== 'undefined'
-    ? window.ENV?.ALCHEMY_BASE_RPC_URL
+    ? (await window.ENV)?.ALCHEMY_BASE_RPC_URL
     : process.env.ALCHEMY_BASE_RPC_URL
 
 const alchemyBaseSepoliaRpcUrl =
   typeof window !== 'undefined'
-    ? window.ENV?.ALCHEMY_BASE_SEPOLIA_RPC_URL
+    ? (await window.ENV)?.ALCHEMY_BASE_SEPOLIA_RPC_URL
     : process.env.ALCHEMY_BASE_SEPOLIA_RPC_URL
 
 const originUrl =
   typeof window !== 'undefined'
-    ? window.ENV?.ORIGIN_URL
+    ? (await window.ENV)?.ORIGIN_URL
     : process.env.ORIGIN_URL
 
 export const wagmiConfig: Config = createConfig({

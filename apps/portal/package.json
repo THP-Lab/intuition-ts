@@ -57,6 +57,7 @@
     "zod": "^3.23.4"
   },
   "devDependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.504.0",
     "@content-collections/cli": "^0.1.2",
     "@content-collections/core": "^0.6.2",
     "@content-collections/mdx": "^0.1.3",

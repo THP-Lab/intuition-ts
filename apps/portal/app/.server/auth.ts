@@ -112,7 +112,7 @@ export async function handlePrivyRedirect({
 
 export async function setupAPI(request: Request) {
   const apiUrl =
-    typeof window !== 'undefined' ? window.ENV?.API_URL : process.env.API_URL
+    typeof window !== 'undefined' ? (await window.ENV)?.API_URL : process.env.API_URL
 
   OpenAPI.BASE = apiUrl
 
