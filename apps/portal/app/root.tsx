@@ -70,7 +70,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const envvars = await getEnv();
+  const envvars = await getEnv()
 
   setupAPI(request)
 

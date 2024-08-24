@@ -1,6 +1,10 @@
+import { env } from 'node:process'
+
+import {
+  GetSecretValueCommand,
+  SecretsManagerClient,
+} from '@aws-sdk/client-secrets-manager'
 import { z } from 'zod'
-import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
-import { env } from 'node:process';
 
 export const featureFlagsSchema = z.object({
   FF_GENERIC_BANNER_ENABLED: z.string().optional(),
@@ -56,8 +60,8 @@ export function init() {
  */
 export async function getEnv() {
   // Fetch secrets from AWS Secrets Manager
-  await fetchSecrets();
-  
+  await fetchSecrets()
+
   return {
     MODE: process.env.NODE_ENV,
     DEPLOY_ENV: process.env.DEPLOY_ENV,
@@ -104,57 +108,59 @@ declare global {
  * Gets the environment variables from Secrets Manager and sets them globally.
  */
 async function fetchSecrets() {
-  const BACKEND_ENV: string = env.BACKEND_ENV!;
-  const AWS_REGION: string = env.AWS_REGION!;
-  const AWS_ACCOUNT: string = env.AWS_ACCOUNT!;
-  const AWS_SECRETS_CONFIG: string = env.AWS_SECRETS_CONFIG!;
-  const SECRET_KEY = `portal.${BACKEND_ENV}`;
+  const BACKEND_ENV: string = env.BACKEND_ENV!
+  const AWS_REGION: string = env.AWS_REGION!
+  const AWS_ACCOUNT: string = env.AWS_ACCOUNT!
+  const AWS_SECRETS_CONFIG: string = env.AWS_SECRETS_CONFIG!
+  const SECRET_KEY = `portal.${BACKEND_ENV}`
 
-  console.log(`BACKEND ENV = ${BACKEND_ENV}`);
-  console.log(`AWS REGION = ${AWS_REGION}`);
-  console.log(`AWS ACCOUNT = ${AWS_ACCOUNT}`);
-  console.log(`AWS SECRETS CONFIG = ${AWS_SECRETS_CONFIG}`);
-  console.log(`SECRET KEY = ${SECRET_KEY}`);
+  console.log(`BACKEND ENV = ${BACKEND_ENV}`)
+  console.log(`AWS REGION = ${AWS_REGION}`)
+  console.log(`AWS ACCOUNT = ${AWS_ACCOUNT}`)
+  console.log(`AWS SECRETS CONFIG = ${AWS_SECRETS_CONFIG}`)
+  console.log(`SECRET KEY = ${SECRET_KEY}`)
 
-  const client = new SecretsManagerClient({ region: AWS_REGION });
+  const client = new SecretsManagerClient({ region: AWS_REGION })
 
   // First access the config secrets to get the desired secrets key
-  let arn = get_arn(AWS_REGION, AWS_ACCOUNT, AWS_SECRETS_CONFIG);
-  console.log(`ARN = ${arn}`);
-  let cmd = new GetSecretValueCommand({ SecretId: arn });
-  let secrets = await get_secrets(cmd);
-  if (typeof secrets[SECRET_KEY] !== "undefined") {
-      const secret_code = secrets[SECRET_KEY];
-      const repo_name = `${SECRET_KEY}-${secret_code}`;
+  let arn = get_arn(AWS_REGION, AWS_ACCOUNT, AWS_SECRETS_CONFIG)
+  console.log(`ARN = ${arn}`)
+  let cmd = new GetSecretValueCommand({ SecretId: arn })
+  let secrets = await get_secrets(cmd)
+  if (typeof secrets[SECRET_KEY] !== 'undefined') {
+    const secret_code = secrets[SECRET_KEY]
+    const repo_name = `${SECRET_KEY}-${secret_code}`
 
-      console.log(`REPO NAME = ${repo_name}`);
+    console.log(`REPO NAME = ${repo_name}`)
 
-      // Now get the secrets for this key
-      arn = get_arn(AWS_REGION, AWS_ACCOUNT, repo_name);
-      console.log(`ARN = ${arn}`);
-      cmd = new GetSecretValueCommand({ SecretId: arn });
-      secrets = await get_secrets(cmd);
-      for (let s in secrets) {
-          process.env[s] = secrets[s];
-          console.log(`SECRET ${s} = ${secrets[s]}`);
-      }  
+    // Now get the secrets for this key
+    arn = get_arn(AWS_REGION, AWS_ACCOUNT, repo_name)
+    console.log(`ARN = ${arn}`)
+    cmd = new GetSecretValueCommand({ SecretId: arn })
+    secrets = await get_secrets(cmd)
+    for (const s in secrets) {
+      process.env[s] = secrets[s]
+      console.log(`SECRET ${s} = ${secrets[s]}`)
+    }
   }
 
   function get_arn(region: string, account: string, repo_name: string) {
-      return `arn:aws:secretsmanager:${region}:${account}:secret:${repo_name}`;
+    return `arn:aws:secretsmanager:${region}:${account}:secret:${repo_name}`
   }
 
-  async function get_secrets(cmd: GetSecretValueCommand): Promise<{ [id: string] : string; }> {
-      var vars: { [id: string] : string; } = {};
-      let res = await client.send(cmd);  
-      let secrets = res.SecretString;
-      if (secrets !== undefined) {
-          let secretsList = JSON.parse(secrets);
-          for (let k in secretsList) {
-              let v = secretsList[k];
-              vars[k] = v;
-          }  
+  async function get_secrets(
+    cmd: GetSecretValueCommand,
+  ): Promise<{ [id: string]: string }> {
+    const vars: { [id: string]: string } = {}
+    const res = await client.send(cmd)
+    const secrets = res.SecretString
+    if (secrets !== undefined) {
+      const secretsList = JSON.parse(secrets)
+      for (const k in secretsList) {
+        const v = secretsList[k]
+        vars[k] = v
       }
-      return vars;
+    }
+    return vars
   }
 }
