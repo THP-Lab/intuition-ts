@@ -5,7 +5,7 @@ import { ClaimPresenter, ClaimSortColumn } from '@0xintuition/api'
 
 import { ErrorPage } from '@components/error-page'
 import { ListClaimsList } from '@components/list/list-claims'
-import { ListClaimsSkeletonLayout } from '@components/list/list-skeletons'
+import { ListClaimsSkeletonLayout } from '@components/lists/list-skeletons'
 import { SortOption } from '@components/sort-select'
 import { useLiveLoader } from '@lib/hooks/useLiveLoader'
 import { getUserSavedLists } from '@lib/services/lists'
@@ -114,7 +114,7 @@ export default function ProfileLists() {
                 listClaims={accumulatedClaims}
                 pagination={resolvedSavedListClaims.pagination}
                 enableSort={true}
-                enableSearch={false}
+                enableSearch={true}
                 columns={3}
                 onLoadMore={() => handleLoadMore(resolvedSavedListClaims)}
                 sortOptions={sortOptions}

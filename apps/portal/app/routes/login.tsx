@@ -41,6 +41,8 @@ export async function action({ request }: ActionFunctionArgs) {
   logger('[Action] Redirecting to', redirectUrl)
   const cookies = parse(request.headers.get('cookie') ?? '')
   const privyToken = cookies['privy-token'] // not necessary but just to show its being properly set by privy post auth
+  const privyIdToken = cookies['privy-id-token']
+  logger('privyIdToken', privyIdToken)
   logger('[Action] Redirecting w/ privyToken', privyToken)
   throw redirect(redirectUrl)
 }

@@ -18,7 +18,10 @@ export const verifyPrivyAccessToken = async (
     logger('No privy access token found')
     return null
   }
-  const verifiedClaims = await privy.verifyAuthToken(authToken)
+  const verifiedClaims = await privy.verifyAuthToken(
+    authToken,
+    process.env.PRIVY_VERIFICATION_KEY,
+  )
   return verifiedClaims
 }
 
@@ -32,9 +35,19 @@ export const getPrivyUserById = async (id: string): Promise<User> => {
 // get access token from cookie or header
 export const getPrivyAccessToken = (req: Request): string | null => {
   const cookies = parse(req.headers.get('Cookie') ?? '')
+
+  const authIdToken =
+    req.headers.get('Authorization')?.replace('Bearer ', '') ||
+    cookies['privy-id-token']
+  if (authIdToken) {
+    logger('authIdToken', authIdToken)
+    return authIdToken
+  }
+
   const authToken =
     req.headers.get('Authorization')?.replace('Bearer ', '') ||
     cookies['privy-token']
+
   return authToken
 }
 

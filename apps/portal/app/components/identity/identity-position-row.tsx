@@ -1,18 +1,16 @@
-import * as React from 'react'
-
-import { cn } from 'styles'
-import { CurrencyType, Identity, IdentityType } from 'types'
-import { formatDate } from 'utils/date'
+import React, { useRef, useState } from 'react'
 
 import {
   Avatar,
-  Button,
-  ButtonVariant,
+  cn,
   Copy,
+  CurrencyType,
+  formatDate,
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-  Icon,
+  Identity,
+  IdentityType,
   PositionValueDisplay,
   PositionValueVariants,
   ProfileCard,
@@ -23,9 +21,11 @@ import {
   TextVariant,
   TextWeight,
   Trunctacular,
-} from '..'
+} from '@0xintuition/1ui'
 
-export interface IdentityPositionProps
+import { useNavigate } from '@remix-run/react'
+
+export interface IdentityPositionRowProps
   extends React.HTMLAttributes<HTMLDivElement> {
   variant?: IdentityType
   amount: number
@@ -41,7 +41,7 @@ export interface IdentityPositionProps
   tags?: TagWithValueProps[]
 }
 
-const IdentityPosition = ({
+const IdentityPositionRow = ({
   variant = Identity.user,
   amount,
   currency,
@@ -55,15 +55,45 @@ const IdentityPosition = ({
   updatedAt,
   tags,
   className,
-  ...props
-}: IdentityPositionProps) => {
+}: IdentityPositionRowProps) => {
+  const navigate = useNavigate()
+  const [isInteractiveElement, setIsInteractiveElement] = useState(false)
+  const linkRef = useRef<HTMLDivElement>(null)
+
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!isInteractiveElement && link && event.target === linkRef.current) {
+      navigate(link)
+    }
+  }
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLElement>) => {
+    const target = event.target as HTMLElement
+    const interactiveElement = target.closest(
+      'a, button, .identity-tag, .hover-card',
+    )
+    setIsInteractiveElement(!!interactiveElement)
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' && !isInteractiveElement && link) {
+      navigate(link)
+    }
+  }
+
   return (
     <div
+      ref={linkRef}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      onMouseMove={handleMouseMove}
+      role={isInteractiveElement ? undefined : 'button'}
+      tabIndex={isInteractiveElement ? undefined : 0}
       className={cn(
         `w-full flex justify-between max-sm:flex-col max-sm:items-center p-6`,
+        `hover:bg-secondary/10 transition-colors duration-200 group`,
+        isInteractiveElement ? 'cursor-default' : 'cursor-pointer',
         className,
       )}
-      {...props}
     >
       <div className="flex items-center">
         <HoverCard openDelay={150} closeDelay={150}>
@@ -88,14 +118,14 @@ const IdentityPosition = ({
                 ipfsLink={ipfsLink}
                 className="profile-card"
               />
-              {link && (
+              {/* {link && (
                 <a href={link}>
                   <Button variant={ButtonVariant.secondary} className="w-full">
                     View Identity{' '}
                     <Icon name={'arrow-up-right'} className="h-3 w-3" />{' '}
                   </Button>
                 </a>
-              )}
+              )} */}
             </div>
           </HoverCardContent>
         </HoverCard>
@@ -114,7 +144,7 @@ const IdentityPosition = ({
                 <Trunctacular
                   value={id}
                   variant="body"
-                  className="text-secondary-foreground"
+                  className="text-primary/60 hover:text-primary"
                 />
               </a>
               <Copy text={id} className="text-secondary-foreground" />
@@ -155,4 +185,4 @@ const IdentityPosition = ({
   )
 }
 
-export { IdentityPosition }
+export { IdentityPositionRow }
