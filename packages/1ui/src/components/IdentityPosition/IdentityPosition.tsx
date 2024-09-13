@@ -60,7 +60,7 @@ const IdentityPosition = ({
   return (
     <div
       className={cn(
-        `w-full flex justify-between max-sm:flex-col max-sm:items-center`,
+        `w-full flex justify-between max-sm:flex-col max-sm:items-center p-6`,
         className,
       )}
       {...props}

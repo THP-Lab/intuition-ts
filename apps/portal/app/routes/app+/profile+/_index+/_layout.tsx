@@ -20,6 +20,8 @@ import {
   TagWithValue,
 } from '@0xintuition/1ui'
 import {
+  ClaimPresenter,
+  ClaimsService,
   IdentityPresenter,
   TagEmbeddedPresenter,
   UserPresenter,
@@ -31,10 +33,10 @@ import PrivyRevalidate from '@client/privy-revalidate'
 import EditProfileModal from '@components/edit-profile/modal'
 import EditSocialLinksModal from '@components/edit-social-links-modal'
 import { ErrorPage } from '@components/error-page'
-import SaveListModal from '@components/list/save-list-modal'
 import NavigationButton from '@components/navigation-link'
 import { ProfileSocialAccounts } from '@components/profile-social-accounts'
 import ImageModal from '@components/profile/image-modal'
+import SaveListModal from '@components/save-list/save-list-modal'
 import { SegmentedNav } from '@components/segmented-nav'
 import StakeModal from '@components/stake/stake-modal'
 import TagsModal from '@components/tags/tags-modal'
@@ -49,6 +51,7 @@ import {
   stakeModalAtom,
   tagsModalAtom,
 } from '@lib/state/store'
+import { getSpecialPredicate } from '@lib/utils/app'
 import logger from '@lib/utils/logger'
 import {
   calculatePercentageOfTvl,
@@ -72,6 +75,7 @@ import { getVaultDetails } from '@server/multivault'
 import { getRelicCount } from '@server/relics'
 import {
   BLOCK_EXPLORER_URL,
+  CURRENT_ENV,
   MULTIVAULT_CONTRACT_ADDRESS,
   NO_WALLET_ERROR,
   PATHS,
@@ -165,6 +169,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
   }
 
+  let followClaim: ClaimPresenter | null = null
+
+  const followClaimResponse = await fetchWrapper(request, {
+    method: ClaimsService.searchClaims,
+    args: {
+      subject: getSpecialPredicate(CURRENT_ENV).iPredicate.vaultId,
+      predicate: getSpecialPredicate(CURRENT_ENV).amFollowingPredicate.vaultId,
+      object: userIdentity.vault_id,
+      page: 1,
+      limit: 1,
+    },
+  })
+
+  if (followClaimResponse.data && followClaimResponse.data.length) {
+    followClaim = followClaimResponse.data[0]
+  }
+
   return json({
     privyUser: user,
     userWallet,
@@ -172,6 +193,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     userObject,
     userTotals,
     vaultDetails,
+    followClaim,
     isPending,
     relicHoldCount: relicHoldCount.toString(),
     relicMintCount,
@@ -185,6 +207,7 @@ export interface ProfileLoaderData {
   userObject: UserPresenter
   userTotals: UserTotalsPresenter
   vaultDetails: VaultDetailsType
+  followClaim: ClaimPresenter
   isPending: boolean
   relicMintCount: number
   relicHoldCount: string

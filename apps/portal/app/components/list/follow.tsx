@@ -1,4 +1,4 @@
-import { ClaimPositionRow, IconName, Identity } from '@0xintuition/1ui'
+import { IconName, Identity } from '@0xintuition/1ui'
 import {
   ClaimPresenter,
   IdentityPresenter,
@@ -7,6 +7,7 @@ import {
   SortColumn,
 } from '@0xintuition/api'
 
+import { ClaimPositionRow } from '@components/claim/claim-position-row'
 import { ListHeader } from '@components/list/list-header'
 import { SortOption } from '@components/sort-select'
 import {
@@ -16,8 +17,9 @@ import {
   getAtomIpfsLink,
   getAtomLabel,
   getAtomLink,
+  getProfileUrl,
 } from '@lib/utils/misc'
-import { BLOCK_EXPLORER_URL, PATHS } from 'app/consts'
+import { BLOCK_EXPLORER_URL } from 'app/consts'
 import { PaginationType } from 'app/types/pagination'
 
 import { List } from './list'
@@ -31,6 +33,7 @@ export function FollowList({
   enableHeader = true,
   enableSearch = true,
   enableSort = true,
+  readOnly = false,
 }: {
   identities?: IdentityPresenter[]
   positions?: PositionPresenter[]
@@ -40,6 +43,7 @@ export function FollowList({
   enableHeader?: boolean
   enableSearch?: boolean
   enableSort?: boolean
+  readOnly?: boolean
 }) {
   const followingOptions: SortOption<SortColumn>[] = [
     { value: 'Position Amount', sortBy: 'UserAssets' },
@@ -79,7 +83,7 @@ export function FollowList({
             return (
               <div
                 key={identity.id}
-                className={`grow shrink basis-0 self-stretch p-6 bg-black first:rounded-t-xl last:rounded-b-xl theme-border flex-col justify-start items-start gap-5 inline-flex`}
+                className={`grow shrink basis-0 self-stretch bg-black first:rounded-t-xl last:rounded-b-xl theme-border flex-col justify-start items-start gap-5 inline-flex`}
               >
                 <ClaimPositionRow
                   variant={Identity.user}
@@ -101,7 +105,7 @@ export function FollowList({
                   }
                   updatedAt={identity.updated_at}
                   ipfsLink={getAtomIpfsLink(identity)}
-                  link={getAtomLink(identity)}
+                  link={getAtomLink(identity, readOnly)}
                 />
               </div>
             )
@@ -109,7 +113,7 @@ export function FollowList({
         : positions?.map((position) => (
             <div
               key={position.id}
-              className={`grow shrink basis-0 self-stretch p-6 bg-black first:rounded-t-xl last:rounded-b-xl theme-border flex-col justify-start items-start gap-5 inline-flex`}
+              className={`grow shrink basis-0 self-stretch bg-black first:rounded-t-xl last:rounded-b-xl theme-border flex-col justify-start items-start gap-5 inline-flex`}
             >
               <ClaimPositionRow
                 variant={Identity.user}
@@ -134,7 +138,7 @@ export function FollowList({
                 }
                 updatedAt={position.updated_at}
                 ipfsLink={`${BLOCK_EXPLORER_URL}/address/${position.user?.wallet}`}
-                link={`${PATHS.PROFILE}/${position.user?.wallet}`}
+                link={getProfileUrl(position.user?.wallet, readOnly)}
               />
             </div>
           ))}

@@ -14,12 +14,12 @@ import {
   SortColumnType,
   useSearchAndSortParamsHandler,
 } from '@lib/hooks/useSearchAndSortParams'
-import logger from '@lib/utils/logger'
+import { getListUrl } from '@lib/utils/misc'
 import { useNavigate } from '@remix-run/react'
 import { PaginationType } from 'app/types/pagination'
 
+import { ListIdentityCardPortal } from '../lists/list-identity-card-portal'
 import { SortOption } from '../sort-select'
-import { ListIdentityCardPortal } from './list-identity-card-portal'
 
 export function ListClaimsList<T extends SortColumnType = ClaimSortColumn>({
   listClaims,
@@ -31,6 +31,7 @@ export function ListClaimsList<T extends SortColumnType = ClaimSortColumn>({
   columns,
   sortOptions,
   sourceUserAddress,
+  readOnly = false,
 }: {
   listClaims: ClaimPresenter[]
   pagination?: PaginationType
@@ -41,6 +42,7 @@ export function ListClaimsList<T extends SortColumnType = ClaimSortColumn>({
   columns?: number
   sortOptions?: SortOption<T>[]
   sourceUserAddress?: string
+  readOnly?: boolean
 }) {
   const navigate = useNavigate()
   const defaultOptions: SortOption<ClaimSortColumn>[] = [
@@ -58,8 +60,6 @@ export function ListClaimsList<T extends SortColumnType = ClaimSortColumn>({
 
   const [isLoading, setIsLoading] = useState(false)
 
-  logger('listClaims', listClaims)
-
   const uniqueClaimData = Array.from(
     new Map(
       listClaims.map((claim) => [
@@ -72,8 +72,6 @@ export function ListClaimsList<T extends SortColumnType = ClaimSortColumn>({
     user_assets_for: claim.user_assets_for,
     claim_id: claim.claim_id,
   }))
-
-  logger('uniqueClaimData', uniqueClaimData)
 
   const listContainerRef = useRef<HTMLDivElement>(null)
   const { handleSearchChange, handleSortChange } =
@@ -117,10 +115,18 @@ export function ListClaimsList<T extends SortColumnType = ClaimSortColumn>({
                   identitiesCount={claim.object.tag_count ?? 0}
                   isSaved={claim.user_assets_for !== '0'}
                   savedAmount={claim.user_assets_for}
-                  navigateLink={`/app/list/${claim.claim_id}${sourceUserAddress ? `?user=${sourceUserAddress}` : ''}`}
+                  navigateLink={getListUrl(
+                    claim.claim_id,
+                    sourceUserAddress ?? '',
+                    readOnly,
+                  )}
                   onViewClick={() =>
                     navigate(
-                      `/app/list/${claim.claim_id}${sourceUserAddress ? `?user=${sourceUserAddress}` : ''}`,
+                      getListUrl(
+                        claim.claim_id,
+                        sourceUserAddress ?? '',
+                        readOnly,
+                      ),
                     )
                   }
                 />

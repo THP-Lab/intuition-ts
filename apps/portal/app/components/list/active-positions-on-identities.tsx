@@ -1,6 +1,7 @@
-import { IconName, Identity, IdentityPosition } from '@0xintuition/1ui'
+import { IconName, Identity } from '@0xintuition/1ui'
 import { IdentityPresenter, SortColumn } from '@0xintuition/api'
 
+import { IdentityPositionRow } from '@components/identity/identity-position-row'
 import { ListHeader } from '@components/list/list-header'
 import {
   formatBalance,
@@ -18,9 +19,11 @@ import { List } from './list'
 export function ActivePositionsOnIdentities({
   identities,
   pagination,
+  readOnly = false,
 }: {
   identities: IdentityPresenter[]
   pagination: PaginationType
+  readOnly?: boolean
 }) {
   const options: SortOption<SortColumn>[] = [
     { value: 'Position Amount', sortBy: 'UserAssets' },
@@ -45,9 +48,9 @@ export function ActivePositionsOnIdentities({
       {identities.map((identity) => (
         <div
           key={identity.id}
-          className={`grow shrink basis-0 self-stretch p-6 bg-black first:rounded-t-xl last:rounded-b-xl theme-border flex-col justify-start items-start gap-5 inline-flex`}
+          className={`grow shrink basis-0 self-stretch bg-black first:rounded-t-xl last:rounded-b-xl theme-border flex-col justify-start items-start gap-5 inline-flex`}
         >
-          <IdentityPosition
+          <IdentityPositionRow
             variant={identity.is_user ? Identity.user : Identity.nonUser}
             avatarSrc={getAtomImage(identity)}
             name={getAtomLabel(identity)}
@@ -63,7 +66,7 @@ export function ActivePositionsOnIdentities({
                 : 0
             }
             updatedAt={identity.updated_at}
-            link={getAtomLink(identity)}
+            link={getAtomLink(identity, readOnly)}
             ipfsLink={getAtomIpfsLink(identity)}
           />
         </div>

@@ -1,10 +1,11 @@
-import { Claim, ClaimRow, IconName, Identity } from '@0xintuition/1ui'
+import { Claim, IconName, Identity } from '@0xintuition/1ui'
 import {
   ClaimPresenter,
   ClaimSortColumn,
   IdentityPresenter,
 } from '@0xintuition/api'
 
+import { ClaimRow } from '@components/claim/claim-row'
 import { ListHeader } from '@components/list/list-header'
 import {
   formatBalance,
@@ -13,8 +14,8 @@ import {
   getAtomIpfsLink,
   getAtomLabel,
   getAtomLink,
+  getClaimUrl,
 } from '@lib/utils/misc'
-import { PATHS } from 'app/consts'
 import { PaginationType } from 'app/types/pagination'
 
 import { SortOption } from '../sort-select'
@@ -27,6 +28,7 @@ export function ClaimsList({
   enableHeader = true,
   enableSearch = true,
   enableSort = true,
+  readOnly = false,
 }: {
   claims: ClaimPresenter[]
   pagination?: PaginationType
@@ -34,6 +36,7 @@ export function ClaimsList({
   enableHeader?: boolean
   enableSearch?: boolean
   enableSort?: boolean
+  readOnly?: boolean
 }) {
   const options: SortOption<ClaimSortColumn>[] = [
     { value: 'Total ETH', sortBy: 'AssetsSum' },
@@ -66,7 +69,7 @@ export function ClaimsList({
       {claims.map((claim) => (
         <div
           key={claim.claim_id}
-          className="grow shrink basis-0 self-stretch p-6 bg-background first:border-t-px first:rounded-t-xl last:rounded-b-xl theme-border border-t-0 flex-col justify-start gap-5 inline-flex"
+          className="grow shrink basis-0 self-stretch bg-background first:border-t-px first:rounded-t-xl last:rounded-b-xl theme-border border-t-0 flex-col justify-start gap-5 inline-flex"
         >
           <ClaimRow
             claimsFor={claim.for_num_positions}
@@ -74,10 +77,10 @@ export function ClaimsList({
             claimsForValue={+formatBalance(claim.for_assets_sum, 18)}
             claimsAgainstValue={+formatBalance(claim.against_assets_sum, 18)}
             tvl={+formatBalance(claim.assets_sum, 18)}
+            link={getClaimUrl(claim.claim_id, readOnly)}
           >
             <Claim
               size="md"
-              link={`${PATHS.CLAIM}/${claim.claim_id}`}
               subject={{
                 variant: claim.subject?.is_user
                   ? Identity.user
@@ -89,7 +92,7 @@ export function ClaimsList({
                   claim.subject as IdentityPresenter,
                 ),
                 ipfsLink: getAtomIpfsLink(claim.subject as IdentityPresenter),
-                link: getAtomLink(claim.subject as IdentityPresenter),
+                link: getAtomLink(claim.subject as IdentityPresenter, readOnly),
               }}
               predicate={{
                 variant: claim.predicate?.is_user
@@ -102,7 +105,10 @@ export function ClaimsList({
                   claim.predicate as IdentityPresenter,
                 ),
                 ipfsLink: getAtomIpfsLink(claim.predicate as IdentityPresenter),
-                link: getAtomLink(claim.predicate as IdentityPresenter),
+                link: getAtomLink(
+                  claim.predicate as IdentityPresenter,
+                  readOnly,
+                ),
               }}
               object={{
                 variant: claim.object?.is_user
@@ -115,7 +121,7 @@ export function ClaimsList({
                   claim.object as IdentityPresenter,
                 ),
                 ipfsLink: getAtomIpfsLink(claim.object as IdentityPresenter),
-                link: getAtomLink(claim.object as IdentityPresenter),
+                link: getAtomLink(claim.object as IdentityPresenter, readOnly),
               }}
             />
           </ClaimRow>

@@ -19,6 +19,7 @@ export const PATHS = {
   PROFILE_LISTS: '/app/profile/lists',
   // Explore
   EXPLORE_IDENTITIES: '/app/explore/identities',
+  EXPLORE_CLAIMS: '/app/explore/claims',
   EXPLORE_LISTS: '/app/explore/lists',
   // Activity
   GLOBAL_ACTIVITY: '/app/activity/global',
@@ -32,4 +33,10 @@ export const PATHS = {
   PRIVACY: '/privacy',
   // Other
   MAINTENANCE: '/maintenance',
+  THE_BIG_BANG: '/the-big-bang',
+  // ReadOnly
+  READONLY_LIST: '/readonly/list',
+  READONLY_IDENTITY: '/readonly/identity',
+  READONLY_CLAIM: '/readonly/claim',
+  READONLY_PROFILE: '/readonly/profile',
 }
