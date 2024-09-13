@@ -3,7 +3,7 @@ name: Deploy Portal to Dev
 on:
   push:
     branches:
-      - main
+      - ENG-3274-secrets-to-dockerfile
 
 jobs:
   deploy-dev:
