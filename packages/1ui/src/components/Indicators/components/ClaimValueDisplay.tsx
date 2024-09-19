@@ -1,3 +1,9 @@
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@radix-ui/react-tooltip'
 import { Icon, IconName } from 'components/Icon'
 import { Text, TextVariant } from 'components/Text'
 import { CurrencyType } from 'types'
@@ -25,24 +31,38 @@ const ClaimValueDisplay = ({
         currency={currency}
       />
       <div className="flex gap-2 items-center mt-2 max-md:mt-0">
-        <div className="flex gap-1 items-center">
-          <Icon name={IconName.people} className="text-for h-4 w-4" />
-          <Text
-            variant={TextVariant.body}
-            className="text-secondary-foreground"
-          >
-            {claimsFor}
-          </Text>
-        </div>
-        <div className="flex gap-1 items-center">
-          <Icon name={IconName.people} className="text-against h-4 w-4" />
-          <Text
-            variant={TextVariant.body}
-            className="text-secondary-foreground"
-          >
-            {claimsAgainst}
-          </Text>
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger className="flex gap-1 items-center">
+              <Icon name={IconName.people} className="text-for h-4 w-4" />
+              <Text
+                variant={TextVariant.body}
+                className="text-secondary-foreground"
+              >
+                {claimsFor}
+              </Text>
+            </TooltipTrigger>
+            <TooltipContent>
+              <Text variant={TextVariant.body}>Depositors Against</Text>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger className="flex gap-1 items-center">
+              <Icon name={IconName.people} className="text-against h-4 w-4" />
+              <Text
+                variant={TextVariant.body}
+                className="text-secondary-foreground"
+              >
+                {claimsAgainst}
+              </Text>
+            </TooltipTrigger>
+            <TooltipContent>
+              <Text variant={TextVariant.body}>Depositors Against</Text>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   )

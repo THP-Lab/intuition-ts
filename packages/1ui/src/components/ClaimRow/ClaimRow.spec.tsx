@@ -166,8 +166,9 @@ describe('ClaimRow', () => {
               <div
                 class="flex gap-2 items-center mt-2 max-md:mt-0"
               >
-                <div
+                <button
                   class="flex gap-1 items-center"
+                  data-state="closed"
                 >
                   <svg
                     class="text-for h-4 w-4"
@@ -181,9 +182,10 @@ describe('ClaimRow', () => {
                   >
                     736
                   </div>
-                </div>
-                <div
+                </button>
+                <button
                   class="flex gap-1 items-center"
+                  data-state="closed"
                 >
                   <svg
                     class="text-against h-4 w-4"
@@ -197,7 +199,7 @@ describe('ClaimRow', () => {
                   >
                     234
                   </div>
-                </div>
+                </button>
               </div>
             </div>
           </div>
