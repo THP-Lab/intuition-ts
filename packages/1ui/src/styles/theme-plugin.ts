@@ -1,4 +1,4 @@
-import defaultTheme from 'tailwindcss/defaultTheme.js'
+import { baseTheme } from 'styles/base-theme'
 import plugin from 'tailwindcss/plugin'
 
 import { themes } from './themes'
@@ -51,6 +51,50 @@ export const themePlugin = plugin(
         '--primary-800': themes.light.primary[800],
         '--primary-900': themes.light.primary[900],
         '--primary-950': themes.light.primary[950],
+      },
+      '.dark': {
+        '--background': themes.dark.background,
+        '--foreground': themes.dark.foreground,
+        '--card': themes.dark.card,
+        '--card-foreground': themes.dark.cardForeground,
+        '--popover': themes.dark.popover,
+        '--popover-foreground': themes.dark.popoverForeground,
+        '--primary': themes.dark.primary.DEFAULT,
+        '--primary-foreground': themes.dark.primaryForeground,
+        '--secondary': themes.dark.secondary,
+        '--secondary-foreground': themes.dark.secondaryForeground,
+        '--muted': themes.dark.muted,
+        '--muted-foreground': themes.dark.mutedForeground,
+        '--accent': themes.dark.accent,
+        '--accent-foreground': themes.dark.accentForeground,
+        '--destructive': themes.dark.destructive,
+        '--destructive-foreground': themes.dark.destructiveForeground,
+        '--border': themes.dark.border,
+        '--input': themes.dark.input,
+        '--ring': themes.dark.ring,
+        '--radius': themes.dark.radius,
+        '--success': themes.dark.success,
+        '--success-foreground': themes.dark.successForeground,
+        '--warning': themes.dark.warning,
+        '--warning-foreground': themes.dark.warningForeground,
+        '--for': themes.dark.for,
+        '--for-foreground': themes.dark.forForeground,
+        '--against': themes.dark.against,
+        '--against-foreground': themes.dark.againstForeground,
+        '--social': themes.dark.social,
+        '--social-foreground': themes.dark.socialForeground,
+        // primary
+        '--primary-50': themes.dark.primary[50],
+        '--primary-100': themes.dark.primary[100],
+        '--primary-200': themes.dark.primary[200],
+        '--primary-300': themes.dark.primary[300],
+        '--primary-400': themes.dark.primary[400],
+        '--primary-500': themes.dark.primary[500],
+        '--primary-600': themes.dark.primary[600],
+        '--primary-700': themes.dark.primary[700],
+        '--primary-800': themes.dark.primary[800],
+        '--primary-900': themes.dark.primary[900],
+        '--primary-950': themes.dark.primary[950],
       },
     })
 
@@ -134,137 +178,9 @@ export const themePlugin = plugin(
       },
     })
   },
-
-  // 2. Extend the tailwind theme with 'themable' utilities
   {
     theme: {
-      container: {
-        center: true,
-        padding: '2rem',
-      },
-      extend: {
-        fontFamily: {
-          sans: ['Geist', ...defaultTheme.fontFamily.sans],
-        },
-        borderWidth: {
-          DEFAULT: '1px',
-          px: '1px',
-        },
-        fontSize: {
-          xs: ['0.625rem', '1rem'], // small
-          sm: ['0.75rem', '1.125rem'], // caption & footnote
-          base: ['0.875rem', '1.25rem'], // body
-          lg: ['1rem', '1.875rem'], // bodyLarge
-          xl: ['1.25rem', '1.875rem'], // headline
-          '2xl': '1.5rem', // heading5
-          '3xl': '1.875rem', // heading4
-          '4xl': '2.5rem', // heading3
-          '5xl': '3.125rem', // heading2
-          '6xl': '3.75rem', // heading1
-        },
-        colors: {
-          border: colorMix('border'),
-          input: colorMix('input'),
-          ring: colorMix('ring'),
-          background: colorMix('background'),
-          foreground: colorMix('foreground'),
-          primary: {
-            DEFAULT: colorMix('primary'),
-            foreground: colorMix('primary-foreground'),
-            50: colorMix('primary-50'),
-            100: colorMix('primary-100'),
-            200: colorMix('primary-200'),
-            300: colorMix('primary-300'),
-            400: colorMix('primary-400'),
-            500: colorMix('primary-500'),
-            600: colorMix('primary-600'),
-            700: colorMix('primary-700'),
-            800: colorMix('primary-800'),
-            900: colorMix('primary-900'),
-            950: colorMix('primary-950'),
-          },
-          secondary: {
-            DEFAULT: colorMix('secondary'),
-            foreground: colorMix('secondary-foreground'),
-          },
-          destructive: {
-            DEFAULT: colorMix('destructive'),
-            foreground: colorMix('destructive-foreground'),
-          },
-          muted: {
-            DEFAULT: colorMix('muted'),
-            foreground: colorMix('muted-foreground'),
-          },
-          accent: {
-            DEFAULT: colorMix('accent'),
-            foreground: colorMix('accent-foreground'),
-          },
-          warning: {
-            DEFAULT: colorMix('warning'),
-            foreground: colorMix('warning-foreground'),
-          },
-          success: {
-            DEFAULT: colorMix('success'),
-            foreground: colorMix('success-foreground'),
-          },
-          popover: {
-            DEFAULT: colorMix('popover'),
-            foreground: colorMix('popover-foreground'),
-          },
-          card: {
-            DEFAULT: colorMix('card'),
-            foreground: colorMix('card-foreground'),
-          },
-          for: {
-            DEFAULT: colorMix('for'),
-            foreground: colorMix('for-foreground'),
-          },
-          against: {
-            DEFAULT: colorMix('against'),
-            foreground: colorMix('against-foreground'),
-          },
-          social: {
-            DEFAULT: colorMix('social'),
-            foreground: colorMix('social-foreground'),
-          },
-        },
-        keyframes: {
-          'accordion-down': {
-            from: { height: '0' },
-            to: { height: 'var(--radix-accordion-content-height)' },
-          },
-          'accordion-up': {
-            from: { height: 'var(--radix-accordion-content-height)' },
-            to: { height: '0' },
-          },
-        },
-        animation: {
-          'accordion-down': 'accordion-down 0.2s ease-out',
-          'accordion-up': 'accordion-up 0.2s ease-out',
-        },
-        boxShadow: {
-          'sm-subtle':
-            '0px 5px 5px 0px rgba(0, 0, 0, 0.05), 0px 2px 2px 0px rgba(0, 0, 0, 0.03), 0px 1px 0px 0px rgba(0, 0, 0, 0.03)',
-          'md-subtle':
-            '0px 8px 8px 0px rgba(0, 0, 0, 0.05), 0px 4px 4px 0px rgba(0, 0, 0, 0.05), 0px 1px 0px 0px rgba(0, 0, 0, 0.03)',
-          'lg-subtle':
-            '0px 10px 10px 0px rgba(0, 0, 0, 0.05), 0px 6px 6px 0px rgba(0, 0, 0, 0.05), 0px 1px 0px 0px rgba(0, 0, 0, 0.03)',
-          'xl-subtle':
-            '0px 12px 12px 0px rgba(0, 0, 0, 0.06), 0px 8px 8px 0px rgba(0, 0, 0, 0.05), 0px 1px 0px 0px rgba(0, 0, 0, 0.03)',
-          sm: '0px 10px 10px 0px rgba(0, 0, 0, 0.10), 0px 4px 4px 0px rgba(0, 0, 0, 0.05), 0px 1px 0px 0px rgba(0, 0, 0, 0.05)',
-          md: '0px 15px 30px 0px rgba(0, 0, 0, 0.15), 0px 5px 10px 0px rgba(0, 0, 0, 0.10), 0px 2px 4px 0px rgba(0, 0, 0, 0.10)',
-          lg: '0px 15px 30px 0px rgba(0, 0, 0, 0.15), 0px 10px 20px 0px rgba(0, 0, 0, 0.10), 0px 3px 6px 0px rgba(0, 0, 0, 0.10)',
-          xl: '0px 20px 40px 0px rgba(0, 0, 0, 0.15), 0px 15px 30px 0px rgba(0, 0, 0, 0.10), 0px 5px 10px 0px rgba(0, 0, 0, 0.10)',
-          'sm-strong':
-            '0px 10px 10px 0px rgba(0, 0, 0, 0.15), 0px 4px 4px 0px rgba(0, 0, 0, 0.10), 0px 1px 0px 0px rgba(0, 0, 0, 0.05)',
-          'md-strong':
-            '0px 10px 20px 0px rgba(0, 0, 0, 0.20), 0px 5px 10px 0px rgba(0, 0, 0, 0.10), 0px 2px 4px 0px rgba(0, 0, 0, 0.10)',
-          'lg-strong':
-            '0px 15px 30px 0px rgba(0, 0, 0, 0.20), 0px 10px 20px 0px rgba(0, 0, 0, 0.15), 0px 3px 6px 0px rgba(0, 0, 0, 0.10)',
-          'xl-strong':
-            '0px 20px 40px 0px rgba(0, 0, 0, 0.25), 0px 15px 30px 0px rgba(0, 0, 0, 0.15), 0px 5px 10px 0px rgba(0, 0, 0, 0.05)',
-        },
-      },
+      extend: baseTheme,
     },
   },
 )

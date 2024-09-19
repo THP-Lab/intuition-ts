@@ -1,3 +1,5 @@
+import themePreset from '@0xintuition/1ui/src/styles/theme-preset'
+
 import contentCollections from '@content-collections/remix-vite'
 import { vitePlugin as remix } from '@remix-run/dev'
 import { installGlobals } from '@remix-run/node'
@@ -10,8 +12,6 @@ import envOnly from 'vite-env-only'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 // TODO: Update this once we figure our the TS issue that vite is throwing
-
-import { themePreset } from '../../packages/1ui/src/styles/index'
 
 installGlobals()
 
