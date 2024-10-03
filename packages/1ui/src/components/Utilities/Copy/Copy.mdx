@@ -2,13 +2,13 @@ import { Canvas, Controls, Meta, Source, Title } from '@storybook/blocks'
 
 import { Button } from 'components'
 
-import * as Stories from './<%= className %>.stories'
+import * as Stories from './Copy.stories'
 
 <Meta of={Stories} />
 
 <Title />
 
-#### A short description goes here.
+#### Copies text that is fed into it as a prop.
 
 <Button
   variant="accent"
@@ -21,9 +21,9 @@ import * as Stories from './<%= className %>.stories'
   dark
   language="tsx"
   code={`
-import { <%= className %> } from '@0xintuition/1ui'
+import { Copy } from '@0xintuition/1ui'
 
-<<%= className %> />
+<Copy text="Text to copy" />
 `} />
 
 <Canvas of={Stories.BasicUsage} sourceState="none" />
@@ -34,14 +34,10 @@ import { <%= className %> } from '@0xintuition/1ui'
 
 ## Variants
 
-### Other
+### Default
 
-<Source
-  dark
-  language="tsx"
-  code={`
-<<%= className %> variant="other">
-`}
-/>
+<Canvas of={Stories.Default} sourceState="none" />
 
-<Canvas of={Stories.Other} sourceState="none" />
+### Disabled
+
+<Canvas of={Stories.Disabled} sourceState="none" />

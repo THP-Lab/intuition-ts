@@ -24,7 +24,7 @@ import {
 import {
   ClaimPositionRowVariant,
   ClaimPositionRowVariantType,
-} from '@0xintuition/1ui/src/components/ClaimPositionRow/ClaimPositionRow.utils'
+} from '@0xintuition/1ui/src/components/Intuition Portal/Claim/ClaimPositionRow/ClaimPositionRow.utils'
 
 import { useNavigate } from '@remix-run/react'
 
