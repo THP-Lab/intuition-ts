@@ -3,7 +3,7 @@ import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
 export const loader: LoaderFunction = async () => {
-  const response = await fetch('http://localhost:8080/v1/graphql', {
+  const response = await fetch(process.env.HASURA_PROJECT_ENDPOINT || '', {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
