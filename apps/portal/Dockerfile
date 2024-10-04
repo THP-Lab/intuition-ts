@@ -87,8 +87,8 @@ RUN pnpm run portal:build
 FROM base
 COPY --from=build /app /app
 ENV NX_REJECT_UNKNOWN_LOCAL_CACHE=0
-ENV PORT=8080
+ENV PORT=3000
 ENV HOST=0.0.0.0
 
-EXPOSE 8080
+EXPOSE 3000
 CMD [ "pnpm", "run", "portal:start" ]
