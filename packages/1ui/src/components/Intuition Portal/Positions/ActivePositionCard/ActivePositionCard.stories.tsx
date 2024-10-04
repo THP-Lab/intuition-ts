@@ -6,7 +6,7 @@ import { ClaimPosition, Currency } from 'types'
 import { ActivePositionCard } from './ActivePositionCard'
 
 const meta: Meta<typeof ActivePositionCard> = {
-  title: 'Components/ActivePositionCard',
+  title: 'Intuition Portal/Positions/ActivePositionCard',
   component: ActivePositionCard,
   argTypes: {
     claimPosition: {

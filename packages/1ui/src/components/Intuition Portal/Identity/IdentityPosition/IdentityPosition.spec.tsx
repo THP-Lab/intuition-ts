@@ -47,7 +47,7 @@ describe('IdentityPosition', () => {
                     class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
                   >
                     <use
-                      href="/src/components/Icon/Icon.sprites.svg#fingerprint"
+                      href="/src/components/Visualization/Icon/Icon.sprites.svg#fingerprint"
                     />
                   </svg>
                 </span>
@@ -93,7 +93,7 @@ describe('IdentityPosition', () => {
                       class="h-4 w-4"
                     >
                       <use
-                        href="/src/components/Icon/Icon.sprites.svg#copy"
+                        href="/src/components/Visualization/Icon/Icon.sprites.svg#copy"
                       />
                     </svg>
                   </button>
@@ -175,7 +175,7 @@ describe('IdentityPosition', () => {
                       class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
                     >
                       <use
-                        href="/src/components/Icon/Icon.sprites.svg#fingerprint"
+                        href="/src/components/Visualization/Icon/Icon.sprites.svg#fingerprint"
                       />
                     </svg>
                   </span>
@@ -221,7 +221,7 @@ describe('IdentityPosition', () => {
                         class="h-4 w-4"
                       >
                         <use
-                          href="/src/components/Icon/Icon.sprites.svg#copy"
+                          href="/src/components/Visualization/Icon/Icon.sprites.svg#copy"
                         />
                       </svg>
                     </button>

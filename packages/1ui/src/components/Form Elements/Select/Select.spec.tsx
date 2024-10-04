@@ -53,7 +53,7 @@ describe('Select', () => {
             class="h-4 w-4"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#chevron-grabber-vertical"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#chevron-grabber-vertical"
             />
           </svg>
         </button>

@@ -12,7 +12,7 @@ import {
 } from 'components'
 
 const meta: Meta<typeof Dialog> = {
-  title: 'Components/Dialog',
+  title: 'Layout/Dialog',
   component: Dialog,
 }
 

@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { ListGrid } from './ListGrid'
 
 const meta: Meta<typeof ListGrid> = {
-  title: 'Components/Lists/ListGrid',
+  title: 'Intuition Portal/Lists/ListGrid',
   component: ListGrid,
 }
 

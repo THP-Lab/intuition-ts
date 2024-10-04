@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { StakeCard } from './StakeCard'
 
 const meta: Meta<typeof StakeCard> = {
-  title: 'Components/StakeCard',
+  title: 'Intuition Portal/StakeCard',
   component: StakeCard,
 }
 

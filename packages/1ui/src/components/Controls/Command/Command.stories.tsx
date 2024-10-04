@@ -13,7 +13,7 @@ import {
 } from './Command'
 
 const meta: Meta<typeof Command> = {
-  title: 'Components/Command',
+  title: 'Controls/Command',
   component: Command,
 }
 

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { ProgressBar } from './ProgressBar'
 
 const meta: Meta<typeof ProgressBar> = {
-  title: 'Components/ProgressBar',
+  title: 'Data/ProgressBar',
   component: ProgressBar,
   argTypes: {
     percentage: {

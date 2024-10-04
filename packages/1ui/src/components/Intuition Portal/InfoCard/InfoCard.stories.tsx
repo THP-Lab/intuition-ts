@@ -4,7 +4,7 @@ import { Identity } from 'types'
 import { InfoCard } from './InfoCard'
 
 const meta: Meta<typeof InfoCard> = {
-  title: 'Components/InfoCard',
+  title: 'Intuition Portal/InfoCard',
   component: InfoCard,
   argTypes: {
     variant: {

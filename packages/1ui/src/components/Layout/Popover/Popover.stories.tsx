@@ -10,7 +10,7 @@ import {
 } from 'components'
 
 const meta: Meta<typeof Popover> = {
-  title: 'Components/Popover',
+  title: 'Layout/Popover',
   component: Popover,
   argTypes: {
     // eslint-disable-next-line

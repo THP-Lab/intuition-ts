@@ -6,7 +6,7 @@ import { Identity } from 'types'
 import { IdentityPosition } from './IdentityPosition'
 
 const meta: Meta<typeof IdentityPosition> = {
-  title: 'Components/Identity/IdentityPosition',
+  title: 'Intuition Portal/Identity/IdentityPosition',
   component: IdentityPosition,
   argTypes: {
     variant: {

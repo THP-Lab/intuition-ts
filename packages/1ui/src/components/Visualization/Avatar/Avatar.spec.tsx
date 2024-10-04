@@ -19,7 +19,7 @@ describe('Avatar', () => {
               class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
             >
               <use
-                href="/src/components/Icon/Icon.sprites.svg#crypto-punk"
+                href="/src/components/Visualization/Icon/Icon.sprites.svg#crypto-punk"
               />
             </svg>
           </span>
@@ -41,7 +41,7 @@ describe('Avatar', () => {
               class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
             >
               <use
-                href="/src/components/Icon/Icon.sprites.svg#fingerprint"
+                href="/src/components/Visualization/Icon/Icon.sprites.svg#fingerprint"
               />
             </svg>
           </span>

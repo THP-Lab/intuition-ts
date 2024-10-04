@@ -6,7 +6,7 @@ import { IconName } from 'components'
 import { Input } from './Input'
 
 const meta: Meta<typeof Input> = {
-  title: 'Components/Form Elements/Input',
+  title: 'Form Elements/Input',
   component: Input,
   argTypes: {
     startAdornment: {

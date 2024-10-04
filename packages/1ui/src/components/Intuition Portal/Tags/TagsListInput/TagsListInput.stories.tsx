@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { TagsListInput } from './TagsListInput'
 
 const meta: Meta<typeof TagsListInput> = {
-  title: 'Components/Tags/TagsListInput',
+  title: 'Intuition Portal/Tags/TagsListInput',
   component: TagsListInput,
 }
 

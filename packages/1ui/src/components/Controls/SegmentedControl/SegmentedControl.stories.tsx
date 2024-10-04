@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { SegmentedControl, SegmentedControlItem } from './SegmentedControl'
 
 const meta: Meta<typeof SegmentedControl> = {
-  title: 'Components/SegmentedControl',
+  title: 'Controls/SegmentedControl',
   component: SegmentedControl,
 }
 

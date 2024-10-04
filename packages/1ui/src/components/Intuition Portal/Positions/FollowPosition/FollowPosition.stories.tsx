@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { FollowPosition } from './FollowPosition'
 
 const meta: Meta<typeof FollowPosition> = {
-  title: 'Components/FollowPosition',
+  title: 'Intuition Portal/Positions/FollowPosition',
   component: FollowPosition,
 }
 

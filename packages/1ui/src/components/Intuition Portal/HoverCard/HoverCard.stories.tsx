@@ -6,7 +6,7 @@ import { Avatar, Button, Text } from 'components'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from './HoverCard'
 
 const meta: Meta<typeof HoverCard> = {
-  title: 'Components/HoverCard',
+  title: 'Intuition Portal/HoverCard',
   component: HoverCard,
 }
 

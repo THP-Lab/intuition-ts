@@ -23,7 +23,7 @@ describe('EmptyStateCard', () => {
             class="w-12 h-12 text-destructive"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#triangle-exclamation"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#triangle-exclamation"
             />
           </svg>
           <div

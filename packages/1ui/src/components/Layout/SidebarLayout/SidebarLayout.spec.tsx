@@ -94,7 +94,7 @@ describe('SidebarLayout', () => {
                     class="h-6 w-6"
                   >
                     <use
-                      href="/src/components/Icon/Icon.sprites.svg#hamburger"
+                      href="/src/components/Visualization/Icon/Icon.sprites.svg#hamburger"
                     />
                   </svg>
                 </button>
@@ -112,7 +112,7 @@ describe('SidebarLayout', () => {
                       class="h-6 w-6"
                     >
                       <use
-                        href="/src/components/Icon/Icon.sprites.svg#crystal-ball"
+                        href="/src/components/Visualization/Icon/Icon.sprites.svg#crystal-ball"
                       />
                     </svg>
                     Explore This
@@ -124,7 +124,7 @@ describe('SidebarLayout', () => {
                       class="h-6 w-6"
                     >
                       <use
-                        href="/src/components/Icon/Icon.sprites.svg#megaphone"
+                        href="/src/components/Visualization/Icon/Icon.sprites.svg#megaphone"
                       />
                     </svg>
                     Explore That
@@ -140,7 +140,7 @@ describe('SidebarLayout', () => {
                       class="h-6 w-6"
                     >
                       <use
-                        href="/src/components/Icon/Icon.sprites.svg#settings-gear"
+                        href="/src/components/Visualization/Icon/Icon.sprites.svg#settings-gear"
                       />
                     </svg>
                     Settings
@@ -158,7 +158,7 @@ describe('SidebarLayout', () => {
                           class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
                         >
                           <use
-                            href="/src/components/Icon/Icon.sprites.svg#crypto-punk"
+                            href="/src/components/Visualization/Icon/Icon.sprites.svg#crypto-punk"
                           />
                         </svg>
                       </span>

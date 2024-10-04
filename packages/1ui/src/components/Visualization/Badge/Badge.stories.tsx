@@ -6,7 +6,7 @@ import { Icon, IconName } from 'components'
 import { Badge, BadgeVariant } from './Badge'
 
 const meta: Meta<typeof Badge> = {
-  title: 'Components/Badge',
+  title: 'Visualization/Badge',
   component: Badge,
   argTypes: {
     variant: {

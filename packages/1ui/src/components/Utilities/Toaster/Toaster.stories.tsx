@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { Button, toast, Toaster } from 'components'
 
 const meta: Meta<typeof Toaster> = {
-  title: 'Components/Toaster',
+  title: 'Utilities/Toaster',
   component: Toaster,
   argTypes: {
     position: {

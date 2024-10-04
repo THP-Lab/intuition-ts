@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { ProgressCard } from './ProgressCard'
 
 const meta: Meta<typeof ProgressCard> = {
-  title: 'Components/ProgressCard',
+  title: 'Intuition Portal/ProgressCard',
   component: ProgressCard,
 }
 

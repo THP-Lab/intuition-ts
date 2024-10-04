@@ -4,7 +4,7 @@ import { Currency } from 'types'
 import { ClaimStakeCard } from './ClaimStakeCard'
 
 const meta: Meta<typeof ClaimStakeCard> = {
-  title: 'Components/Claim/ClaimStakeCard',
+  title: 'Intuition Portal/Claim/ClaimStakeCard',
   component: ClaimStakeCard,
   argTypes: {
     currency: {

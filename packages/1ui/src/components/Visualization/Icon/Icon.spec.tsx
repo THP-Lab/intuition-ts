@@ -13,7 +13,7 @@ describe('Icon', () => {
           class="h-6 w-6"
         >
           <use
-            href="/src/components/Icon/Icon.sprites.svg#book"
+            href="/src/components/Visualization/Icon/Icon.sprites.svg#book"
           />
         </svg>
       </DocumentFragment>

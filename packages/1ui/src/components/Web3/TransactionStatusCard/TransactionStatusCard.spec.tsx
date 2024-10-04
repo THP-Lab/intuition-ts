@@ -19,7 +19,7 @@ describe('TransactionStatusCard', () => {
               class="text-warning h-4 w-4"
             >
               <use
-                href="/src/components/Icon/Icon.sprites.svg#wallet-2"
+                href="/src/components/Visualization/Icon/Icon.sprites.svg#wallet-2"
               />
             </svg>
             <div
@@ -31,7 +31,7 @@ describe('TransactionStatusCard', () => {
               class="text-primary/20 h-4 w-4"
             >
               <use
-                href="/src/components/Icon/Icon.sprites.svg#circle-question-mark"
+                href="/src/components/Visualization/Icon/Icon.sprites.svg#circle-question-mark"
               />
             </svg>
           </div>
@@ -50,7 +50,7 @@ describe('TransactionStatusCard', () => {
             class="text-destructive h-4 w-4"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#triangle-exclamation"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#triangle-exclamation"
             />
           </svg>
           <div
@@ -75,7 +75,7 @@ describe('TransactionStatusCard', () => {
             class="text-accent animate-spin h-4 w-4"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#in-progress"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#in-progress"
             />
           </svg>
           <div
@@ -100,7 +100,7 @@ describe('TransactionStatusCard', () => {
             class="text-accent animate-spin h-4 w-4"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#in-progress"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#in-progress"
             />
           </svg>
           <div
@@ -125,7 +125,7 @@ describe('TransactionStatusCard', () => {
             class="text-accent animate-spin h-4 w-4"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#in-progress"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#in-progress"
             />
           </svg>
           <div
@@ -150,7 +150,7 @@ describe('TransactionStatusCard', () => {
             class="text-warning h-4 w-4"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#wallet-2"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#wallet-2"
             />
           </svg>
           <div
@@ -175,7 +175,7 @@ describe('TransactionStatusCard', () => {
             class="text-accent animate-spin h-4 w-4"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#in-progress"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#in-progress"
             />
           </svg>
           <div
@@ -198,7 +198,7 @@ describe('TransactionStatusCard', () => {
             class="text-accent animate-spin h-4 w-4"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#in-progress"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#in-progress"
             />
           </svg>
           <div
@@ -221,7 +221,7 @@ describe('TransactionStatusCard', () => {
             class="text-success h-4 w-4"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#circle-check"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#circle-check"
             />
           </svg>
           <div

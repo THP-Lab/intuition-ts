@@ -6,7 +6,7 @@ import { Transaction, TransactionStatus } from 'types'
 import { TransactionStatusIndicator } from './TransactionStatusIndicator'
 
 const meta: Meta<typeof TransactionStatusIndicator> = {
-  title: 'Components/TransactionStatus/TransactionStatusIndicator',
+  title: 'Web3/TransactionStatus/TransactionStatusIndicator',
   component: TransactionStatusIndicator,
   argTypes: {
     status: {

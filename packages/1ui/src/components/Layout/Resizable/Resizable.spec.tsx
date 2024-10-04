@@ -234,7 +234,7 @@ describe('Resizable', () => {
                 class="h-3 w-3"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#dot-grid"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#dot-grid"
                 />
               </svg>
             </div>

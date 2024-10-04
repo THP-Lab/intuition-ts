@@ -18,7 +18,7 @@ describe('TransactionStatusIndicator', () => {
             class="w-20 h-20 text-warning"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#await-action"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#await-action"
             />
           </svg>
           <h6
@@ -43,7 +43,7 @@ describe('TransactionStatusIndicator', () => {
             class="w-20 h-20 text-destructive"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#triangle-exclamation"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#triangle-exclamation"
             />
           </svg>
           <h6
@@ -68,7 +68,7 @@ describe('TransactionStatusIndicator', () => {
             class="w-20 h-20 text-accent animate-spin"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#in-progress"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#in-progress"
             />
           </svg>
           <h6
@@ -96,7 +96,7 @@ describe('TransactionStatusIndicator', () => {
             class="w-20 h-20 text-accent animate-spin"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#in-progress"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#in-progress"
             />
           </svg>
           <h6
@@ -124,7 +124,7 @@ describe('TransactionStatusIndicator', () => {
             class="w-20 h-20 text-accent animate-spin"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#in-progress"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#in-progress"
             />
           </svg>
           <h6
@@ -152,7 +152,7 @@ describe('TransactionStatusIndicator', () => {
             class="w-20 h-20 text-warning"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#await-action"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#await-action"
             />
           </svg>
           <h6
@@ -180,7 +180,7 @@ describe('TransactionStatusIndicator', () => {
             class="w-20 h-20 text-accent animate-spin"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#in-progress"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#in-progress"
             />
           </svg>
           <h6
@@ -205,7 +205,7 @@ describe('TransactionStatusIndicator', () => {
             class="w-20 h-20 text-accent animate-spin"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#in-progress"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#in-progress"
             />
           </svg>
           <h6
@@ -230,7 +230,7 @@ describe('TransactionStatusIndicator', () => {
             class="w-20 h-20 text-success"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#circle-check"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#circle-check"
             />
           </svg>
           <h6

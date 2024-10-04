@@ -6,7 +6,7 @@ import { Claim } from 'components'
 import { ClaimPositionRow } from './ClaimPositionRow'
 
 const meta: Meta<typeof ClaimPositionRow> = {
-  title: 'Components/Claim/ClaimPositionRow',
+  title: 'Intuition Portal/Claim/ClaimPositionRow',
   component: ClaimPositionRow,
 }
 

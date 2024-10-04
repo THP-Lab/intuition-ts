@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { ValueDisplay } from './ValueDisplay'
 
 const meta: Meta<typeof ValueDisplay> = {
-  title: 'Components/ValueDisplay',
+  title: 'Data/ValueDisplay',
   component: ValueDisplay,
   argTypes: {
     variant: {

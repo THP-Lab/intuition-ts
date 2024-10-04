@@ -6,7 +6,7 @@ import { Button } from 'components'
 import { EmptyStateCard } from './EmptyStateCard'
 
 const meta: Meta<typeof EmptyStateCard> = {
-  title: 'Components/EmptyStateCard',
+  title: 'Intuition Portal/EmptyStateCard',
   component: EmptyStateCard,
 }
 

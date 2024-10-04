@@ -14,7 +14,7 @@ import {
 } from './Table'
 
 const meta: Meta<typeof Table> = {
-  title: 'Components/Table',
+  title: 'Data/Table',
   component: Table,
 }
 

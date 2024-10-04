@@ -24,7 +24,7 @@ describe('Banner', () => {
                 class="h-6 w-6"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#circle-info"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#circle-info"
                 />
               </svg>
               <div
@@ -70,7 +70,7 @@ describe('Banner', () => {
                 class="h-6 w-6"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#triangle-exclamation"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#triangle-exclamation"
                 />
               </svg>
               <div
@@ -116,7 +116,7 @@ describe('Banner', () => {
                 class="h-6 w-6"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#circle-x"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#circle-x"
                 />
               </svg>
               <div

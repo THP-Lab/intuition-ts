@@ -5,7 +5,7 @@ import { ClaimStatus } from './ClaimStatus'
 
 // Setup meta for the Storybook
 const meta: Meta = {
-  title: 'Components/Claim/ClaimStatus',
+  title: 'Intuition Portal/Claim/ClaimStatus',
   component: ClaimStatus,
 }
 

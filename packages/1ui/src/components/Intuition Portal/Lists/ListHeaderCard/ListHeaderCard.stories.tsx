@@ -6,7 +6,7 @@ import { Claim } from 'components'
 import { ListHeaderCard } from './ListHeaderCard'
 
 const meta: Meta<typeof ListHeaderCard> = {
-  title: 'Components/Lists/ListHeaderCard',
+  title: 'Intuition Portal/Lists/ListHeaderCard',
   component: ListHeaderCard,
 }
 

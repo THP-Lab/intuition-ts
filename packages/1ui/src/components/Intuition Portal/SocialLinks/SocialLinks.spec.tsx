@@ -48,7 +48,7 @@ describe('SocialLinks', () => {
                 class="h-3 w-3"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#discord"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#discord"
                 />
               </svg>
               @superdave
@@ -56,7 +56,7 @@ describe('SocialLinks', () => {
                 class="h-4 w-4 text-accent"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#circle-check"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#circle-check"
                 />
               </svg>
             </button>
@@ -67,7 +67,7 @@ describe('SocialLinks', () => {
                 class="h-3 w-3"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#x"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#x"
                 />
               </svg>
               @superdave
@@ -75,7 +75,7 @@ describe('SocialLinks', () => {
                 class="h-4 w-4 text-accent"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#circle-check"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#circle-check"
                 />
               </svg>
             </button>
@@ -86,19 +86,7 @@ describe('SocialLinks', () => {
                 class="h-3 w-3"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#farcaster"
-                />
-              </svg>
-              @superdave
-            </button>
-            <button
-              class="items-center rounded-full px-1.5 py-0.5 border disabled:bg-muted disabled:text-muted-foreground disabled:border-muted-foreground bg-primary/10 text-primary/90 border-primary/20 hover:bg-primary/20 hover:text-primary hover:border-primary/40 flex gap-2 w-min text-sm font-normal text-nowrap"
-            >
-              <svg
-                class="h-3 w-3"
-              >
-                <use
-                  href="/src/components/Icon/Icon.sprites.svg#lens"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#farcaster"
                 />
               </svg>
               @superdave
@@ -110,7 +98,19 @@ describe('SocialLinks', () => {
                 class="h-3 w-3"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#calendly"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#lens"
+                />
+              </svg>
+              @superdave
+            </button>
+            <button
+              class="items-center rounded-full px-1.5 py-0.5 border disabled:bg-muted disabled:text-muted-foreground disabled:border-muted-foreground bg-primary/10 text-primary/90 border-primary/20 hover:bg-primary/20 hover:text-primary hover:border-primary/40 flex gap-2 w-min text-sm font-normal text-nowrap"
+            >
+              <svg
+                class="h-3 w-3"
+              >
+                <use
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#calendly"
                 />
               </svg>
               @superdave
@@ -118,7 +118,7 @@ describe('SocialLinks', () => {
                 class="h-4 w-4 text-accent"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#circle-check"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#circle-check"
                 />
               </svg>
             </button>
@@ -129,7 +129,7 @@ describe('SocialLinks', () => {
                 class="h-3 w-3"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#github"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#github"
                 />
               </svg>
               @superdave
@@ -141,7 +141,7 @@ describe('SocialLinks', () => {
                 class="h-3 w-3"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#medium"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#medium"
                 />
               </svg>
               @superdave
@@ -154,7 +154,7 @@ describe('SocialLinks', () => {
               class="h-4 w-4"
             >
               <use
-                href="/src/components/Icon/Icon.sprites.svg#chain-link"
+                href="/src/components/Visualization/Icon/Icon.sprites.svg#chain-link"
               />
             </svg>
              Edit Social Links

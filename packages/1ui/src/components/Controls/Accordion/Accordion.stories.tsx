@@ -10,7 +10,7 @@ import {
 } from './Accordion'
 
 const meta: Meta<typeof Accordion> = {
-  title: 'Components/Accordion',
+  title: 'Controls/Accordion',
   component: Accordion,
 }
 

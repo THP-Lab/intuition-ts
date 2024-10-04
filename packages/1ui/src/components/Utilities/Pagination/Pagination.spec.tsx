@@ -82,7 +82,7 @@ describe('Pagination', () => {
                   class="h-4 w-4"
                 >
                   <use
-                    href="/src/components/Icon/Icon.sprites.svg#chevron-grabber-vertical"
+                    href="/src/components/Visualization/Icon/Icon.sprites.svg#chevron-grabber-vertical"
                   />
                 </svg>
               </button>
@@ -107,7 +107,7 @@ describe('Pagination', () => {
                     class="h-5 w-5"
                   >
                     <use
-                      href="/src/components/Icon/Icon.sprites.svg#chevron-double-left"
+                      href="/src/components/Visualization/Icon/Icon.sprites.svg#chevron-double-left"
                     />
                   </svg>
                 </a>
@@ -124,7 +124,7 @@ describe('Pagination', () => {
                     class="h-5 w-5"
                   >
                     <use
-                      href="/src/components/Icon/Icon.sprites.svg#chevron-left-small"
+                      href="/src/components/Visualization/Icon/Icon.sprites.svg#chevron-left-small"
                     />
                   </svg>
                 </a>
@@ -141,7 +141,7 @@ describe('Pagination', () => {
                     class="h-5 w-5"
                   >
                     <use
-                      href="/src/components/Icon/Icon.sprites.svg#chevron-right-small"
+                      href="/src/components/Visualization/Icon/Icon.sprites.svg#chevron-right-small"
                     />
                   </svg>
                 </a>
@@ -158,7 +158,7 @@ describe('Pagination', () => {
                     class="h-5 w-5"
                   >
                     <use
-                      href="/src/components/Icon/Icon.sprites.svg#chevron-double-right"
+                      href="/src/components/Visualization/Icon/Icon.sprites.svg#chevron-double-right"
                     />
                   </svg>
                 </a>
@@ -218,7 +218,7 @@ describe('Pagination', () => {
                   class="h-5 w-5"
                 >
                   <use
-                    href="/src/components/Icon/Icon.sprites.svg#chevron-left-small"
+                    href="/src/components/Visualization/Icon/Icon.sprites.svg#chevron-left-small"
                   />
                 </svg>
               </a>
@@ -286,7 +286,7 @@ describe('Pagination', () => {
                   class="h-5 w-5"
                 >
                   <use
-                    href="/src/components/Icon/Icon.sprites.svg#chevron-right-small"
+                    href="/src/components/Visualization/Icon/Icon.sprites.svg#chevron-right-small"
                   />
                 </svg>
               </a>

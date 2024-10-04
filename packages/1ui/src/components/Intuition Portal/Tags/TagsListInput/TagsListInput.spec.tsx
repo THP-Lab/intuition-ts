@@ -48,7 +48,7 @@ describe('TagsListInput', () => {
                 class="h-3 w-3"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#cross-large"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#cross-large"
                 />
               </svg>
             </button>
@@ -74,7 +74,7 @@ describe('TagsListInput', () => {
               class="h-3 w-3"
             >
               <use
-                href="/src/components/Icon/Icon.sprites.svg#cross-large"
+                href="/src/components/Visualization/Icon/Icon.sprites.svg#cross-large"
               />
             </svg>
           </button>
@@ -100,7 +100,7 @@ describe('TagsListInput', () => {
             class="h-3 w-3"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#cross-large"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#cross-large"
             />
           </svg>
         </button>
@@ -114,7 +114,7 @@ describe('TagsListInput', () => {
               class="h-6 w-6"
             >
               <use
-                href="/src/components/Icon/Icon.sprites.svg#plus-small"
+                href="/src/components/Visualization/Icon/Icon.sprites.svg#plus-small"
               />
             </svg>
           </button>
@@ -156,7 +156,7 @@ describe('TagsListInput', () => {
                   class="h-6 w-6"
                 >
                   <use
-                    href="/src/components/Icon/Icon.sprites.svg#plus-small"
+                    href="/src/components/Visualization/Icon/Icon.sprites.svg#plus-small"
                   />
                 </svg>
               </button>
@@ -211,7 +211,7 @@ describe('TagsListInput', () => {
                 class="h-3 w-3"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#cross-large"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#cross-large"
                 />
               </svg>
             </button>
@@ -237,7 +237,7 @@ describe('TagsListInput', () => {
               class="h-3 w-3"
             >
               <use
-                href="/src/components/Icon/Icon.sprites.svg#cross-large"
+                href="/src/components/Visualization/Icon/Icon.sprites.svg#cross-large"
               />
             </svg>
           </button>
@@ -263,7 +263,7 @@ describe('TagsListInput', () => {
             class="h-3 w-3"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#cross-large"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#cross-large"
             />
           </svg>
         </button>
@@ -277,7 +277,7 @@ describe('TagsListInput', () => {
               class="h-6 w-6"
             >
               <use
-                href="/src/components/Icon/Icon.sprites.svg#plus-small"
+                href="/src/components/Visualization/Icon/Icon.sprites.svg#plus-small"
               />
             </svg>
           </button>
@@ -319,7 +319,7 @@ describe('TagsListInput', () => {
                   class="h-6 w-6"
                 >
                   <use
-                    href="/src/components/Icon/Icon.sprites.svg#plus-small"
+                    href="/src/components/Visualization/Icon/Icon.sprites.svg#plus-small"
                   />
                 </svg>
               </button>

@@ -6,7 +6,7 @@ import { TransactionStatus } from 'types'
 import { TransactionStatusCard } from './TransactionStatusCard'
 
 const meta: Meta<typeof TransactionStatusCard> = {
-  title: 'Components/TransactionStatus/TransactionStatusCard',
+  title: 'Web3/TransactionStatus/TransactionStatusCard',
   component: TransactionStatusCard,
   argTypes: {
     status: {

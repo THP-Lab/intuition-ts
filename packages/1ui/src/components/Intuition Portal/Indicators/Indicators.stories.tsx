@@ -11,7 +11,7 @@ import { Indicators } from './Indicators'
 
 // Setup meta for the Storybook
 const meta: Meta = {
-  title: 'Components/Indicators',
+  title: 'Intuition Portal/Indicators',
   component: Indicators,
 }
 

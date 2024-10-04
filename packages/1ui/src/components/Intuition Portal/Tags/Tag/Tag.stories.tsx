@@ -6,7 +6,7 @@ import { Icon, IconName } from 'components'
 import { Tag, TagSize, TagVariant } from './Tag'
 
 const meta: Meta<typeof Tag> = {
-  title: 'Components/Tags/Tag',
+  title: 'Intuition Portal/Tags/Tag',
   component: Tag,
   argTypes: {
     variant: {

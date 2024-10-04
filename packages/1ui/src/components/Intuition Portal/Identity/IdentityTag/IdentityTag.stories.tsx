@@ -6,7 +6,7 @@ import { Identity } from 'types'
 import { IdentityTag, IdentityTagSize } from '.'
 
 const meta: Meta<typeof IdentityTag> = {
-  title: 'Components/Identity/IdentityTag',
+  title: 'Intuition Portal/Identity/IdentityTag',
   component: IdentityTag,
   argTypes: {
     variant: {

@@ -138,7 +138,7 @@ describe('PositionCard', () => {
                 Fees Accrued
               </div>
               <div
-                class="text-lg font-medium text-success"
+                class="text-lg font-normal text-success"
               >
                 +0.005 ETH
               </div>

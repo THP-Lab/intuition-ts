@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { Trunctacular } from './Trunctacular'
 
 const meta: Meta<typeof Trunctacular> = {
-  title: 'Components/Trunctacular',
+  title: 'Type/Trunctacular',
   component: Trunctacular,
   argTypes: {
     variant: {

@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { PieChart, PieChartSize, PieChartVariant } from './PieChart'
 
 const meta: Meta<typeof PieChart> = {
-  title: 'Components/PieChart',
+  title: 'Visualization/PieChart',
   component: PieChart,
   argTypes: {
     variant: {

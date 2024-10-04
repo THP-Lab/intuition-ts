@@ -9,7 +9,7 @@ import { QuestHeaderCard } from './QuestHeaderCard'
 
 // Setup meta for the Storybook
 const meta: Meta<typeof QuestHeaderCard> = {
-  title: 'Components/QuestHeaderCard',
+  title: 'Intuition Portal/QuestHeaderCard',
   component: QuestHeaderCard,
 }
 

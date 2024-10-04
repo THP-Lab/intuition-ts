@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { ListIdentityCard } from './ListIdentityCard'
 
 const meta: Meta<typeof ListIdentityCard> = {
-  title: 'Components/Lists/ListIdentityCard',
+  title: 'Intuition Portal/Lists/ListIdentityCard',
   component: ListIdentityCard,
 }
 

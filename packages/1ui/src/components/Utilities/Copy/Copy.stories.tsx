@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { Copy } from './Copy'
 
 const meta: Meta<typeof Copy> = {
-  title: 'Components/Copy',
+  title: 'Utilities/Copy',
   component: Copy,
   argTypes: {
     text: { control: 'text' },

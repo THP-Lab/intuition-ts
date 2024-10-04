@@ -256,7 +256,7 @@ describe('Tags', () => {
               class="w-4 h-4"
             >
               <use
-                href="/src/components/Icon/Icon.sprites.svg#bookmark"
+                href="/src/components/Visualization/Icon/Icon.sprites.svg#bookmark"
               />
             </svg>
             View All Tags
@@ -509,7 +509,7 @@ describe('Tags', () => {
               class="w-4 h-4"
             >
               <use
-                href="/src/components/Icon/Icon.sprites.svg#bookmark"
+                href="/src/components/Visualization/Icon/Icon.sprites.svg#bookmark"
               />
             </svg>
             View All Tags

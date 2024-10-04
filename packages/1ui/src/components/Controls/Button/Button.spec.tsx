@@ -212,7 +212,7 @@ describe('Button', () => {
             class="h-6 w-6 animate-spin"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#in-progress"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#in-progress"
             />
           </svg>
           Text

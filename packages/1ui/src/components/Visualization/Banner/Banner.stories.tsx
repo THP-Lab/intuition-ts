@@ -6,7 +6,7 @@ import { Button } from 'components'
 import { Banner, BannerVariant } from './Banner'
 
 const meta: Meta<typeof Banner> = {
-  title: 'Components/Banner',
+  title: 'Visualization/Banner',
   component: Banner,
   argTypes: {
     variant: {

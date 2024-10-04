@@ -13,7 +13,7 @@ import {
 } from './DropdownMenu'
 
 const meta: Meta<typeof DropdownMenu> = {
-  title: 'Components/DropdownMenu',
+  title: 'Controls/DropdownMenu',
   component: DropdownMenu,
 }
 

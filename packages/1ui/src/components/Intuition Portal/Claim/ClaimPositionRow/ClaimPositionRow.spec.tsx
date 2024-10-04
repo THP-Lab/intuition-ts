@@ -44,7 +44,7 @@ describe('ClaimPositionRow', () => {
                     class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
                   >
                     <use
-                      href="/src/components/Icon/Icon.sprites.svg#crypto-punk"
+                      href="/src/components/Visualization/Icon/Icon.sprites.svg#crypto-punk"
                     />
                   </svg>
                 </span>
@@ -90,7 +90,7 @@ describe('ClaimPositionRow', () => {
                       class="h-4 w-4"
                     >
                       <use
-                        href="/src/components/Icon/Icon.sprites.svg#copy"
+                        href="/src/components/Visualization/Icon/Icon.sprites.svg#copy"
                       />
                     </svg>
                   </button>

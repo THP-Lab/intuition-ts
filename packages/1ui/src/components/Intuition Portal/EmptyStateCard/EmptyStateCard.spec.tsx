@@ -23,7 +23,7 @@ describe('EmptyStateCard', () => {
             class="w-12 h-12 text-muted-foreground"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#inbox-empty"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#inbox-empty"
             />
           </svg>
           <div

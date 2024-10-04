@@ -10,7 +10,7 @@ import {
 } from './SocialLinks'
 
 const meta: Meta<typeof SocialLinks> = {
-  title: 'Components/SocialLinks',
+  title: 'Intuition Portal/SocialLinks',
   component: SocialLinks,
 }
 

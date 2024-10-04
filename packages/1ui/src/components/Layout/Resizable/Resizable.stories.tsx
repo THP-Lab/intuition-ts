@@ -13,7 +13,7 @@ import {
 
 // Setup meta for the Storybook
 const meta: Meta<typeof ResizablePanel> = {
-  title: 'Components/Resizable',
+  title: 'Layout/Resizable',
   component: ResizablePanel,
 }
 

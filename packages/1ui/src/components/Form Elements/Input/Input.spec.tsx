@@ -38,7 +38,7 @@ describe('Input', () => {
             class="h-6 w-6 text-secondary-foreground/80"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#magnifying-glass"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#magnifying-glass"
             />
           </svg>
           <input

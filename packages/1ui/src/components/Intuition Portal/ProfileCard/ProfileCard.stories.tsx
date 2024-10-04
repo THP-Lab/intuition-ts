@@ -5,7 +5,7 @@ import { Identity } from 'types'
 import { ProfileCard, ProfileCardProps } from './ProfileCard'
 
 const meta: Meta<typeof ProfileCard> = {
-  title: 'Components/ProfileCard',
+  title: 'Intuition Portal/ProfileCard',
   component: ProfileCard,
   argTypes: {
     variant: {

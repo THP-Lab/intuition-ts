@@ -10,7 +10,7 @@ import {
 import { PositionCard } from './PositionCard'
 
 const meta: Meta<typeof PositionCard> = {
-  title: 'Components/PositionCard',
+  title: 'Intuition Portal/Positions/PositionCard',
   component: PositionCard,
 }
 

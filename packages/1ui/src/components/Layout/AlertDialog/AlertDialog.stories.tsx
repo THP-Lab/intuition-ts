@@ -16,7 +16,7 @@ import {
 } from './AlertDialog'
 
 const meta: Meta<typeof AlertDialog> = {
-  title: 'Components/AlertDialog',
+  title: 'Layout/AlertDialog',
   component: AlertDialog,
 }
 

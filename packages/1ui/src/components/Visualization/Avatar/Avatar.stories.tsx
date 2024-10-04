@@ -6,7 +6,7 @@ import { Identity } from 'types'
 import { Avatar } from './Avatar'
 
 const meta: Meta<typeof Avatar> = {
-  title: 'Components/Avatar',
+  title: 'Visualization/Avatar',
   component: Avatar,
   parameters: {
     controls: {

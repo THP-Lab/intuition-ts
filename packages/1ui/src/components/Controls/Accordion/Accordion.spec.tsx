@@ -66,7 +66,7 @@ describe('Accordion', () => {
                   class="h-5 w-5 shrink-0 transition-transform duration-200"
                 >
                   <use
-                    href="/src/components/Icon/Icon.sprites.svg#chevron-down-small"
+                    href="/src/components/Visualization/Icon/Icon.sprites.svg#chevron-down-small"
                   />
                 </svg>
               </button>
@@ -107,7 +107,7 @@ describe('Accordion', () => {
                   class="h-5 w-5 shrink-0 transition-transform duration-200"
                 >
                   <use
-                    href="/src/components/Icon/Icon.sprites.svg#chevron-down-small"
+                    href="/src/components/Visualization/Icon/Icon.sprites.svg#chevron-down-small"
                   />
                 </svg>
               </button>
@@ -148,7 +148,7 @@ describe('Accordion', () => {
                   class="h-5 w-5 shrink-0 transition-transform duration-200"
                 >
                   <use
-                    href="/src/components/Icon/Icon.sprites.svg#chevron-down-small"
+                    href="/src/components/Visualization/Icon/Icon.sprites.svg#chevron-down-small"
                   />
                 </svg>
               </button>

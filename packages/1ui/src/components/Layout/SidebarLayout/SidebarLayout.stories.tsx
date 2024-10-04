@@ -13,7 +13,7 @@ import {
 } from '.'
 
 const meta: Meta<typeof SidebarLayout> = {
-  title: 'Components/SidebarLayout',
+  title: 'Layout/SidebarLayout',
   component: SidebarLayout,
 }
 

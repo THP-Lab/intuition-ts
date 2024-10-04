@@ -66,7 +66,7 @@ describe('Command', () => {
               class="mr-2 h-4 w-4 shrink-0 opacity-50"
             >
               <use
-                href="/src/components/Icon/Icon.sprites.svg#magnifying-glass"
+                href="/src/components/Visualization/Icon/Icon.sprites.svg#magnifying-glass"
               />
             </svg>
             <input

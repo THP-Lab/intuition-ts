@@ -6,7 +6,7 @@ import { Icon } from 'components'
 import { Button, ButtonSize, ButtonVariant } from './Button'
 
 const meta: Meta<typeof Button> = {
-  title: 'Components/Button',
+  title: 'Controls/Button',
   component: Button,
   tags: ['autodocs'],
   parameters: {

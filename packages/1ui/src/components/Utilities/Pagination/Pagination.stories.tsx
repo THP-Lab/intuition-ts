@@ -18,7 +18,7 @@ import {
 } from './Pagination'
 
 const meta: Meta<typeof Pagination> = {
-  title: 'Components/Pagination',
+  title: 'Utilities/Pagination',
   component: Pagination,
 }
 

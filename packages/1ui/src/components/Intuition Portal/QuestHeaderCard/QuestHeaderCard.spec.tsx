@@ -72,7 +72,7 @@ describe('QuestHeaderCard', () => {
                 class="h-4 w-4"
               >
                 <use
-                  href="/src/components/Icon/Icon.sprites.svg#crystal-ball"
+                  href="/src/components/Visualization/Icon/Icon.sprites.svg#crystal-ball"
                 />
               </svg>
                View Quests

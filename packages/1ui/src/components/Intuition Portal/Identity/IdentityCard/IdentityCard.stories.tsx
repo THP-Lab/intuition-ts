@@ -6,7 +6,7 @@ import { Currency, Identity } from 'types'
 import { IdentityCard } from './IdentityCard'
 
 const meta: Meta<typeof IdentityCard> = {
-  title: 'Components/Identity/IdentityCard',
+  title: 'Intuition Portal/Identity/IdentityCard',
   component: IdentityCard,
   argTypes: {
     variant: {

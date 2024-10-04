@@ -16,7 +16,7 @@ describe('Copy', () => {
             class="h-4 w-4"
           >
             <use
-              href="/src/components/Icon/Icon.sprites.svg#copy"
+              href="/src/components/Visualization/Icon/Icon.sprites.svg#copy"
             />
           </svg>
         </button>
