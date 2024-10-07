@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import {
+  Badge,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -13,11 +14,15 @@ import {
   SelectTrigger,
   SelectValue,
   Text,
+  TextVariant,
+  TextWeight,
 } from '@0xintuition/1ui'
 import { IdentityPresenter } from '@0xintuition/api'
 
 import { CAIP10AccountForm } from '@components/create-identity/create-caip10-account-form'
 import { InfoTooltip } from '@components/info-tooltip'
+import { useGetWalletBalance } from '@lib/hooks/useGetWalletBalance'
+import { useAccount } from 'wagmi'
 
 import { IdentityForm } from './create-identity-form'
 
@@ -46,6 +51,11 @@ export default function CreateIdentityModal({
     onClose()
   }
 
+  const { address } = useAccount()
+  const walletBalance = useGetWalletBalance(
+    address ?? (wallet as `0x${string}`),
+  )
+
   return (
     <>
       <Dialog open={open} onOpenChange={handleClose}>
@@ -55,36 +65,47 @@ export default function CreateIdentityModal({
         >
           {!isTransactionStarted && (
             <>
-              <DialogHeader className="pb-1">
+              <DialogHeader>
                 <DialogTitle>
-                  <div className="text-foreground flex items-center gap-2">
-                    <Icon name={IconName.fingerprint} className="w-6 h-6" />
-                    Create Identity{' '}
-                    <InfoTooltip
-                      title="Create Identity"
-                      content="You are encouraged to create the best Atom/Identity you can, so that others will use it! As this Identity is interacted with, its shareholders will earn fees - so create a good one, and be the first to stake on it! Please note - you will not be able to change this data later."
-                      icon={IconName.fingerprint}
-                    />
+                  <div className="flex items-center justify-between w-full pr-2.5">
+                    <div className="text-foreground flex items-center gap-2">
+                      Create Identity{' '}
+                      <InfoTooltip
+                        title="Create Identity"
+                        content="In Intuition, every thing is given a unique, decentralized digital identifier in the form of an Atom. These &rsquo;Identities&lsquo; serve as conceptual anchors to which we attach and correlate data,experiences, and perceptions."
+                        icon={IconName.fingerprint}
+                      />
+                    </div>
+                    <Badge className="flex items-center gap-1">
+                      <Icon
+                        name="wallet"
+                        className="h-3 w-3 text-secondary/50"
+                      />
+                      <Text
+                        variant={TextVariant.caption}
+                        className="text-nowrap text-secondary/50"
+                      >
+                        {(+walletBalance).toFixed(2)} ETH
+                      </Text>
+                    </Badge>
                   </div>
                 </DialogTitle>
                 <Text
-                  variant="caption"
-                  className="text-muted-foreground w-full"
+                  variant={TextVariant.caption}
+                  className="text-secondary/50 w-full"
                 >
-                  In Intuition, every thing is given a unique, decentralized
-                  digital identifier in the form of an Atom. These
-                  &rsquo;Identities&lsquo; serve as conceptual anchors to which
-                  we attach and correlate data, experiences, and perceptions.
+                  Begin the process of establishing a new digital
+                  representation.
                 </Text>
               </DialogHeader>
               <div className="flex flex-col w-full gap-1.5 mb-5">
                 <div className="self-stretch flex-col justify-start items-start flex">
                   <div className="flex w-full items-center justify-between">
                     <Text
-                      variant="caption"
-                      className="text-secondary-foreground"
+                      variant={TextVariant.caption}
+                      weight={TextWeight.medium}
                     >
-                      Atom Type
+                      Identity Type
                     </Text>
                   </div>
                 </div>
@@ -98,7 +119,7 @@ export default function CreateIdentityModal({
                     }
                   }}
                 >
-                  <SelectTrigger className="w-52 max-lg:w-full">
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder={selectedAtomType} />
                   </SelectTrigger>
                   <SelectContent>
@@ -117,7 +138,7 @@ export default function CreateIdentityModal({
           )}
           {selectedAtomType === 'Smart Contract' ? (
             <CAIP10AccountForm
-              wallet={wallet}
+              wallet={address ?? (wallet as `0x${string}`)}
               onClose={onClose}
               onSuccess={(identity) => {
                 onSuccess?.(identity)
@@ -127,7 +148,7 @@ export default function CreateIdentityModal({
             />
           ) : (
             <IdentityForm
-              wallet={wallet}
+              wallet={address ?? (wallet as `0x${string}`)}
               onClose={onClose}
               onSuccess={(identity) => {
                 onSuccess?.(identity)

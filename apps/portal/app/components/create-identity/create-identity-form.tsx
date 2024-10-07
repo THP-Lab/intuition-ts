@@ -2,11 +2,15 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import {
   Button,
+  ButtonSize,
+  ButtonVariant,
   Icon,
   Input,
   Label,
   Text,
   Textarea,
+  TextVariant,
+  TextWeight,
   toast,
 } from '@0xintuition/1ui'
 import { IdentityPresenter } from '@0xintuition/api'
@@ -464,11 +468,14 @@ export function IdentityForm({
             <div className="flex flex-col w-full gap-1.5">
               <div className="self-stretch flex-col justify-start items-start flex">
                 <div className="flex w-full items-center justify-between">
-                  <Text variant="caption" className="text-secondary-foreground">
-                    Image
+                  <Text
+                    variant={TextVariant.caption}
+                    weight={TextWeight.medium}
+                  >
+                    Identity Display Picture
                   </Text>
                   <InfoTooltip
-                    title="Image"
+                    title="Identity Display Picture"
                     content={`We've done some image filtering in The Portal, so that
                           we don't begin our journey with a bunch of
                           inappropriate images - though the Intuition Protocol
@@ -476,7 +483,7 @@ export function IdentityForm({
                   />
                 </div>
               </div>
-              <div className="self-stretch h-24 px-9 py-2.5 theme-border bg-primary/10 rounded-md justify-between items-center inline-flex">
+              <div className="self-stretch px-7 py-5 theme-border bg-primary/10 rounded-md justify-between items-center inline-flex">
                 <div className="justify-start items-center gap-[18px] flex">
                   <div className="w-16 h-16 rounded-xl justify-center items-center flex">
                     <ImageChooser
@@ -491,12 +498,18 @@ export function IdentityForm({
                     />
                   </div>
                   <div className="flex-col justify-start items-start inline-flex">
-                    <div className="text-center text-neutral-200 text-sm font-normal leading-tight">
+                    <Text
+                      variant={TextVariant.body}
+                      className="text-center text-secondary/70"
+                    >
                       {truncateString(imageFilename ?? '', 36)}
-                    </div>
-                    <div className="text-center text-neutral-200 text-xs font-normal leading-[18px]">
+                    </Text>
+                    <Text
+                      variant={TextVariant.body}
+                      className="text-center text-secondary/70"
+                    >
                       {imageFilesize}
-                    </div>
+                    </Text>
                   </div>
                 </div>
                 <div className="flex-col justify-end items-end inline-flex">
@@ -513,7 +526,7 @@ export function IdentityForm({
                   >
                     <Icon
                       name="circle-x"
-                      className="h-6 w-6 relative text-neutral-700 hover:text-neutral-600 transition-colors duration-300"
+                      className="h-5 w-5 relative text-secondary/50 hover:text-primary transition-colors duration-300"
                     />
                   </button>
                 </div>
@@ -529,21 +542,24 @@ export function IdentityForm({
             <div className="flex flex-col w-full gap-1.5">
               <div className="self-stretch flex-col justify-start items-start flex">
                 <div className="flex w-full items-center justify-between">
-                  <Text variant="caption" className="text-secondary-foreground">
-                    Display Name
+                  <Text
+                    variant={TextVariant.caption}
+                    weight={TextWeight.medium}
+                  >
+                    Identity Name
                   </Text>
                   <InfoTooltip
-                    title="Display Name"
+                    title="Identity Name"
                     content="This is the display name of your Atom/Identity, and will be a main way that people discover it - so make sure it is good!"
                   />
                 </div>
               </div>
               <Label htmlFor={fields.display_name.id} hidden>
-                Display Name
+                Identity Name
               </Label>
               <Input
                 {...getInputProps(fields.display_name, { type: 'text' })}
-                placeholder="Enter a display name here"
+                placeholder="Enter a identity name here"
                 onChange={(e) => {
                   setFormState((prev) => ({
                     ...prev,
@@ -570,8 +586,11 @@ export function IdentityForm({
             <div className="flex flex-col w-full gap-1.5">
               <div className="self-stretch flex-col justify-start items-start flex">
                 <div className="flex w-full items-center justify-between">
-                  <Text variant="caption" className="text-secondary-foreground">
-                    Description
+                  <Text
+                    variant={TextVariant.caption}
+                    weight={TextWeight.medium}
+                  >
+                    Identity Description
                   </Text>
                   <InfoTooltip
                     title="Description"
@@ -580,11 +599,11 @@ export function IdentityForm({
                 </div>
               </div>
               <Label htmlFor={fields.description.id} hidden>
-                Description
+                Identity Description
               </Label>
               <Textarea
                 {...getInputProps(fields.description, { type: 'text' })}
-                placeholder="Enter description here"
+                placeholder="Enter identity description here"
                 className="theme-border"
                 onChange={(e) =>
                   setFormState((prev) => ({
@@ -602,7 +621,10 @@ export function IdentityForm({
             <div className="flex flex-col w-full gap-1.5">
               <div className="self-stretch flex-col justify-start items-start flex">
                 <div className="flex w-full items-center justify-between">
-                  <Text variant="caption" className="text-secondary-foreground">
+                  <Text
+                    variant={TextVariant.caption}
+                    weight={TextWeight.medium}
+                  >
                     Add Link
                   </Text>
                   <InfoTooltip
@@ -630,13 +652,14 @@ export function IdentityForm({
                 errors={fields.external_reference.errors}
               />
             </div>
-            <div className="mt-auto mx-auto">
+            <div className="mt-auto mx-auto pt-2">
               {isWrongNetwork ? (
                 <WrongNetworkButton />
               ) : (
                 <Button
                   type="button"
-                  variant="primary"
+                  variant={ButtonVariant.primary}
+                  size={ButtonSize.lg}
                   onClick={() => {
                     const result = form.valid && !imageUploadError
                     if (result && !imageUploadError) {
@@ -674,7 +697,8 @@ export function IdentityForm({
                 <Button
                   form={form.id}
                   type="submit"
-                  variant="primary"
+                  variant={ButtonVariant.primary}
+                  size={ButtonSize.lg}
                   onClick={handleSubmit}
                   disabled={
                     !wallet ||
@@ -702,7 +726,8 @@ export function IdentityForm({
                 transactionResponseData && (
                   <Button
                     type="button"
-                    variant="primary"
+                    variant={ButtonVariant.primary}
+                    size={ButtonSize.lg}
                     className="mt-auto w-40"
                     onClick={() => {
                       if (successAction === TransactionSuccessAction.VIEW) {
@@ -722,7 +747,8 @@ export function IdentityForm({
               errorButton={
                 <Button
                   type="button"
-                  variant="primary"
+                  variant={ButtonVariant.primary}
+                  size={ButtonSize.lg}
                   className="mt-auto w-40"
                   onClick={() => {
                     dispatch({ type: 'START_TRANSACTION' })
