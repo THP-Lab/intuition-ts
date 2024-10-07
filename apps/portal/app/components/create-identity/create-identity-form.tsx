@@ -1,14 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
 
 import {
-  Badge,
   Button,
   Icon,
   Input,
   Label,
   Text,
   Textarea,
-  TextVariant,
   toast,
 } from '@0xintuition/1ui'
 import { IdentityPresenter } from '@0xintuition/api'
@@ -28,7 +26,6 @@ import {
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { multivaultAbi } from '@lib/abis/multivault'
 import { useCreateAtom } from '@lib/hooks/useCreateAtom'
-import { useGetWalletBalance } from '@lib/hooks/useGetWalletBalance'
 import { useImageUploadFetcher } from '@lib/hooks/useImageUploadFetcher'
 import {
   OffChainFetcherData,
