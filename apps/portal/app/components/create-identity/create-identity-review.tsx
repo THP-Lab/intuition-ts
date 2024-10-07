@@ -1,7 +1,4 @@
 import {
-  Button,
-  DialogHeader,
-  DialogTitle,
   Icon,
   IconName,
   Identity,
@@ -57,7 +54,6 @@ const calculateFees = (initialDeposit: string, fees: CreateLoaderData) => {
 }
 
 const CreateIdentityReview: React.FC<CreateIdentityReviewProps> = ({
-  dispatch,
   identity,
   initialDeposit,
   fees,
@@ -66,17 +62,6 @@ const CreateIdentityReview: React.FC<CreateIdentityReviewProps> = ({
 
   return (
     <>
-      <DialogHeader>
-        <DialogTitle>
-          <Button
-            onClick={() => dispatch({ type: 'START_TRANSACTION' })}
-            variant="ghost"
-            size="icon"
-          >
-            <Icon name="arrow-left" className="h-4 w-4" />
-          </Button>
-        </DialogTitle>
-      </DialogHeader>
       <div className="flex flex-col items-center justify-center m-auto">
         <Icon name="await-action" className="h-20 w-20 text-neutral-50/30" />
         <div className="flex flex-col items-center gap-5 mt-5">

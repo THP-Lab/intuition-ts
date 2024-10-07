@@ -24,11 +24,6 @@ import { getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { multivaultAbi } from '@lib/abis/multivault'
 import { useCreateAtom } from '@lib/hooks/useCreateAtom'
-import {
-  identityTransactionReducer,
-  initialIdentityTransactionState,
-  useTransactionState,
-} from '@lib/hooks/useTransactionReducer'
 import { createCAIP10AccountSchema } from '@lib/schemas/create-identity-schema'
 import { getChainEnvConfig } from '@lib/utils/environment'
 import logger from '@lib/utils/logger'
@@ -52,7 +47,8 @@ interface IdentityFormProps {
   onSuccess?: (identity: IdentityPresenter) => void
   onClose: () => void
   successAction?: TransactionSuccessActionType
-  setIsTransactionStarted: (isTransactionStarted: boolean) => void
+  state: IdentityTransactionStateType
+  dispatch: React.Dispatch<IdentityTransactionActionType>
 }
 
 interface FormState {
@@ -64,12 +60,9 @@ interface FormState {
 export function CAIP10AccountForm({
   onClose,
   successAction = TransactionSuccessAction.VIEW,
-  setIsTransactionStarted,
+  state,
+  dispatch,
 }: IdentityFormProps) {
-  const { state, dispatch } = useTransactionState<
-    IdentityTransactionStateType,
-    IdentityTransactionActionType
-  >(identityTransactionReducer, initialIdentityTransactionState)
   const navigate = useNavigate()
 
   const [initialDeposit, setInitialDeposit] = useState<string>('')
@@ -216,7 +209,6 @@ export function CAIP10AccountForm({
   const handleClose = () => {
     dispatch({ type: 'START_TRANSACTION' })
     setInitialDeposit('0')
-    setIsTransactionStarted(false)
     onClose()
   }
 
@@ -236,7 +228,6 @@ export function CAIP10AccountForm({
       event.preventDefault()
       const formDataObject = Object.fromEntries(formData.entries())
       setFormState(formDataObject)
-      setIsTransactionStarted(true)
       dispatch({ type: 'REVIEW_TRANSACTION' })
     },
   })
@@ -339,7 +330,6 @@ export function CAIP10AccountForm({
                   onClick={() => {
                     const result = form.valid
                     if (result) {
-                      setIsTransactionStarted(true)
                       dispatch({ type: 'REVIEW_TRANSACTION' })
                     }
                   }}

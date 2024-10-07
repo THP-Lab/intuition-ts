@@ -35,11 +35,6 @@ import {
   OffChainFetcherData,
   useOffChainFetcher,
 } from '@lib/hooks/useOffChainFetcher'
-import {
-  identityTransactionReducer,
-  initialIdentityTransactionState,
-  useTransactionState,
-} from '@lib/hooks/useTransactionReducer'
 import { createIdentitySchema } from '@lib/schemas/create-identity-schema'
 import { getChainEnvConfig } from '@lib/utils/environment'
 import logger from '@lib/utils/logger'
@@ -68,7 +63,8 @@ interface IdentityFormProps {
   onSuccess?: (identity: IdentityPresenter) => void
   onClose: () => void
   successAction?: TransactionSuccessActionType
-  setIsTransactionStarted: (isTransactionStarted: boolean) => void
+  state: IdentityTransactionStateType
+  dispatch: React.Dispatch<IdentityTransactionActionType>
 }
 
 interface FormState {
@@ -90,13 +86,9 @@ export function IdentityForm({
   onClose,
   onSuccess,
   successAction = TransactionSuccessAction.VIEW,
-  setIsTransactionStarted,
+  state,
+  dispatch,
 }: IdentityFormProps) {
-  const { state, dispatch } = useTransactionState<
-    IdentityTransactionStateType,
-    IdentityTransactionActionType
-  >(identityTransactionReducer, initialIdentityTransactionState)
-
   const { offChainFetcher, lastOffChainSubmission } = useOffChainFetcher()
   const navigate = useNavigate()
   const imageUploadFetcher = useImageUploadFetcher()
@@ -422,7 +414,6 @@ export function IdentityForm({
       event.preventDefault()
       const formDataObject = Object.fromEntries(formData.entries())
       setFormState(formDataObject)
-      setIsTransactionStarted(true)
       dispatch({ type: 'REVIEW_TRANSACTION' })
     },
   })
@@ -449,7 +440,6 @@ export function IdentityForm({
     setIdentityImageSrc(null)
     setIdentityImageFile(undefined)
     setInitialDeposit('0')
-    setIsTransactionStarted(false)
     onClose()
   }
 
@@ -663,7 +653,6 @@ export function IdentityForm({
                   onClick={() => {
                     const result = form.valid && !imageUploadError
                     if (result && !imageUploadError) {
-                      setIsTransactionStarted(true)
                       dispatch({ type: 'REVIEW_TRANSACTION' })
                     }
                   }}

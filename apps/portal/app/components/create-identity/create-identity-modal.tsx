@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import {
   Badge,
+  Button,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -22,6 +23,15 @@ import { IdentityPresenter } from '@0xintuition/api'
 import { CAIP10AccountForm } from '@components/create-identity/create-caip10-account-form'
 import { InfoTooltip } from '@components/info-tooltip'
 import { useGetWalletBalance } from '@lib/hooks/useGetWalletBalance'
+import {
+  identityTransactionReducer,
+  initialIdentityTransactionState,
+  useTransactionState,
+} from '@lib/hooks/useTransactionReducer'
+import {
+  IdentityTransactionActionType,
+  IdentityTransactionStateType,
+} from 'app/types'
 import { useAccount } from 'wagmi'
 
 import { IdentityForm } from './create-identity-form'
@@ -41,10 +51,14 @@ export default function CreateIdentityModal({
   onSuccess,
   successAction = 'view',
 }: CreateIdentityModalProps) {
+  const { state, dispatch } = useTransactionState<
+    IdentityTransactionStateType,
+    IdentityTransactionActionType
+  >(identityTransactionReducer, initialIdentityTransactionState)
+
   const options = ['Default', 'Smart Contract']
 
   const [selectedAtomType, setSelectedAtomType] = useState(options[0])
-  const [isTransactionStarted, setIsTransactionStarted] = useState(false)
 
   const handleClose = () => {
     setSelectedAtomType(options[0])
@@ -63,41 +77,46 @@ export default function CreateIdentityModal({
           onOpenAutoFocus={(event) => event.preventDefault()}
           className="flex flex-col max-sm:min-w-0 min-w-[600px]"
         >
-          {!isTransactionStarted && (
-            <>
-              <DialogHeader>
-                <DialogTitle>
-                  <div className="flex items-center justify-between w-full pr-2.5">
-                    <div className="text-foreground flex items-center gap-2">
-                      Create Identity{' '}
-                      <InfoTooltip
-                        title="Create Identity"
-                        content="In Intuition, every thing is given a unique, decentralized digital identifier in the form of an Atom. These &rsquo;Identities&lsquo; serve as conceptual anchors to which we attach and correlate data,experiences, and perceptions."
-                        icon={IconName.fingerprint}
-                      />
-                    </div>
-                    <Badge className="flex items-center gap-1">
-                      <Icon
-                        name="wallet"
-                        className="h-3 w-3 text-secondary/50"
-                      />
-                      <Text
-                        variant={TextVariant.caption}
-                        className="text-nowrap text-secondary/50"
+          <>
+            <DialogHeader>
+              <DialogTitle>
+                <div className="flex items-center justify-between w-full pr-2.5">
+                  <div className="text-foreground flex items-center gap-2">
+                    {state.status !== 'idle' && (
+                      <Button
+                        onClick={() => dispatch({ type: 'START_TRANSACTION' })}
+                        variant="ghost"
+                        size="icon"
                       >
-                        {(+walletBalance).toFixed(2)} ETH
-                      </Text>
-                    </Badge>
+                        <Icon name={IconName.arrowLeft} className="h-4 w-4" />
+                      </Button>
+                    )}
+                    Create Identity{' '}
+                    <InfoTooltip
+                      title="Create Identity"
+                      content="In Intuition, every thing is given a unique, decentralized digital identifier in the form of an Atom. These &rsquo;Identities&lsquo; serve as conceptual anchors to which we attach and correlate data,experiences, and perceptions."
+                      icon={IconName.fingerprint}
+                    />
                   </div>
-                </DialogTitle>
-                <Text
-                  variant={TextVariant.caption}
-                  className="text-secondary/50 w-full"
-                >
-                  Begin the process of establishing a new digital
-                  representation.
-                </Text>
-              </DialogHeader>
+                  <Badge className="flex items-center gap-1">
+                    <Icon name="wallet" className="h-3 w-3 text-secondary/50" />
+                    <Text
+                      variant={TextVariant.caption}
+                      className="text-nowrap text-secondary/50"
+                    >
+                      {(+walletBalance).toFixed(2)} ETH
+                    </Text>
+                  </Badge>
+                </div>
+              </DialogTitle>
+              <Text
+                variant={TextVariant.caption}
+                className="text-secondary/50 w-full"
+              >
+                Begin the process of establishing a new digital representation.
+              </Text>
+            </DialogHeader>
+            {state.status === 'idle' && (
               <div className="flex flex-col w-full gap-1.5 mb-5">
                 <div className="self-stretch flex-col justify-start items-start flex">
                   <div className="flex w-full items-center justify-between">
@@ -134,27 +153,29 @@ export default function CreateIdentityModal({
                   </SelectContent>
                 </Select>
               </div>
-            </>
-          )}
+            )}
+          </>
           {selectedAtomType === 'Smart Contract' ? (
             <CAIP10AccountForm
+              state={state}
+              dispatch={dispatch}
               wallet={address ?? (wallet as `0x${string}`)}
               onClose={onClose}
               onSuccess={(identity) => {
                 onSuccess?.(identity)
               }}
               successAction={successAction}
-              setIsTransactionStarted={setIsTransactionStarted}
             />
           ) : (
             <IdentityForm
+              state={state}
+              dispatch={dispatch}
               wallet={address ?? (wallet as `0x${string}`)}
               onClose={onClose}
               onSuccess={(identity) => {
                 onSuccess?.(identity)
               }}
               successAction={successAction}
-              setIsTransactionStarted={setIsTransactionStarted}
             />
           )}
         </DialogContent>
