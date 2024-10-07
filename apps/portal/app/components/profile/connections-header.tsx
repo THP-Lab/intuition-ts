@@ -1,7 +1,7 @@
 import {
   Claim,
+  CurrencyValueDisplay,
   Identity,
-  MonetaryValue,
   Text,
   TextVariant,
   TextWeight,
@@ -88,7 +88,7 @@ export const ConnectionsHeader: React.FC<ConnectionsHeaderProps> = ({
               >
                 Total Follow Value
               </Text>
-              <MonetaryValue
+              <CurrencyValueDisplay
                 value={+totalStake}
                 currency="ETH"
                 textVariant={TextVariant.headline}

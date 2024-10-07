@@ -120,6 +120,11 @@ describe('IdentityPosition', () => {
               >
                 1.21 ETH
               </div>
+              <div
+                class="text-lg font-medium text-success"
+              >
+                +0.005 ETH
+              </div>
             </div>
           </div>
         </div>
@@ -341,6 +346,11 @@ describe('IdentityPosition', () => {
                   class="text-primary text-lg font-medium"
                 >
                   1.21 ETH
+                </div>
+                <div
+                  class="text-lg font-medium text-success"
+                >
+                  +0.005 ETH
                 </div>
               </div>
             </div>

@@ -4,7 +4,7 @@ import {
   Button,
   ButtonSize,
   ButtonVariant,
-  MonetaryValue,
+  CurrencyValueDisplay,
   PieChart,
   PieChartSize,
   PieChartVariant,
@@ -54,7 +54,7 @@ const ClaimStakeCardDataSet = ({
         </Text>
       </div>
       {currency ? (
-        <MonetaryValue
+        <CurrencyValueDisplay
           variant={TextVariant.bodyLarge}
           value={value}
           currency={currency}
@@ -106,7 +106,7 @@ const ClaimStakeCard = ({
   return (
     <div
       className={cn(
-        'flex flex-col gap-4 theme-border rounded-xl p-5 w-full',
+        'flex flex-col gap-4 theme-border rounded-xl p-5 w-80',
         className,
       )}
       {...props}
@@ -128,7 +128,7 @@ const ClaimStakeCard = ({
           >
             TVL
           </Text>
-          <MonetaryValue
+          <CurrencyValueDisplay
             variant={TextVariant.bodyLarge}
             value={totalTVL}
             currency={currency}

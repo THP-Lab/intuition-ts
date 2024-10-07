@@ -34,7 +34,7 @@ export default meta
 
 type Story = StoryObj<typeof IdentityTag>
 
-export const BasicUsage: Story = {
+export const User: Story = {
   args: {
     variant: 'user',
     imgSrc:

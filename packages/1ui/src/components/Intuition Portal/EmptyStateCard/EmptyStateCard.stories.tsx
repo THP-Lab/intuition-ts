@@ -1,7 +1,5 @@
-import React from 'react'
-
 import type { Meta, StoryObj } from '@storybook/react'
-import { Button } from 'components'
+import { Button, Icon } from 'components'
 
 import { EmptyStateCard } from './EmptyStateCard'
 
@@ -18,7 +16,7 @@ export const BasicUsage: Story = {
   args: {},
   render: () => (
     <div className="w-[600px]">
-      <EmptyStateCard message="You have no stake positions." />
+      <EmptyStateCard message="No identities found." />
     </div>
   ),
 }
@@ -27,9 +25,9 @@ export const WithChildren: Story = {
   args: {},
   render: () => (
     <div className="w-[600px]">
-      <EmptyStateCard message="You have no stake positions.">
+      <EmptyStateCard message="No identities found.">
         <Button size="md" onClick={() => console.log('Clicked')}>
-          Add Stake
+          <Icon name="fingerprint" className="h-4 w-4" /> Create an Identity
         </Button>
       </EmptyStateCard>
     </div>

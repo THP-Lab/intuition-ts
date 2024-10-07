@@ -1,4 +1,4 @@
-import { MonetaryValue, Text } from 'components'
+import { CurrencyValueDisplay, Text } from 'components'
 import { CurrencyType } from 'types'
 
 interface PositionCardStakedProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -12,7 +12,7 @@ const PositionCardStaked = ({ amount, currency }: PositionCardStakedProps) => {
       <Text variant="caption" className="text-muted-foreground mb-0.5">
         Amount Staked
       </Text>
-      <MonetaryValue
+      <CurrencyValueDisplay
         textVariant="bodyLarge"
         value={amount}
         currency={currency}

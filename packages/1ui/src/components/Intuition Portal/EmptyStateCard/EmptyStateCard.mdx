@@ -16,7 +16,7 @@ import * as Stories from './EmptyStateCard.stories'
   code={`
 import { EmptyStateCard } from '@0xintuition/1ui'
 
-<EmptyStateCard message="You have no stake positions." />
+<EmptyStateCard message="No identities found." />
 `} />
 
 ## Variants
@@ -29,10 +29,12 @@ import { EmptyStateCard } from '@0xintuition/1ui'
   dark
   language="tsx"
   code={`
-import { EmptyStateCard, Button } from '@0xintuition/1ui'
+import { EmptyStateCard, Button, Icon } from '@0xintuition/1ui'
 
-<EmptyStateCard message="You have no stake positions.">
-  <Button>Stake Now</Button>
+<EmptyStateCard message="No identities found.">
+  <Button size="md">
+    <Icon name="fingerprint" /> Create an Identity
+  </Button>
 </EmptyStateCard>
 `} />
 

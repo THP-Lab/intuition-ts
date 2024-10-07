@@ -1,7 +1,11 @@
-import { Icon, IconName, Text, TextVariant } from 'components'
+import {
+  CurrencyValueDisplay,
+  Icon,
+  IconName,
+  Text,
+  TextVariant,
+} from 'components'
 import { CurrencyType } from 'types'
-
-import { MonetaryValue } from './MonetaryValue'
 
 interface ClaimValueDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
   tvl: number
@@ -18,7 +22,7 @@ const ClaimValueDisplay = ({
 }: ClaimValueDisplayProps) => {
   return (
     <div className="flex flex-col items-end max-md:flex-row max-md:justify-between max-md:items-center">
-      <MonetaryValue
+      <CurrencyValueDisplay
         variant={TextVariant.bodyLarge}
         value={tvl}
         currency={currency}

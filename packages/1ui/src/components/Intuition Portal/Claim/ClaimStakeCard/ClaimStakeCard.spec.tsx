@@ -21,7 +21,7 @@ describe('ClaimStakeCard', () => {
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
         <div
-          class="flex flex-col gap-4 theme-border rounded-xl p-5 w-full"
+          class="flex flex-col gap-4 theme-border rounded-xl p-5 w-80"
         >
           <div
             class="text-primary text-lg font-normal"
@@ -178,7 +178,7 @@ describe('ClaimStakeCard', () => {
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
         <div
-          class="flex flex-col gap-4 theme-border rounded-xl p-5 w-full"
+          class="flex flex-col gap-4 theme-border rounded-xl p-5 w-80"
         >
           <div
             class="text-primary text-lg font-normal"

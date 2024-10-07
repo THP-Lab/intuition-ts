@@ -1,0 +1,26 @@
+import { Canvas, Controls, Meta, Source, Title } from '@storybook/blocks'
+
+import { Button } from 'components'
+
+import * as Stories from './ValueChange.stories'
+
+<Meta of={Stories} />
+
+<Title />
+
+## Displays a formatted value accrual with currency, supporting positive and negative values.
+
+<Source
+  dark
+  language="tsx"
+  code={`
+import { ValueChange } from '@0xintuition/1ui'
+
+<ValueChange value={0.005} currency="ETH" />
+`} />
+
+<Canvas of={Stories.BasicUsage} sourceState="none" />
+
+## Properties
+
+<Controls />

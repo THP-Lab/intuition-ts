@@ -7,18 +7,18 @@ import {
 } from 'components'
 import { Currency, CurrencyType } from 'types'
 
-interface MonetaryValueProps extends TextProps {
+interface CurrencyValueDisplayProps extends TextProps {
   value: number
   currency?: CurrencyType
   textVariant?: TextVariantType
 }
 
-const MonetaryValue = ({
+const CurrencyValueDisplay = ({
   value,
   currency = Currency.ETH,
   textVariant = TextVariant.bodyLarge,
   ...props
-}: MonetaryValueProps) => {
+}: CurrencyValueDisplayProps) => {
   return (
     <Text variant={textVariant} weight={TextWeight.medium} {...props}>
       {value} {currency}
@@ -26,4 +26,4 @@ const MonetaryValue = ({
   )
 }
 
-export { MonetaryValue }
+export { CurrencyValueDisplay }

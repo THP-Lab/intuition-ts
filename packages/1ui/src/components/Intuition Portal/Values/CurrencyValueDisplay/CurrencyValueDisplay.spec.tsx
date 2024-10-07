@@ -2,12 +2,12 @@ import React from 'react'
 
 import { render } from '@testing-library/react'
 
-import { MonetaryValue } from './components'
+import { CurrencyValueDisplay } from '.'
 
-describe('MonetaryValue', () => {
-  it('should render the MonetaryValue component', () => {
+describe('CurrencyValueDisplay', () => {
+  it('should render the CurrencyValueDisplay component', () => {
     const { asFragment } = render(
-      <MonetaryValue value={0.345} currency="ETH" />,
+      <CurrencyValueDisplay value={0.345} currency="ETH" />,
     )
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>

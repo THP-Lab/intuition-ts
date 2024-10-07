@@ -1,0 +1,26 @@
+import { Canvas, Controls, Meta, Source, Title } from '@storybook/blocks'
+
+import { Button } from 'components'
+
+import * as Stories from './PositionValueDisplay.stories'
+
+<Meta of={Stories} />
+
+<Title />
+
+## Displays a position's value with an optional badge, currency amount, and accrued fees.
+
+<Source
+  dark
+  language="tsx"
+  code={`
+import { PositionValueDisplay } from '@0xintuition/1ui'
+
+<PositionValueDisplay value={0.789} position="identity" feesAccrued={0.02} />
+`} />
+
+<Canvas of={Stories.BasicUsage} sourceState="none" />
+
+## Properties
+
+<Controls />

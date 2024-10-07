@@ -1,10 +1,11 @@
-import React from 'react'
-
-import { Tag, TagVariant, TextProps } from 'components'
+import {
+  CurrencyValueDisplay,
+  Tag,
+  TagVariant,
+  TextProps,
+  ValueChange,
+} from 'components'
 import { Currency, CurrencyType } from 'types'
-
-// import { FeesAccrued } from './FeesAccrued'
-import { MonetaryValue } from './MonetaryValue'
 
 export const PositionValueVariants = {
   identity: 'identity',
@@ -24,8 +25,8 @@ interface PositionValueDisplayProps extends TextProps {
 
 const PositionValueDisplay = ({
   value,
-  position,
-  // feesAccrued,
+  position = PositionValueVariants.identity,
+  feesAccrued,
   currency = Currency.ETH,
 }: PositionValueDisplayProps) => {
   const renderBadge = () => {
@@ -41,9 +42,8 @@ const PositionValueDisplay = ({
     <div className="flex items-center justify-start gap-2 max-sm:justify-between">
       <div className="h-full flex flex-col pt-1">{renderBadge()}</div>
       <div className="h-full flex flex-col items-end">
-        <MonetaryValue value={value} currency={currency} />
-        {/* TODO: Uncomment when feature is supported  */}
-        {/* <FeesAccrued value={feesAccrued} currency={currency} /> */}
+        <CurrencyValueDisplay value={value} currency={currency} />
+        <ValueChange value={feesAccrued} currency={currency} />
       </div>
     </div>
   )

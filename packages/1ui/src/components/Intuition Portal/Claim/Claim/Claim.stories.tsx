@@ -50,25 +50,24 @@ type Story = StoryObj<typeof Claim>
 
 // Example story for the default variant
 export const BasicUsage: Story = {
-  args: {
-    size: 'md',
-    disabled: false,
-    subject: {
-      variant: 'non-user',
-      label: '0xintution',
-    },
-    predicate: {
-      variant: 'non-user',
-      label: 'is really',
-    },
-    object: {
-      variant: 'non-user',
-      label: 'cool',
-    },
-  },
-  render: (args) => (
+  render: () => (
     <div className="w-max margin">
-      <Claim {...args} />
+      <Claim
+        size="md"
+        disabled={false}
+        subject={{
+          variant: 'non-user',
+          label: '0xintution',
+        }}
+        predicate={{
+          variant: 'non-user',
+          label: 'is really',
+        }}
+        object={{
+          variant: 'non-user',
+          label: 'cool',
+        }}
+      />
     </div>
   ),
 }

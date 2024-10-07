@@ -50,7 +50,7 @@ export const UserVariant: Story = {
   ),
 }
 
-export const EntityVariant: Story = {
+export const NonUserVariant: Story = {
   args: {
     variant: 'non-user',
     name: 'Amazon',

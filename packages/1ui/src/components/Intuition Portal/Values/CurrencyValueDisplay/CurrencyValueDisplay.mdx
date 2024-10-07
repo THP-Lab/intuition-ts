@@ -1,0 +1,26 @@
+import { Canvas, Controls, Meta, Source, Title } from '@storybook/blocks'
+
+import { Button } from 'components'
+
+import * as Stories from './CurrencyValueDisplay.stories'
+
+<Meta of={Stories} />
+
+<Title />
+
+## Displays a formatted value with currency.
+
+<Source
+  dark
+  language="tsx"
+  code={`
+import { CurrencyValueDisplay } from '@0xintuition/1ui'
+
+<CurrencyValueDisplay value={0.345} currency="ETH" />
+`} />
+
+<Canvas of={Stories.BasicUsage} sourceState="none" />
+
+## Properties
+
+<Controls />

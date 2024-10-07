@@ -3,9 +3,9 @@ import React from 'react'
 import {
   Button,
   ButtonVariant,
+  CurrencyValueDisplay,
   Icon,
   IconName,
-  MonetaryValue,
   Text,
   TextWeight,
 } from '@0xintuition/1ui'
@@ -78,7 +78,7 @@ export function OverviewStakingHeader({
             >
               TVL
             </Text>
-            <MonetaryValue value={totalStake} currency="ETH" />
+            <CurrencyValueDisplay value={totalStake} currency="ETH" />
           </div>
         </div>
         <div className="flex">

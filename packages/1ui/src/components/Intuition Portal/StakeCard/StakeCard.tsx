@@ -2,8 +2,8 @@ import * as React from 'react'
 
 import {
   Button,
+  CurrencyValueDisplay,
   IdentityTag,
-  MonetaryValue,
   Text,
   Trunctacular,
 } from 'components'
@@ -53,7 +53,11 @@ const StakeCard = ({
             <Text className="text-muted-foreground" variant="caption">
               TVL
             </Text>
-            <MonetaryValue textVariant="body" value={tvl} currency={currency} />
+            <CurrencyValueDisplay
+              textVariant="body"
+              value={tvl}
+              currency={currency}
+            />
           </div>
           <div className="flex flex-col items-end">
             <Text className="text-muted-foreground" variant="caption">

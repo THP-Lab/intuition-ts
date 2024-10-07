@@ -33,7 +33,7 @@ export const UserVariant: Story = {
   ),
 }
 
-export const IdentityVariant: Story = {
+export const ClaimVariant: Story = {
   args: {
     variant: 'claim',
     position: 'claimAgainst',

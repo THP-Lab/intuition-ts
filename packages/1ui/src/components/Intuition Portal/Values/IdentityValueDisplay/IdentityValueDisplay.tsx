@@ -1,7 +1,11 @@
-import { Icon, IconName, Text, TextVariant } from 'components'
+import {
+  CurrencyValueDisplay,
+  Icon,
+  IconName,
+  Text,
+  TextVariant,
+} from 'components'
 import { CurrencyType } from 'types'
-
-import { MonetaryValue } from './MonetaryValue'
 
 interface IdentityValueDisplayProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -17,7 +21,7 @@ const IdentityValueDisplay = ({
 }: IdentityValueDisplayProps) => {
   return (
     <div className="flex flex-col items-end max-sm:flex-row max-sm:justify-between max-sm:items-center max-sm:w-full">
-      <MonetaryValue value={value} currency={currency} />
+      <CurrencyValueDisplay value={value} currency={currency} />
 
       <div className="flex gap-1 items-center">
         <Icon

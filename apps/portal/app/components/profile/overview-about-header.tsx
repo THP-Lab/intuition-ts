@@ -3,10 +3,10 @@ import React from 'react'
 import {
   Button,
   ButtonVariant,
+  CurrencyValueDisplay,
   Icon,
   IconName,
   IdentityTag,
-  MonetaryValue,
   Text,
   Trunctacular,
 } from '@0xintuition/1ui'
@@ -88,7 +88,7 @@ export function OverviewAboutHeader({
             >
               TVL
             </Text>
-            <MonetaryValue value={totalStake} currency="ETH" />
+            <CurrencyValueDisplay value={totalStake} currency="ETH" />
           </div>
         </div>
         <div className="flex flex-col items-end justify-end ml-auto max-sm:w-full max-sm:items-center">

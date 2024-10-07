@@ -1,0 +1,26 @@
+import { Canvas, Controls, Meta, Source, Title } from '@storybook/blocks'
+
+import { Button } from 'components'
+
+import * as Stories from './IdentityValueDisplay.stories'
+
+<Meta of={Stories} />
+
+<Title />
+
+## Displays an identity's value with currency and position count.
+
+<Source
+  dark
+  language="tsx"
+  code={`
+import { IdentityValueDisplay } from '@0xintuition/1ui'
+
+<IdentityValueDisplay value={0.345} currency="ETH" followers={230} />
+`} />
+
+<Canvas of={Stories.BasicUsage} sourceState="none" />
+
+## Properties
+
+<Controls />

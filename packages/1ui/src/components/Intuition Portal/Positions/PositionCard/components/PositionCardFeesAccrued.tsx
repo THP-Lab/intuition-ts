@@ -1,4 +1,4 @@
-import { FeesAccrued, Text, TextVariant, TextWeight } from 'components'
+import { Text, TextVariant, TextWeight, ValueChange } from 'components'
 import { CurrencyType } from 'types'
 
 interface PositionCardFeesAccruedProps
@@ -20,7 +20,7 @@ const PositionCardFeesAccrued = ({
       >
         Fees Accrued
       </Text>
-      <FeesAccrued value={amount} currency={currency} />
+      <ValueChange value={amount} currency={currency} />
     </div>
   )
 }

@@ -1,8 +1,8 @@
 import React from 'react'
 
 import {
+  CurrencyValueDisplay,
   IdentityTag,
-  MonetaryValue,
   Text,
   TextVariant,
   TextWeight,
@@ -84,7 +84,7 @@ const DataAboutHeader: React.FC<DataAboutHeaderProps> = ({
           >
             TVL
           </Text>
-          <MonetaryValue
+          <CurrencyValueDisplay
             value={totalStake}
             currency="ETH"
             textVariant={TextVariant.headline}

@@ -43,7 +43,7 @@ export const UserVariant: Story = {
   ),
 }
 
-export const IdentityVariant: Story = {
+export const NonUserVariant: Story = {
   args: {
     variant: 'non-user',
     name: 'Amazon',

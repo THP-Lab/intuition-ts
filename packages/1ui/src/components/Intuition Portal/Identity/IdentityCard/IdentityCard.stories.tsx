@@ -50,7 +50,7 @@ export default meta
 
 type Story = StoryObj<typeof IdentityCard>
 
-export const BasicUsage: Story = {
+export const UserVariant: Story = {
   args: {
     variant: 'user',
     avatarSrc:
@@ -63,7 +63,7 @@ export const BasicUsage: Story = {
   render: (args) => <IdentityCard {...args} />,
 }
 
-export const Entity: Story = {
+export const NonUserVariant: Story = {
   render: () => (
     <IdentityCard
       variant="non-user"
