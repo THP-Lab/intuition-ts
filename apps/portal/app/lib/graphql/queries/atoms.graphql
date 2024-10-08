@@ -2,10 +2,18 @@ query GetAtoms {
   atoms {
     id
     label
+    image
+    data
+    vaultId
     creator {
-      id
-      label
-      image
+      atom {
+        id
+        label
+        image
+        asObject {
+          label
+        }
+      }
     }
   }
 }
