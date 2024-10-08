@@ -16,7 +16,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   if (!sessionToken) {
+<<<<<<< HEAD
     logger('[_index loader] no session token')
+=======
+>>>>>>> 1814bcc60 (Add stripped down version of portal base)
     throw redirect('/login')
   } else {
     // if there is no access token, but there is a session token

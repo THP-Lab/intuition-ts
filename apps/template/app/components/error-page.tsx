@@ -15,6 +15,10 @@ import derpFace12 from '@assets/derp-face-12.jpg'
 import logger from '@lib/utils/logger'
 import { cn } from '@lib/utils/misc'
 import { Link, useRouteError } from '@remix-run/react'
+<<<<<<< HEAD
+=======
+import { captureRemixErrorBoundaryError } from '@sentry/remix'
+>>>>>>> 1814bcc60 (Add stripped down version of portal base)
 import { PATHS } from 'app/consts'
 
 import NavigationButton from './navigation-link'
@@ -121,6 +125,10 @@ export const ErrorPage = ({
 }) => {
   const error = useRouteError()
   logger(`ERROR BOUNDARY (${routeName}):`, error)
+<<<<<<< HEAD
+=======
+  captureRemixErrorBoundaryError(error)
+>>>>>>> 1814bcc60 (Add stripped down version of portal base)
 
   const descriptionArray = description
     ? description.split('\n')

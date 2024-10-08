@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 import logger from '@lib/utils/logger'
 import { combineHeaders } from '@lib/utils/misc'
+=======
+import { OpenAPI } from '@0xintuition/api'
+
+import logger from '@lib/utils/logger'
+import { combineHeaders, getAuthHeaders } from '@lib/utils/misc'
+>>>>>>> 1814bcc60 (Add stripped down version of portal base)
 import { getRedirectToUrl } from '@lib/utils/redirect'
 import { User } from '@privy-io/server-auth'
 import { redirect } from '@remix-run/node'
@@ -15,7 +22,10 @@ import {
 
 export async function getUserId(request: Request): Promise<string | null> {
   const verifiedClaims = await verifyPrivyAccessToken(request)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1814bcc60 (Add stripped down version of portal base)
   return verifiedClaims?.userId ?? null
 }
 
@@ -25,9 +35,13 @@ export async function getUser(request: Request): Promise<User | null> {
 }
 
 export async function getUserWallet(request: Request): Promise<string | null> {
+<<<<<<< HEAD
   logger('[getUserWallet] Entering getUserWallet')
   const user = await getUser(request)
   logger('[getUserWallet] user', user)
+=======
+  const user = await getUser(request)
+>>>>>>> 1814bcc60 (Add stripped down version of portal base)
   return user?.wallet?.address ?? null
 }
 
@@ -50,9 +64,12 @@ export async function requireUser(
   if (!user) {
     throw await handlePrivyRedirect({ request, options })
   }
+<<<<<<< HEAD
   if (!user) {
     throw new Error('User not found')
   }
+=======
+>>>>>>> 1814bcc60 (Add stripped down version of portal base)
   return user
 }
 
@@ -64,7 +81,10 @@ export async function requireUserWallet(
   if (!wallet) {
     throw await handlePrivyRedirect({ request, options })
   }
+<<<<<<< HEAD
   logger('[requireUserWallet] no wallet', wallet)
+=======
+>>>>>>> 1814bcc60 (Add stripped down version of portal base)
   return wallet
 }
 
@@ -114,3 +134,24 @@ export async function handlePrivyRedirect({
   logger('Hit end of handlePrivyRedirect', accessToken, sessionToken, isOAuth)
   return
 }
+<<<<<<< HEAD
+=======
+
+export async function setupAPI(request: Request) {
+  const apiUrl =
+    typeof window !== 'undefined' ? window.ENV?.API_URL : process.env.API_URL
+
+  OpenAPI.BASE = apiUrl
+
+  const accessToken = getPrivyAccessToken(request)
+  const headers = getAuthHeaders(accessToken !== null ? accessToken : '')
+  OpenAPI.HEADERS = headers as Record<string, string>
+}
+
+export function updateClientAPIHeaders(accessToken: string | null) {
+  const headers = getAuthHeaders(accessToken !== null ? accessToken : '')
+
+  OpenAPI.HEADERS = headers as Record<string, string>
+  logger('[SETUP API] -- END')
+}
+>>>>>>> 1814bcc60 (Add stripped down version of portal base)
