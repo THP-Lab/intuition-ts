@@ -41,7 +41,32 @@ export const verifyPrivyAccessToken = async (
     return null
   }
 
-  logger('[verifyPrivyAccessToken] Attempting to verify auth token')
+  const verificationKey = process.env.PRIVY_VERIFICATION_KEY
+  if (verificationKey) {
+    // Convert the escaped newlines back to actual newlines
+    const formattedKey = verificationKey.replace(/\\n/g, '\n')
+    logger('[verifyPrivyAccessToken] Verification key found')
+
+    try {
+      const verifiedClaims = await privy.verifyAuthToken(
+        authToken,
+        formattedKey,
+      )
+      logger('[verifyPrivyAccessToken] verifiedClaims', verifiedClaims)
+      return verifiedClaims
+    } catch (error) {
+      logger(
+        '[verifyPrivyAccessToken] Error verifying auth token with custom key',
+        error,
+      )
+      // Fallback to default verification if custom key fails
+      logger(
+        '[verifyPrivyAccessToken] Attempting verification with default key',
+      )
+    }
+  }
+
+  // If no verification key or custom verification failed, use default verification
   try {
     const verifiedClaims = await privy.verifyAuthToken(authToken)
     logger('[verifyPrivyAccessToken] verifiedClaims', verifiedClaims)
