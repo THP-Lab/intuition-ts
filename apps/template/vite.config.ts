@@ -1,12 +1,12 @@
 import { vitePlugin as remix } from '@remix-run/dev'
 import { installGlobals } from '@remix-run/node'
-import { sentryVitePlugin } from '@sentry/vite-plugin'
 import autoprefixer from 'autoprefixer'
 import { flatRoutes } from 'remix-flat-routes'
 import tailwindcss from 'tailwindcss'
 import { defineConfig } from 'vite'
 import envOnly from 'vite-env-only'
 import tsconfigPaths from 'vite-tsconfig-paths'
+
 // TODO: Update this once we figure our the TS issue that vite is throwing
 
 import { themePreset } from '../../packages/1ui/src/styles'
@@ -35,15 +35,6 @@ export default defineConfig({
       },
     }),
     tsconfigPaths(),
-    process.env.SENTRY_AUTH_TOKEN
-      ? sentryVitePlugin({
-        disable: process.env.NODE_ENV !== 'production',
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-        org: process.env.SENTRY_ORG,
-        project: process.env.SENTRY_PROJECT,
-        release: { inject: false },
-      })
-      : null,
   ],
   server: {
     port: 8080,

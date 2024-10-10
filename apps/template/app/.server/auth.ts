@@ -16,17 +16,13 @@ import {
 } from './privy'
 
 export async function getUserId(request: Request): Promise<string | null> {
-  logger('[getUserId] Entering getUserId')
   const verifiedClaims = await verifyPrivyAccessToken(request)
-  logger('[getUserId] verifiedClaims', verifiedClaims)
+
   return verifiedClaims?.userId ?? null
 }
 
 export async function getUser(request: Request): Promise<User | null> {
-  logger('[getUserWallet] Entering getUser')
-
   const userId = await getUserId(request)
-  logger('[getUser] userId', userId)
   return userId ? await getPrivyUserById(userId) : null
 }
 
@@ -63,7 +59,6 @@ export async function requireUserWallet(
   request: Request,
   options: RedirectOptions = {},
 ): Promise<string> {
-  logger('[Entering requireUserWallet')
   const wallet = await getUserWallet(request)
   if (!wallet) {
     throw await handlePrivyRedirect({ request, options })
@@ -127,11 +122,4 @@ export async function setupAPI(request: Request) {
   const accessToken = getPrivyAccessToken(request)
   const headers = getAuthHeaders(accessToken !== null ? accessToken : '')
   OpenAPI.HEADERS = headers as Record<string, string>
-}
-
-export function updateClientAPIHeaders(accessToken: string | null) {
-  const headers = getAuthHeaders(accessToken !== null ? accessToken : '')
-
-  OpenAPI.HEADERS = headers as Record<string, string>
-  logger('[SETUP API] -- END')
 }
