@@ -1,11 +1,5 @@
 import { ChainEnv } from '@lib/utils/environment'
-import { PrivyPlatform } from 'app/types/privy'
 import { base, baseSepolia } from 'viem/chains'
-
-import { PATHS } from './paths'
-
-// export const CURRENT_ENV =
-//   typeof window !== 'undefined' ? window.ENV.DEPLOY_ENV : process.env.DEPLOY_ENV
 
 export const CURRENT_ENV: ChainEnv =
   (import.meta.env.VITE_DEPLOY_ENV as ChainEnv) || 'development'
@@ -17,6 +11,8 @@ export const DEFAULT_VERIFIER = function (): void {
   throw new Error('verify function must be implemented')
 }
 
+// MULTIVAULT CONTRACT ADDRESS
+
 export const MULTIVAULT_CONTRACT_ADDRESS =
   CURRENT_ENV === 'development'
     ? '0x1A6950807E33d5bC9975067e6D6b5Ea4cD661665' // dev contract address
@@ -27,21 +23,9 @@ export const RELIC_CONTRACT_ADDRESS =
     ? '0x7aB2F10CaC6E27971fa93A5D5470Bb84126Bb734' // dev contract address
     : '0x7aB2F10CaC6E27971fa93A5D5470Bb84126Bb734' // prod contract address
 
-export const DEFAULT_LIMIT = 10
-
 export const MIN_DEPOSIT = CURRENT_ENV === 'development' ? '0.00069' : '0.00042'
-// Form constants
-export const MAX_NAME_LENGTH = 69
-export const DESCRIPTION_MAX_LENGTH = 266
-export const MAX_UPLOAD_SIZE = 1024 * 1024 * 5 // 5MB
-export const ACCEPTED_IMAGE_MIME_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-]
-export const ACCEPTED_IMAGE_TYPES = ['jpeg', 'jpg', 'png']
+
+// BLOCK EXPLORER URLS
 
 export const BLOCK_EXPLORER_URL =
   CURRENT_ENV === 'development'
@@ -49,128 +33,7 @@ export const BLOCK_EXPLORER_URL =
     : 'https://basescan.org'
 
 export const IPFS_GATEWAY_URL = 'https://ipfs.io/ipfs'
-
-export const CREATE_RESOURCE_ROUTE = '/resources/create'
-export const CREATE_CLAIM_RESOURCE_ROUTE = '/resources/create-claim'
-export const GET_IDENTITIES_BY_IDS_RESOURCE_ROUTE =
-  '/resources/get-identities-by-ids'
-export const GET_IDENTITIES_RESOURCE_ROUTE = '/resources/get-identities'
-export const GET_IDENTITIES_BY_PARAM_RESOURCE_ROUTE =
-  '/resources/get-identities-by-param'
-export const SEARCH_IDENTITIES_RESOURCE_ROUTE = '/resources/search-identities'
-export const SEARCH_IDENTITIES_BY_TAGS_RESOURCE_ROUTE =
-  '/resources/search-identities-by-tags'
-export const TAG_RESOURCE_ROUTE = '/resources/tag'
-export const SEARCH_CLAIMS_BY_IDS_RESOURCE_ROUTE =
-  '/resources/search-claims-by-ids'
 export const GET_VAULT_DETAILS_RESOURCE_ROUTE = '/resources/get-vault-details'
-
-// Privy Social Accounts
-
-export const verifiedPlatforms: PrivyPlatform[] = [
-  {
-    platformPrivyName: 'twitter',
-    platformUiName: 'x',
-    platformDisplayName: 'X',
-    platformIcon: 'x',
-    linkMethod: 'linkTwitter',
-    unlinkMethod: 'unlinkTwitter',
-  },
-  {
-    platformPrivyName: 'github',
-    platformUiName: 'github',
-    platformDisplayName: 'GitHub',
-    platformIcon: 'github',
-    linkMethod: 'linkGithub',
-    unlinkMethod: 'unlinkGithub',
-  },
-  {
-    platformPrivyName: 'farcaster',
-    platformUiName: 'farcaster',
-    platformDisplayName: 'Farcaster',
-    platformIcon: 'farcaster',
-    linkMethod: 'linkFarcaster',
-    unlinkMethod: 'unlinkFarcaster',
-  },
-]
-
-// Routes
-
-export const userProfileRouteOptions = [
-  { value: 'overview', label: 'Overview', path: PATHS.PROFILE },
-  { value: 'data-about', label: 'Data About', path: PATHS.PROFILE_DATA_ABOUT },
-  {
-    value: 'data-created',
-    label: 'Data Created',
-    path: PATHS.PROFILE_DATA_CREATED,
-  },
-  {
-    value: 'connections',
-    label: 'Connections',
-    path: PATHS.PROFILE_CONNECTIONS,
-  },
-  {
-    value: 'lists',
-    label: 'Lists',
-    path: PATHS.PROFILE_LISTS,
-  },
-]
-
-export const userIdentityRouteOptions = [
-  { value: 'overview', label: 'Overview', basePath: PATHS.PROFILE },
-  {
-    value: 'data-about',
-    label: 'Data About',
-    basePath: PATHS.PROFILE,
-  },
-  {
-    value: 'data-created',
-    label: 'Data Created',
-    basePath: PATHS.PROFILE,
-  },
-  {
-    value: 'connections',
-    label: 'Connections',
-    basePath: PATHS.PROFILE,
-  },
-  {
-    value: 'lists',
-    label: 'Lists',
-    basePath: PATHS.PROFILE,
-  },
-]
-
-export const exploreRouteOptions = [
-  {
-    value: 'identities',
-    label: 'Identities',
-    basePath: PATHS.EXPLORE,
-  },
-  {
-    value: 'claims',
-    label: 'Claims',
-    basePath: PATHS.EXPLORE,
-  },
-
-  {
-    value: 'lists',
-    label: 'Lists',
-    basePath: PATHS.EXPLORE,
-  },
-]
-
-export const activityRouteOptions = [
-  {
-    value: 'global',
-    label: 'Global Activity',
-    basePath: PATHS.ACTIVITY,
-  },
-  {
-    value: 'personal',
-    label: 'Your Activity',
-    basePath: PATHS.ACTIVITY,
-  },
-]
 
 // SPECIAL ATOMS
 
@@ -188,11 +51,3 @@ export const TAG_PREDICATE_DISPLAY_NAME_TESTNET = 'has tag'
 export const I_PREDICATE_DISPLAY_NAME_TESTNET = 'I'
 export const AM_FOLLOWING_DISPLAY_NAME_TESTNET = 'am following'
 export const THING_DISPLAY_NAME_TESTNET = 'thing'
-
-// FEATURED LISTS
-
-export const FEATURED_LIST_OBJECT_IDS = [33, 22]
-
-// So generally, we consider the DSN safe to be shared publicly. Of course, you don't want to unnecessarily share the DSN for any backend projects you have, but there is no real way of hiding the DSN in the frontend (except for maybe obscuring it, but security by obscurity is no real security). https://github.com/getsentry/sentry-javascript/issues/5640#issuecomment-1229960048
-export const SENTRY_DSN =
-  'https://de49927453262eeb56a313be2d02c052@o4507699051560960.ingest.us.sentry.io/4507699076399104'
