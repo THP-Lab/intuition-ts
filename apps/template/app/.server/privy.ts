@@ -9,26 +9,54 @@ export function getPrivyClient() {
   )
 }
 
+// export const verifyPrivyAccessToken = async (
+//   req: Request,
+// ): Promise<AuthTokenClaims | null> => {
+//   logger('[verifyPrivyAccessToken] Entering verifyPrivyAccessToken')
+//   const privy = getPrivyClient()
+//   const authToken = getPrivyAccessToken(req)
+//   logger('[verifyPrivyAccessToken] authToken', authToken)
+//   if (!authToken) {
+//     logger('No privy access token found')
+//     return null
+//   }
+//   logger('[verifyPrivyAccessToken] verifiedClaims')
+//   const verifiedClaims = await privy.verifyAuthToken(
+//     authToken,
+//     process.env.PRIVY_VERIFICATION_KEY,
+//   )
+//   logger('[verifyPrivyAccessToken] verifiedClaims', verifiedClaims)
+//   return verifiedClaims
+// }
+
 export const verifyPrivyAccessToken = async (
   req: Request,
 ): Promise<AuthTokenClaims | null> => {
+  logger('[verifyPrivyAccessToken] Entering verifyPrivyAccessToken')
   const privy = getPrivyClient()
   const authToken = getPrivyAccessToken(req)
+  logger('[verifyPrivyAccessToken] authToken', authToken)
   if (!authToken) {
-    logger('No privy access token found')
+    logger('[verifyPrivyAccessToken] No privy access token found')
     return null
   }
-  const verifiedClaims = await privy.verifyAuthToken(
-    authToken,
-    process.env.PRIVY_VERIFICATION_KEY,
-  )
-  return verifiedClaims
+
+  logger('[verifyPrivyAccessToken] Attempting to verify auth token')
+  try {
+    const verifiedClaims = await privy.verifyAuthToken(authToken)
+    logger('[verifyPrivyAccessToken] verifiedClaims', verifiedClaims)
+    return verifiedClaims
+  } catch (error) {
+    logger('[verifyPrivyAccessToken] Error verifying auth token', error)
+    return null
+  }
 }
 
 // takes user privy DID (e.g. authCheck().userId)
 export const getPrivyUserById = async (id: string): Promise<User> => {
   const privy = getPrivyClient()
-  const user = await privy.getUser(id)
+  logger('[getPrivyUserById] Entering getPrivyUserById')
+  const user = await privy.getUserById(id)
   return user
 }
 
