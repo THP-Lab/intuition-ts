@@ -21,20 +21,29 @@ import {
 } from './privy'
 
 export async function getUserId(request: Request): Promise<string | null> {
+  logger('[getUserId] Entering getUserId')
   const verifiedClaims = await verifyPrivyAccessToken(request)
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
 >>>>>>> 1814bcc60 (Add stripped down version of portal base)
+=======
+  logger('[getUserId] verifiedClaims', verifiedClaims)
+>>>>>>> d4a4adc6a (Auth is now in a working state -- adds logging for troubleshooting)
   return verifiedClaims?.userId ?? null
 }
 
 export async function getUser(request: Request): Promise<User | null> {
+  logger('[getUserWallet] Entering getUser')
+
   const userId = await getUserId(request)
+  logger('[getUser] userId', userId)
   return userId ? await getPrivyUserById(userId) : null
 }
 
 export async function getUserWallet(request: Request): Promise<string | null> {
+<<<<<<< HEAD
 <<<<<<< HEAD
   logger('[getUserWallet] Entering getUserWallet')
   const user = await getUser(request)
@@ -42,6 +51,11 @@ export async function getUserWallet(request: Request): Promise<string | null> {
 =======
   const user = await getUser(request)
 >>>>>>> 1814bcc60 (Add stripped down version of portal base)
+=======
+  logger('[getUserWallet] Entering getUserWallet')
+  const user = await getUser(request)
+  logger('[getUserWallet] user', user)
+>>>>>>> d4a4adc6a (Auth is now in a working state -- adds logging for troubleshooting)
   return user?.wallet?.address ?? null
 }
 
@@ -77,6 +91,7 @@ export async function requireUserWallet(
   request: Request,
   options: RedirectOptions = {},
 ): Promise<string> {
+  logger('[Entering requireUserWallet')
   const wallet = await getUserWallet(request)
   if (!wallet) {
     throw await handlePrivyRedirect({ request, options })

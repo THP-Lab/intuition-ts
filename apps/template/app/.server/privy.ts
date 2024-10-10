@@ -9,7 +9,6 @@ export function getPrivyClient() {
   )
 }
 
-<<<<<<< HEAD
 // export const verifyPrivyAccessToken = async (
 //   req: Request,
 // ): Promise<AuthTokenClaims | null> => {
@@ -76,33 +75,13 @@ export const verifyPrivyAccessToken = async (
     logger('[verifyPrivyAccessToken] Error verifying auth token', error)
     return null
   }
-=======
-export const verifyPrivyAccessToken = async (
-  req: Request,
-): Promise<AuthTokenClaims | null> => {
-  const privy = getPrivyClient()
-  const authToken = getPrivyAccessToken(req)
-  if (!authToken) {
-    logger('No privy access token found')
-    return null
-  }
-  const verifiedClaims = await privy.verifyAuthToken(
-    authToken,
-    process.env.PRIVY_VERIFICATION_KEY,
-  )
-  return verifiedClaims
->>>>>>> 1814bcc60 (Add stripped down version of portal base)
 }
 
 // takes user privy DID (e.g. authCheck().userId)
 export const getPrivyUserById = async (id: string): Promise<User> => {
   const privy = getPrivyClient()
-<<<<<<< HEAD
   logger('[getPrivyUserById] Entering getPrivyUserById')
   const user = await privy.getUserById(id)
-=======
-  const user = await privy.getUser(id)
->>>>>>> 1814bcc60 (Add stripped down version of portal base)
   return user
 }
 
