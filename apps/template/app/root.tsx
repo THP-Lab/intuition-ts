@@ -23,7 +23,6 @@ import { useEffect } from 'react'
 import { Toaster } from '@0xintuition/1ui'
 
 import { ErrorPage } from '@components/error-page'
-import { GlobalLoading } from '@components/global-loading'
 import { getChainEnvConfig } from '@lib/utils/environment'
 import { CURRENT_ENV } from 'app/consts'
 import { ClientOnly } from 'remix-utils/client-only'
@@ -118,7 +117,6 @@ function App() {
 
   return (
     <Document nonce={nonce} theme={theme}>
-      <GlobalLoading />
       <Toaster position="top-right" />
       <ClientOnly>
         {() => (

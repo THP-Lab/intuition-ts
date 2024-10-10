@@ -1,7 +1,5 @@
-import { OpenAPI } from '@0xintuition/api'
-
 import logger from '@lib/utils/logger'
-import { combineHeaders, getAuthHeaders } from '@lib/utils/misc'
+import { combineHeaders } from '@lib/utils/misc'
 import { getRedirectToUrl } from '@lib/utils/redirect'
 import { User } from '@privy-io/server-auth'
 import { redirect } from '@remix-run/node'
@@ -111,15 +109,4 @@ export async function handlePrivyRedirect({
   }
   logger('Hit end of handlePrivyRedirect', accessToken, sessionToken, isOAuth)
   return
-}
-
-export async function setupAPI(request: Request) {
-  const apiUrl =
-    typeof window !== 'undefined' ? window.ENV?.API_URL : process.env.API_URL
-
-  OpenAPI.BASE = apiUrl
-
-  const accessToken = getPrivyAccessToken(request)
-  const headers = getAuthHeaders(accessToken !== null ? accessToken : '')
-  OpenAPI.HEADERS = headers as Record<string, string>
 }
