@@ -23,12 +23,15 @@
     "template:lint": "nx lint @0xintuition/template",
     "template:test": "nx test @0xintuition/template --reporter=verbose",
     "template:typecheck": "nx typecheck @0xintuition/template",
+<<<<<<< HEAD
     "data-populator:dev": "nx dev @0xintuition/data-populator",
     "data-populator:start": "nx start @0xintuition/data-populator",
     "data-populator:build": "nx build @0xintuition/data-populator",
     "data-populator:lint": "nx lint @0xintuition/data-populator",
     "data-populator:test": "nx test @0xintuition/data-populator --reporter=verbose",
     "data-populator:typecheck": "nx typecheck @0xintuition/data-populator",
+=======
+>>>>>>> 0aedafcdc (Drops version to 0.1.0 and adds typecheck so that it runs in pnpm typecheck)
     "protocol:build": "nx build @0xintuition/protocol",
     "protocol:lint": "nx lint @0xintuition/protocol",
     "protocol:test": "nx test @0xintuition/protocol --reporter=verbose",
