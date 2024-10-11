@@ -15,7 +15,6 @@ import derpFace12 from '@assets/derp-face-12.jpg'
 import logger from '@lib/utils/logger'
 import { cn } from '@lib/utils/misc'
 import { Link, useRouteError } from '@remix-run/react'
-import { captureRemixErrorBoundaryError } from '@sentry/remix'
 import { PATHS } from 'app/consts'
 
 import NavigationButton from './navigation-link'
@@ -122,7 +121,6 @@ export const ErrorPage = ({
 }) => {
   const error = useRouteError()
   logger(`ERROR BOUNDARY (${routeName}):`, error)
-  captureRemixErrorBoundaryError(error)
 
   const descriptionArray = description
     ? description.split('\n')
