@@ -38,7 +38,6 @@ export default function PrivyLoginButton({
       variant="primary"
       size="xl"
       disabled={loading}
-      className="px-10"
     >
       {loading ? (
         <>
