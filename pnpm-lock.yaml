@@ -442,12 +442,6 @@ importers:
       '@remix-run/serve':
         specifier: ^2.9.2
         version: 2.9.2(typescript@5.4.5)
-      '@sentry/remix':
-        specifier: ^8.21.0
-        version: 8.21.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.25.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.25.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.25.1)(@remix-run/node@2.9.2(typescript@5.4.5))(@remix-run/react@2.9.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.4.5))(encoding@0.1.13)(react@18.3.1)
-      '@sentry/vite-plugin':
-        specifier: ^2.21.1
-        version: 2.21.1(encoding@0.1.13)
       '@tanstack/react-query':
         specifier: ^5.32.0
         version: 5.45.0(react@18.3.1)
@@ -19256,7 +19250,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.25.7
       '@noble/curves': 1.6.0
-      '@noble/hashes': 1.4.0
+      '@noble/hashes': 1.5.0
       '@solana/buffer-layout': 4.0.1
       agentkeepalive: 4.5.0
       bigint-buffer: 1.1.5
@@ -26872,7 +26866,7 @@ snapshots:
 
   metro-runtime@0.80.9:
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.25.7
 
   metro-source-map@0.80.9:
     dependencies:
@@ -26971,7 +26965,7 @@ snapshots:
       source-map: 0.5.7
       strip-ansi: 6.0.1
       throat: 5.0.0
-      ws: 7.5.9(bufferutil@4.0.8)(utf-8-validate@6.0.4)
+      ws: 7.5.10(bufferutil@4.0.8)(utf-8-validate@6.0.4)
       yargs: 17.7.2
     transitivePeerDependencies:
       - bufferutil
@@ -28537,7 +28531,7 @@ snapshots:
   react-devtools-core@5.2.0(bufferutil@4.0.8)(utf-8-validate@6.0.4):
     dependencies:
       shell-quote: 1.8.1
-      ws: 7.5.9(bufferutil@4.0.8)(utf-8-validate@6.0.4)
+      ws: 7.5.10(bufferutil@4.0.8)(utf-8-validate@6.0.4)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -28581,7 +28575,7 @@ snapshots:
 
   react-i18next@13.5.0(i18next@22.5.1)(react-dom@18.3.1(react@18.3.1))(react-native@0.74.2(@babel/core@7.24.7)(@babel/preset-env@7.24.7(@babel/core@7.24.7))(@types/react@18.3.1)(bufferutil@4.0.8)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@6.0.4))(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.25.7
       html-parse-stringify: 3.0.1
       i18next: 22.5.1
       react: 18.3.1
@@ -29098,7 +29092,7 @@ snapshots:
       buffer: 6.0.3
       eventemitter3: 5.0.1
       uuid: 8.3.2
-      ws: 8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      ws: 8.18.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
     optionalDependencies:
       bufferutil: 4.0.8
       utf-8-validate: 5.0.10
@@ -31244,15 +31238,15 @@ snapshots:
       bufferutil: 4.0.8
       utf-8-validate: 6.0.4
 
-  ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10):
-    optionalDependencies:
-      bufferutil: 4.0.8
-      utf-8-validate: 5.0.10
-
   ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@6.0.4):
     optionalDependencies:
       bufferutil: 4.0.8
       utf-8-validate: 6.0.4
+
+  ws@8.18.0(bufferutil@4.0.8)(utf-8-validate@5.0.10):
+    optionalDependencies:
+      bufferutil: 4.0.8
+      utf-8-validate: 5.0.10
 
   ws@8.18.0(bufferutil@4.0.8)(utf-8-validate@6.0.4):
     optionalDependencies:
