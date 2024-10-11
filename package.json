@@ -22,6 +22,7 @@
     "template:build": "nx build @0xintuition/template",
     "template:lint": "nx lint @0xintuition/template",
     "template:test": "nx test @0xintuition/template --reporter=verbose",
+    "template:typecheck": "nx typecheck @0xintuition/template",
     "protocol:build": "nx build @0xintuition/protocol",
     "protocol:lint": "nx lint @0xintuition/protocol",
     "protocol:test": "nx test @0xintuition/protocol --reporter=verbose",

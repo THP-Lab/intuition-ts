@@ -1,6 +1,6 @@
 {
   "name": "@0xintuition/template",
-  "version": "0.3.0",
+  "version": "0.1.0",
   "description": "Auth Ready Remix Template",
   "sideEffects": false,
   "type": "module",
