@@ -4,6 +4,8 @@ export const IconName = {
   arrowBoxLeft: 'arrow-box-left',
   arrowLeft: 'arrow-left',
   arrowRight: 'arrow-right',
+  arrowUp: 'arrow-up',
+  arrowDown: 'arrow-down',
   arrowUpRightFromCircleIcon: 'arrow-up-right',
   arrowOutOfBox: 'arrow-out-of-box',
   arrowsRepeat: 'arrows-repeat',
