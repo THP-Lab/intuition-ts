@@ -18,6 +18,9 @@
   "dependencies": {
     "@0xintuition/1ui": "workspace:^",
     "@0xintuition/api": "workspace:^",
+    "@alchemy/aa-accounts": "^3.19.0",
+    "@alchemy/aa-alchemy": "^3.19.0",
+    "@alchemy/aa-core": "^3.19.0",
     "@conform-to/react": "^1.1.3",
     "@conform-to/zod": "^1.1.3",
     "@epic-web/remember": "^1.0.2",

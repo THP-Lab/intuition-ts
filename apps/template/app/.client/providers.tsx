@@ -21,9 +21,13 @@ const privyConfig: PrivyClientConfig = {
 
 export default function Providers({
   privyAppId,
+  alchemyRpcUrl,
+  alchemyApiKey,
   children,
 }: {
   privyAppId: string
+  alchemyRpcUrl: string
+  alchemyApiKey: string
   children: React.ReactNode
 }) {
   return (
@@ -35,7 +39,12 @@ export default function Providers({
     >
       <QueryClientProvider client={queryClient}>
         <WagmiProvider config={wagmiConfig} reconnectOnMount={false}>
-          {children}
+          <SmartAccountProvider
+            alchemyRpcUrl={alchemyRpcUrl}
+            alchemyApiKey={alchemyApiKey}
+          >
+            {children}
+          </SmartAccountProvider>
         </WagmiProvider>
       </QueryClientProvider>
     </PrivyProvider>

@@ -120,7 +120,11 @@ function App() {
       <Toaster position="top-right" />
       <ClientOnly>
         {() => (
-          <Providers privyAppId={env.PRIVY_APP_ID}>
+          <Providers
+            privyAppId={env.PRIVY_APP_ID}
+            alchemyRpcUrl={env.ALCHEMY_BASE_SEPOLIA_RPC_URL}
+            alchemyApiKey={env.ALCHEMY_BASE_SEPOLIA_API_KEY}
+          >
             <AppLayout />
           </Providers>
         )}
