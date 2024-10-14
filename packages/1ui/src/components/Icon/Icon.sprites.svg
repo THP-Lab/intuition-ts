@@ -21,6 +21,26 @@
         stroke-linecap="square"
       />
     </symbol>
+    <!-- arrow-up -->
+    <symbol id="arrow-up" viewBox="0 0 24 24">
+      <path
+        d="M12 19V5M12 5L5 12M12 5L19 12"
+        fill="transparent"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="square"
+      />
+    </symbol>
+    <!-- arrow-down -->
+    <symbol id="arrow-down" viewBox="0 0 24 24">
+      <path
+        d="M12 5V19M12 19L5 12M12 19L19 12"
+        fill="transparent"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="square"
+      />
+    </symbol>
     <!-- arrow-up-right -->
     <symbol id="arrow-up-right" viewBox="0 0 24 24">
       <path
