@@ -1,11 +1,19 @@
 import { cn } from '@0xintuition/1ui'
 
-export function SunburstNoGlow({ className }: { className?: string }) {
+export function SunburstNoGlow({
+  className,
+  width = '445',
+  height = '445',
+}: {
+  className?: string
+  width?: string
+  height?: string
+}) {
   return (
     <div className={cn(className)}>
       <svg
-        width="445"
-        height="445"
+        width={width}
+        height={height}
         viewBox="0 0 445 445"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

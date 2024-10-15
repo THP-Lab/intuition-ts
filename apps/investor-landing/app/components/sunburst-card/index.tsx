@@ -1,6 +1,5 @@
-import { Text } from '@0xintuition/1ui'
-
 import { SunburstNoGlow } from '@components/svg/sunburst-no-glow'
+import clsx from 'clsx'
 
 export interface ISunburstCardProps {
   label: string
@@ -26,30 +25,43 @@ export default function SunburstCard({
   }
 
   const sizeClasses = {
-    default: 'h-full w-full',
-    sm: 'h-[250px] w-[250px]',
-    md: 'h-[360px] w-[360px]',
-    'x-sm': 'h-[200px] w-[200px]',
+    default: '400',
+    sm: '250',
+    md: '360',
+    'x-sm': '200',
+  }
+
+  const textSizeClasses = {
+    default: 'text-xl',
+    sm: 'text-md',
+    md: 'text-lg',
+    'x-sm': 'text-sm',
   }
 
   return (
     <div
-      className={`relative opacity-60 transition-all duration-300 ease-in-out hover:opacity-100 ${
-        disableScale ? '' : 'transform hover:scale-110'
-      } ${disabled ? 'cursor-not-allowed opacity-30' : 'cursor-pointer'} ${
-        glow ? glowClasses[glow] : ''
-      }`}
+      className={clsx(
+        'relative opacity-60 transition-all duration-300 ease-in-out hover:opacity-100',
+        !disableScale && 'hover:scale-110',
+        disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+        glowClasses[glow],
+      )}
     >
       <SunburstNoGlow
-        className={`z-30 transition-all duration-300 ease-in-out ${sizeClasses[size]}`}
+        className={`z-30 transition-all duration-300 ease-in-out`}
+        width={sizeClasses[size]}
+        height={sizeClasses[size]}
       />
-      <Text
-        className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white uppercase tracking-widest font-medium ${
-          size === 'sm' ? 'text-md' : size === 'md' ? 'text-lg' : 'text-xl'
-        } ${disabled ? 'opacity-40' : ''}`}
+      <div
+        className={clsx(
+          'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
+          'text-primary uppercase tracking-[3px] font-medium text-center',
+          textSizeClasses[size],
+          disabled && 'opacity-40',
+        )}
       >
         {label}
-      </Text>
+      </div>
     </div>
   )
 }
