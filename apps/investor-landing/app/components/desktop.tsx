@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 
 import {
   Button,
+  ButtonSize,
   ButtonVariant,
   Icon,
   IconName,
@@ -55,7 +56,11 @@ function Block({ id, children }: { id: string; children: React.ReactNode }) {
 
 const IconButtonLink = ({ url, icon }: { url: string; icon: IconNameType }) => (
   <a href={url} target="_blank" rel="noreferrer">
-    <Button variant={ButtonVariant.navigation}>
+    <Button
+      variant={ButtonVariant.ghost}
+      size={ButtonSize.iconXl}
+      className="transition-all duration-300"
+    >
       <Icon name={icon} />
     </Button>
   </a>
@@ -118,35 +123,55 @@ export default function Desktop() {
           <Button
             variant={ButtonVariant.text}
             onClick={handleScrollToPitchDecks}
-            className={`mb-2.5 w-full justify-end uppercase tracking-widest rounded-md text-lg ${activeSection === 'PITCH_DECK' ? 'bg-primary/20' : 'bg-transparent'}`}
+            className={`mb-2.5 w-full justify-end uppercase tracking-widest rounded-md text-lg ${
+              activeSection === 'PITCH_DECK'
+                ? 'bg-primary/20 text-primary'
+                : 'bg-transparent hover:bg-primary/10'
+            }`}
           >
             Pitch Deck
           </Button>
           <Button
             variant={ButtonVariant.text}
             onClick={handleScrollToChooseYourPath}
-            className={`mb-2.5 w-full justify-end uppercase tracking-widest rounded-md text-lg ${activeSection === 'PICK_PATH' ? 'bg-primary/20' : 'bg-transparent'}`}
+            className={`mb-2.5 w-full justify-end uppercase tracking-widest rounded-md text-lg ${
+              activeSection === 'PICK_PATH'
+                ? 'bg-primary/20 text-primary'
+                : 'bg-transparent hover:bg-primary/10'
+            }`}
           >
             Pick Your Path
           </Button>
           <Button
             variant={ButtonVariant.text}
             onClick={handleScrollToProduct}
-            className={`mb-2.5 w-full justify-end uppercase tracking-widest rounded-md text-lg ${activeSection === 'PRODUCT' ? 'bg-primary/20' : 'bg-transparent'}`}
+            className={`mb-2.5 w-full justify-end uppercase tracking-widest rounded-md text-lg ${
+              activeSection === 'PRODUCT'
+                ? 'bg-primary/20 text-primary'
+                : 'bg-transparent hover:bg-primary/10'
+            }`}
           >
             Product
           </Button>
           <Button
             variant={ButtonVariant.text}
             onClick={handleScrollToBusiness}
-            className={`mb-2.5 w-full justify-end uppercase tracking-widest rounded-md text-lg ${activeSection === 'BUSINESS' ? 'bg-primary/20' : 'bg-transparent'}`}
+            className={`mb-2.5 w-full justify-end uppercase tracking-widest rounded-md text-lg ${
+              activeSection === 'BUSINESS'
+                ? 'bg-primary/20 text-primary'
+                : 'bg-transparent hover:bg-primary/10'
+            }`}
           >
             Business
           </Button>
           <Button
             variant={ButtonVariant.text}
             onClick={handleScrollToCallToAction}
-            className={`mb-2.5 w-full justify-end uppercase tracking-widest rounded-md text-lg ${activeSection === 'JOIN' ? 'bg-primary/20' : 'bg-transparent'}`}
+            className={`w-full justify-end uppercase tracking-widest rounded-md text-lg ${
+              activeSection === 'JOIN'
+                ? 'bg-primary/20 text-primary'
+                : 'bg-transparent hover:bg-primary/10'
+            }`}
           >
             Contact Us
           </Button>
@@ -156,7 +181,7 @@ export default function Desktop() {
         <Block id="2">
           <>
             <button
-              className="absolute top-8 left-0 hover:cursor-pointer"
+              className="absolute top-8 left-8 hover:cursor-pointer"
               onClick={handleBack}
               aria-label="Go back"
             >
@@ -235,144 +260,163 @@ export default function Desktop() {
       </div>
       <div ref={productRef}>
         <Block id="4">
-          <>
-            <div className="flex items-center justify-evenly gap-12 h-[90vh]">
-              <div className="absolute top-[5vh]">
-                <Button onClick={handleScrollToChooseYourPath}>
-                  <Icon name={IconName.arrowUp} />
-                </Button>
-              </div>
-              <div className="flex flex-col gap-5">
-                <Text
-                  variant={TextVariant.headline}
-                  weight={TextWeight.medium}
-                  className="text-primary pb-6 tracking-widest text-center mb-12"
+          <div className="flex items-center justify-evenly gap-12 h-[100vh] relative">
+            <div className="absolute top-[5vh] left-1/2 transform -translate-x-1/2 z-10">
+              <Button
+                variant={ButtonVariant.ghost}
+                onClick={handleScrollToChooseYourPath}
+                className="w-fit mx-auto"
+              >
+                <Icon name={IconName.arrowUp} />
+              </Button>
+            </div>
+            <div className="flex flex-col gap-5">
+              <Text
+                variant={TextVariant.headline}
+                weight={TextWeight.medium}
+                className="text-primary pb-6 tracking-widest text-center mb-12"
+              >
+                The Vision
+              </Text>
+              <div className="grid grid-cols-2 gap-5">
+                <a href={ONE_PAGER} target="_blank" rel="noreferrer">
+                  <SunburstCard label="1-Pager" size="sm" />
+                </a>
+                <a
+                  href={'https://medium.com/0xintuition'}
+                  target="_blank"
+                  rel="noreferrer"
                 >
-                  The Vision
-                </Text>
-                <div className="grid grid-cols-2 gap-5">
-                  <a href={ONE_PAGER} target="_blank" rel="noreferrer">
-                    <SunburstCard label="1-Pager" size="sm" />
-                  </a>
-                  <a
-                    href={'https://medium.com/0xintuition'}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <SunburstCard label="Medium" size="sm" />
-                  </a>
-                  <a href={APP_DEMO} target="_blank" rel="noreferrer">
-                    <SunburstCard label="App Video" size="sm" />
-                  </a>
+                  <SunburstCard label="Medium" size="sm" />
+                </a>
+                <a href={APP_DEMO} target="_blank" rel="noreferrer">
+                  <SunburstCard label="App Video" size="sm" />
+                </a>
 
-                  <a href={SNAP_DEMO} target="_blank" rel="noreferrer">
-                    <SunburstCard
-                      label="MetaMask Integration Video"
-                      size="sm"
-                    />
-                  </a>
-                </div>
-              </div>
-              <div className="flex flex-col gap-5">
-                <Text
-                  variant={TextVariant.headline}
-                  weight={TextWeight.medium}
-                  className="text-primary pb-6 tracking-widest text-center mb-12"
-                >
-                  How it Works
-                </Text>
-                <a href={GIT_BOOK} target="_blank" rel="noreferrer">
-                  <SunburstCard label="Gitbook" size="md" />
+                <a href={SNAP_DEMO} target="_blank" rel="noreferrer">
+                  <SunburstCard label="MetaMask Integration Video" size="sm" />
                 </a>
               </div>
-              <div className="absolute bottom-5vh">
-                <Button onClick={handleScrollToBusiness}>
-                  <Icon name={IconName.arrowDown} />
-                </Button>
-              </div>
             </div>
-          </>
+            <div className="flex flex-col gap-5">
+              <Text
+                variant={TextVariant.headline}
+                weight={TextWeight.medium}
+                className="text-primary pb-6 tracking-widest text-center mb-12"
+              >
+                How it Works
+              </Text>
+              <a href={GIT_BOOK} target="_blank" rel="noreferrer">
+                <SunburstCard label="Gitbook" size="md" />
+              </a>
+            </div>
+            <div className="absolute bottom-[5vh] left-1/2 transform -translate-x-1/2 z-10">
+              <Button
+                variant={ButtonVariant.ghost}
+                onClick={handleScrollToBusiness}
+                className="w-fit mx-auto"
+              >
+                <Icon name={IconName.arrowDown} />
+              </Button>
+            </div>
+          </div>
         </Block>
       </div>
       <div ref={businessRef}>
         <Block id="5">
-          <>
-            <div className="flex items-center gap-12 h-[100vh] relative">
-              <div className="absolute top-[5vh]">
-                <Button onClick={handleScrollToProduct}>
-                  <Icon name={IconName.arrowUp} />
-                </Button>
-              </div>
-              <div className="flex flex-col gap-5">
-                <Text
-                  variant={TextVariant.headline}
-                  weight={TextWeight.medium}
-                  className="text-primary pb-6 tracking-widest text-center mb-12"
-                >
-                  Financials & Tokenomics
-                </Text>
-                <div className="grid grid-cols-2 gap-5">
-                  <a href={TOKENOMICS} target="_blank" rel="noreferrer">
-                    <SunburstCard label="Tokenomics" size="sm" />
-                  </a>
-                  <a href={FINANCIALS} target="_blank" rel="noreferrer">
-                    <SunburstCard label="Financial Model" size="sm" />
-                  </a>
-                  <a
-                    href={PRO_FORMA_CAP_TABLE}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <SunburstCard label="Cap Table" size="sm" />
-                  </a>
-                  <a href={INCORPORATION_DOCS} target="_blank" rel="noreferrer">
-                    <SunburstCard label="Formation Docs" size="sm" />
-                  </a>
-                </div>
-              </div>
-              <div className="flex flex-col gap-5">
-                <Text
-                  variant={TextVariant.headline}
-                  weight={TextWeight.medium}
-                  className="text-primary pb-6 tracking-widest text-center mb-12"
-                >
-                  Growth
-                </Text>
-                <a href={GROWTH_STRATEGY} target="_blank" rel="noreferrer">
-                  <SunburstCard label="Strategy" size="sm" />
+          <div className="flex items-center justify-evenly gap-12 h-[100vh] relative">
+            <div className="absolute top-[5vh] left-1/2 transform -translate-x-1/2 z-10">
+              <Button
+                variant={ButtonVariant.ghost}
+                onClick={handleScrollToProduct}
+                className="w-fit mx-auto"
+              >
+                <Icon name={IconName.arrowUp} />
+              </Button>
+            </div>
+            <div className="flex flex-col gap-5">
+              <Text
+                variant={TextVariant.headline}
+                weight={TextWeight.medium}
+                className="text-primary pb-6 tracking-widest text-center mb-12"
+              >
+                Financials & Tokenomics
+              </Text>
+              <div className="grid grid-cols-2 gap-5">
+                <a href={TOKENOMICS} target="_blank" rel="noreferrer">
+                  <SunburstCard label="Tokenomics" size="sm" />
                 </a>
-                <a href={MEDIA_MENTIONS} target="_blank" rel="noreferrer">
-                  <SunburstCard label="Media Mentions" size="sm" />
+                <a href={FINANCIALS} target="_blank" rel="noreferrer">
+                  <SunburstCard label="Financial Model" size="sm" />
                 </a>
-              </div>
-              <div className="absolute bottom-5vh">
-                <Button onClick={handleScrollToCallToAction}>
-                  <Icon name={IconName.arrowDown} />
-                </Button>
+                <a href={PRO_FORMA_CAP_TABLE} target="_blank" rel="noreferrer">
+                  <SunburstCard label="Cap Table" size="sm" />
+                </a>
+                <a href={INCORPORATION_DOCS} target="_blank" rel="noreferrer">
+                  <SunburstCard label="Formation Docs" size="sm" />
+                </a>
               </div>
             </div>
-          </>
+            <div className="flex flex-col gap-5">
+              <Text
+                variant={TextVariant.headline}
+                weight={TextWeight.medium}
+                className="text-primary pb-6 tracking-widest text-center mb-12"
+              >
+                Growth
+              </Text>
+              <a href={GROWTH_STRATEGY} target="_blank" rel="noreferrer">
+                <SunburstCard label="Strategy" size="sm" />
+              </a>
+              <a href={MEDIA_MENTIONS} target="_blank" rel="noreferrer">
+                <SunburstCard label="Media Mentions" size="sm" />
+              </a>
+            </div>
+            <div className="absolute bottom-[5vh] left-1/2 transform -translate-x-1/2 z-10">
+              <Button
+                variant={ButtonVariant.ghost}
+                onClick={handleScrollToCallToAction}
+                className="w-fit mx-auto"
+              >
+                <Icon name={IconName.arrowDown} />
+              </Button>
+            </div>
+          </div>
         </Block>
       </div>
       <div ref={callToActionRef}>
         <Block id="6">
-          <>
-            <div className="flex flex-col items-center justify-center gap-12 h-100vh">
-              <div className="flex flex-col align-cetner gap-6">
+          <div className="flex items-center justify-evenly gap-12 h-[100vh] relative">
+            <div className="absolute top-[5vh] left-1/2 transform -translate-x-1/2 z-10">
+              <Button
+                variant={ButtonVariant.ghost}
+                onClick={handleScrollToBusiness}
+                className="w-fit mx-auto"
+              >
+                <Icon name={IconName.arrowUp} />
+              </Button>
+            </div>
+            <div className="flex flex-col items-center justify-center gap-12">
+              <div className="flex flex-col align-center gap-6">
                 <Text
                   variant={TextVariant.headline}
                   weight={TextWeight.medium}
-                  className="text-primary pb-6 tracking-widest text-center mb-12"
+                  className="text-primary pb-6 tracking-widest text-center uppercase"
                 >
                   Get Involved
                 </Text>
                 <a href={CALENDLY} target="_blank" rel="noreferrer">
-                  <Button onClick={() => console.log('scheduled call')}>
+                  <Button
+                    onClick={() => console.log('scheduled call')}
+                    variant={ButtonVariant.ghost}
+                    size={ButtonSize.xl}
+                    className="mx-auto uppercase tracking-widest transition-all duration-300"
+                  >
                     Schedule a Call
                   </Button>
                 </a>
               </div>
-              <div className="flex justify-end items-end flex-row gap-3">
+              <div className="flex justify-end items-end flex-row gap-12">
                 <div className="border border-white rounded-lg">
                   <IconButtonLink
                     url={'https://medium.com/0xintuition'}
@@ -393,10 +437,10 @@ export default function Desktop() {
                 </div>
               </div>
             </div>
-          </>
+            {/* No bottom arrow for the last section */}
+          </div>
         </Block>
       </div>
-
       <motion.div
         style={{
           position: 'fixed',

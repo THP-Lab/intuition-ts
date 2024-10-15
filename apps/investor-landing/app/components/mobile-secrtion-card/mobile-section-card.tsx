@@ -14,9 +14,9 @@ export default function MobileSectionCard({
   return (
     <div
       className={clsx(
-        'w-full py-5 border-t border-b border-border mb-20',
-        variant === 'blue' && 'bg-for',
-        variant === 'red' && 'bg-destructive',
+        'w-full py-5 border-t border-b border-border mb-20 uppercase',
+        variant === 'blue' && 'bg-for/20',
+        variant === 'red' && 'bg-destructive/20',
       )}
     >
       <Text
