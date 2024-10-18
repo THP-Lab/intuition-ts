@@ -111,6 +111,7 @@ const ProfileCard = ({
                 value={bio}
                 maxStringLength={266}
                 className="text-left"
+                disableTooltip={true}
               />
             </Text>
           </div>

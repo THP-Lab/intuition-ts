@@ -52,6 +52,7 @@ import logger from '@lib/utils/logger'
 import { formatBalance, truncateString } from '@lib/utils/misc'
 import { useFetcher, useNavigate } from '@remix-run/react'
 import { CreateLoaderData } from '@routes/resources+/create'
+import { GetIdentityLoaderData } from '@routes/resources+/get-identity'
 import {
   ACCEPTED_IMAGE_MIME_TYPES,
   CURRENT_ENV,
@@ -66,7 +67,7 @@ import {
   TransactionSuccessAction,
   TransactionSuccessActionType,
 } from 'app/types'
-import { parseUnits, toHex } from 'viem'
+import { Address, decodeEventLog, parseUnits, toHex } from 'viem'
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
 
 interface IdentityFormProps {
@@ -101,6 +102,7 @@ export function IdentityForm({
   dispatch,
 }: IdentityFormProps) {
   const { offChainFetcher, lastOffChainSubmission } = useOffChainFetcher()
+  const identityFetcher = useFetcher<GetIdentityLoaderData>()
   const navigate = useNavigate()
   const imageUploadFetcher = useImageUploadFetcher()
   const [imageUploading, setImageUploading] = React.useState(false)
@@ -112,6 +114,8 @@ export function IdentityForm({
   )
   const [imageUploadError, setImageUploadError] = useState<string | null>(null)
   const [initialDeposit, setInitialDeposit] = useState<string>('')
+  const [lastTxHash, setLastTxHash] = useState<string | undefined>(undefined)
+  const [vaultId, setVaultId] = useState<string | undefined>(undefined)
   const [transactionResponseData, setTransactionResponseData] =
     useState<IdentityPresenter | null>(null)
 
@@ -179,6 +183,7 @@ export function IdentityForm({
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const {
+    receipt: txReceipt,
     writeContractAsync: writeCreateIdentity,
     awaitingWalletConfirmation,
     awaitingOnChainConfirmation,
@@ -307,18 +312,36 @@ export function IdentityForm({
             BigInt(fees.atomCost) +
             parseUnits(initialDeposit === '' ? '0' : initialDeposit, 18),
         })
-
+        dispatch({ type: 'TRANSACTION_PENDING' })
         if (txHash) {
-          dispatch({ type: 'TRANSACTION_PENDING' })
           const receipt = await publicClient.waitForTransactionReceipt({
             hash: txHash,
           })
-          dispatch({
-            type: 'TRANSACTION_COMPLETE',
-            txHash,
-            txReceipt: receipt,
-            identityId: transactionResponseData?.id,
-          })
+          console.log('receipt', receipt)
+          type EventLogArgs = {
+            sender: Address
+            receiver?: Address
+            owner?: Address
+            vaultId: string
+          }
+
+          if (
+            receipt?.logs[0].data &&
+            receipt?.transactionHash !== lastTxHash
+          ) {
+            const decodedLog = decodeEventLog({
+              abi: multivaultAbi,
+              data: receipt?.logs[0].data,
+              topics: receipt?.logs[0].topics,
+            })
+
+            const topics = decodedLog as unknown as {
+              eventName: string
+              args: EventLogArgs
+            }
+            setVaultId(topics.args.vaultId.toString())
+            setLastTxHash(receipt.transactionHash)
+          }
         }
       } catch (error) {
         setLoading(false)
@@ -344,6 +367,35 @@ export function IdentityForm({
       )
     }
   }
+
+  useEffect(() => {
+    console.log('txReceipt useEffect', txReceipt)
+    console.log('vaultId', vaultId)
+    if (txReceipt && vaultId) {
+      identityFetcher.load(`/resources/get-identity?vaultId=${vaultId}`)
+    }
+  }, [txReceipt, vaultId])
+
+  useEffect(() => {
+    console.log('txReceipt', txReceipt)
+    if (txReceipt) {
+      if (identityFetcher.data && 'identity' in identityFetcher.data) {
+        console.log('identityFetcher.data', identityFetcher.data)
+        dispatch({
+          type: 'TRANSACTION_COMPLETE',
+          txHash: txReceipt.transactionHash,
+          txReceipt,
+        })
+      } else if (identityFetcher.data && 'error' in identityFetcher.data) {
+        const errorMessage = `Your identity was created, but we're having trouble fetching its details. Vault ID: ${vaultId}`
+        dispatch({
+          type: 'TRANSACTION_ERROR',
+          error: errorMessage,
+        })
+        toast.error(errorMessage)
+      }
+    }
+  }, [identityFetcher.data, txReceipt, vaultId])
 
   function handleIdentityTxReceiptReceived() {
     if (createdIdentity) {
@@ -829,9 +881,7 @@ export function IdentityForm({
                     className="mt-auto w-40"
                     onClick={() => {
                       if (successAction === TransactionSuccessAction.VIEW) {
-                        navigate(
-                          `${PATHS.IDENTITY}/${transactionResponseData.vault_id}`,
-                        )
+                        navigate(`${PATHS.IDENTITY}/${vaultId}`)
                       }
                       handleClose()
                     }}
