@@ -84,7 +84,15 @@ export default function CreateIdentityModal({
                   <div className="text-foreground flex items-center gap-2">
                     {state.status !== 'idle' && (
                       <Button
-                        onClick={() => dispatch({ type: 'START_TRANSACTION' })}
+                        onClick={() => {
+                          if (state.status === 'review-transaction') {
+                            dispatch({ type: 'INITIAL_DEPOSIT' })
+                          } else if (state.status === 'initial-deposit') {
+                            dispatch({ type: 'START_TRANSACTION' })
+                          } else {
+                            dispatch({ type: 'START_TRANSACTION' })
+                          }
+                        }}
                         variant="ghost"
                         size="icon"
                       >

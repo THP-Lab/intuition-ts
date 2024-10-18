@@ -1,12 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react'
 
 import {
+  ActivePositionCard,
   Button,
   ButtonSize,
   ButtonVariant,
+  DialogFooter,
   Icon,
+  Identity,
+  IdentityTag,
   Input,
   Label,
+  Tabs,
+  TabsList,
+  TabsTrigger,
   Text,
   Textarea,
   TextVariant,
@@ -19,6 +26,9 @@ import CreateIdentityReview from '@components/create-identity/create-identity-re
 import ErrorList from '@components/error-list'
 import { ImageChooser } from '@components/image-chooser'
 import { InfoTooltip } from '@components/info-tooltip'
+import StakeActions from '@components/stake/stake-actions'
+import StakeButton from '@components/stake/stake-button'
+import StakeInput from '@components/stake/stake-input'
 import { TransactionState } from '@components/transaction-state'
 import WrongNetworkButton from '@components/wrong-network-button'
 import {
@@ -30,6 +40,7 @@ import {
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { multivaultAbi } from '@lib/abis/multivault'
 import { useCreateAtom } from '@lib/hooks/useCreateAtom'
+import { useGetWalletBalance } from '@lib/hooks/useGetWalletBalance'
 import { useImageUploadFetcher } from '@lib/hooks/useImageUploadFetcher'
 import {
   OffChainFetcherData,
@@ -38,7 +49,7 @@ import {
 import { createIdentitySchema } from '@lib/schemas/create-identity-schema'
 import { getChainEnvConfig } from '@lib/utils/environment'
 import logger from '@lib/utils/logger'
-import { truncateString } from '@lib/utils/misc'
+import { formatBalance, truncateString } from '@lib/utils/misc'
 import { useFetcher, useNavigate } from '@remix-run/react'
 import { CreateLoaderData } from '@routes/resources+/create'
 import {
@@ -443,6 +454,22 @@ export function IdentityForm({
     onClose()
   }
 
+  //staking related
+  const [showErrors, setShowErrors] = useState(false)
+  const [validationErrors, setValidationErrors] = useState<string[]>([])
+  const { address } = useAccount()
+  const walletBalance = useGetWalletBalance(
+    address ?? (wallet as `0x${string}`),
+  )
+
+  const handleStakeButtonClick = async () => {
+    if (+initialDeposit > +walletBalance) {
+      setShowErrors(true)
+      return
+    }
+    dispatch({ type: 'REVIEW_TRANSACTION' })
+  }
+
   return (
     <>
       <offChainFetcher.Form
@@ -653,7 +680,7 @@ export function IdentityForm({
                   onClick={() => {
                     const result = form.valid && !imageUploadError
                     if (result && !imageUploadError) {
-                      dispatch({ type: 'REVIEW_TRANSACTION' })
+                      dispatch({ type: 'INITIAL_DEPOSIT' })
                     }
                   }}
                   disabled={
@@ -666,11 +693,93 @@ export function IdentityForm({
                   }
                   className="w-40 mx-auto"
                 >
-                  Review
+                  Next
                 </Button>
               )}
             </div>
           </div>
+        ) : state.status === 'initial-deposit' ? (
+          <>
+            <div className="h-full w-full flex-col flex-grow">
+              <div className="items-center justify-center flex flex-row w-full px-10 pb-10">
+                <IdentityTag
+                  imgSrc={reviewIdentity.imageUrl}
+                  variant={Identity.nonUser}
+                >
+                  {reviewIdentity.displayName}
+                </IdentityTag>
+              </div>
+              <div className="w-96 mx-auto">
+                <Tabs defaultValue={'deposit'}>
+                  <TabsList className="relative overflow-hidden">
+                    <div
+                      className={`absolute mx-auto inset-0 bg-[radial-gradient(ellipse_at_bottom_center,_var(--tw-gradient-stops))] from-primary/20 via-primary/5'
+                       to-transparent`}
+                    />
+                    <TabsTrigger
+                      variant="alternate"
+                      value="deposit"
+                      label="Deposit"
+                      onClick={(e) => {
+                        e.preventDefault()
+                      }}
+                      className="relative z-10"
+                    />
+                    <TabsTrigger
+                      variant="alternate"
+                      value="redeem"
+                      label="Redeem"
+                      onClick={(e) => {
+                        e.preventDefault()
+                      }}
+                      disabled={true}
+                      className="relative z-10"
+                    />
+                  </TabsList>
+                </Tabs>
+                <div className="pt-8">
+                  <ActivePositionCard value={Number(formatBalance(0, 18))} />
+                  <div className="rounded-t-lg bg-primary-950/15 px-4 pt-5">
+                    <StakeInput
+                      val={initialDeposit}
+                      setVal={setInitialDeposit}
+                      wallet={wallet ?? ''}
+                      isLoading={loading}
+                      validationErrors={validationErrors}
+                      setValidationErrors={setValidationErrors}
+                      showErrors={showErrors}
+                      setShowErrors={setShowErrors}
+                    />
+                    <div className="flex h-3 flex-col items-start justify-center gap-2 self-stretch" />
+                    <StakeActions
+                      action={'deposit'}
+                      setVal={setInitialDeposit}
+                      minDeposit={'0'}
+                      userConviction={'0'}
+                      price={'0'}
+                      disabled={true}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <StakeButton
+                val={'0'}
+                mode={'deposit'}
+                handleAction={handleStakeButtonClick}
+                handleClose={handleClose}
+                dispatch={dispatch}
+                state={state}
+                min_deposit={'0'}
+                walletBalance={walletBalance}
+                user_conviction={'0'}
+                setValidationErrors={setValidationErrors}
+                setShowErrors={setShowErrors}
+                conviction_price={'0'}
+              />
+            </DialogFooter>
+          </>
         ) : state.status === 'review-transaction' ? (
           <div className="h-[600px] flex flex-col">
             <CreateIdentityReview
@@ -697,9 +806,9 @@ export function IdentityForm({
                       state.status,
                     )
                   }
-                  className="w-40 mx-auto"
+                  className="w-40 mx-auto mt-10"
                 >
-                  Create Identity
+                  Confirm
                 </Button>
               )}
             </div>
