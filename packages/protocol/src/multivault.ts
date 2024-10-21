@@ -27,21 +27,24 @@ export class Multivault {
 
   constructor(
     private client: {
-      public: PublicClient<Transport, Chain>
-      wallet: WalletClient<Transport, Chain, Account>
+      publicClient: PublicClient<Transport, Chain>
+      walletClient: WalletClient<Transport, Chain, Account>
     },
     address?: Address,
   ) {
-    const deployment = deployments[this.client.public.chain.id]
+    const deployment = deployments[this.client.publicClient.chain.id]
 
     if (address === undefined && deployment === undefined) {
       throw new Error(
-        `Multivault not deployed on chain: ${this.client.public.chain.id}`,
+        `Multivault not deployed on chain: ${this.client.publicClient.chain.id}`,
       )
     }
     this.contract = getContract({
       abi,
-      client,
+      client: {
+        wallet: this.client.walletClient,
+        public: this.client.publicClient,
+      },
       address: address || deployment,
     })
   }
@@ -222,7 +225,7 @@ export class Multivault {
    * @param owner owner to get corresponding shares for
    */
   public async maxRedeem(vaultId: bigint, owner?: Address) {
-    const address = owner || this.client.wallet.account.address
+    const address = owner || this.client.walletClient.account.address
     return await this.contract.read.maxRedeem([address, vaultId])
   }
 
@@ -446,7 +449,7 @@ export class Multivault {
     try {
       await this.contract.simulate.createAtom([toHex(uri)], {
         value: costWithDeposit,
-        account: this.client.wallet.account.address,
+        account: this.client.walletClient.account.address,
       })
     } catch (e) {
       this._throwRevertedError(e as BaseError)
@@ -467,9 +470,8 @@ export class Multivault {
     hash: `0x${string}`
     events: ParseEventLogsReturnType
   }> {
-    const { logs, status } = await this.client.public.waitForTransactionReceipt(
-      { hash },
-    )
+    const { logs, status } =
+      await this.client.publicClient.waitForTransactionReceipt({ hash })
 
     if (status === 'reverted') {
       throw new Error('Transaction reverted')
@@ -509,7 +511,7 @@ export class Multivault {
         [atomUris.map((uri) => toHex(uri))],
         {
           value: costWithDeposit,
-          account: this.client.wallet.account.address,
+          account: this.client.walletClient.account.address,
         },
       )
     } catch (e) {
@@ -523,9 +525,8 @@ export class Multivault {
       },
     )
 
-    const { logs, status } = await this.client.public.waitForTransactionReceipt(
-      { hash },
-    )
+    const { logs, status } =
+      await this.client.publicClient.waitForTransactionReceipt({ hash })
 
     if (status === 'reverted') {
       throw new Error('Transaction reverted')
@@ -606,7 +607,7 @@ export class Multivault {
         [subjectId, predicateId, objectId],
         {
           value: costWithDeposit,
-          account: this.client.wallet.account.address,
+          account: this.client.walletClient.account.address,
         },
       )
     } catch (e) {
@@ -629,9 +630,8 @@ export class Multivault {
     hash: `0x${string}`
     events: ParseEventLogsReturnType
   }> {
-    const { logs, status } = await this.client.public.waitForTransactionReceipt(
-      { hash },
-    )
+    const { logs, status } =
+      await this.client.publicClient.waitForTransactionReceipt({ hash })
 
     if (status === 'reverted') {
       throw new Error('Transaction reverted')
@@ -675,7 +675,7 @@ export class Multivault {
         [subjectIds, predicateIds, objectIds],
         {
           value: cost,
-          account: this.client.wallet.account.address,
+          account: this.client.walletClient.account.address,
         },
       )
     } catch (e) {
@@ -687,9 +687,8 @@ export class Multivault {
       { value: cost },
     )
 
-    const { logs, status } = await this.client.public.waitForTransactionReceipt(
-      { hash },
-    )
+    const { logs, status } =
+      await this.client.publicClient.waitForTransactionReceipt({ hash })
 
     if (status === 'reverted') {
       throw new Error('Transaction reverted')
@@ -719,12 +718,12 @@ export class Multivault {
     assets: bigint,
     receiver?: Address,
   ) {
-    const address = receiver || this.client.wallet.account.address
+    const address = receiver || this.client.walletClient.account.address
 
     try {
       await this.contract.simulate.depositAtom([address, vaultId], {
         value: assets,
-        account: this.client.wallet.account.address,
+        account: this.client.walletClient.account.address,
       })
     } catch (e) {
       this._throwRevertedError(e as BaseError)
@@ -734,9 +733,8 @@ export class Multivault {
       value: assets,
     })
 
-    const { logs, status } = await this.client.public.waitForTransactionReceipt(
-      { hash },
-    )
+    const { logs, status } =
+      await this.client.publicClient.waitForTransactionReceipt({ hash })
 
     if (status === 'reverted') {
       throw new Error('Transaction reverted')
@@ -762,11 +760,11 @@ export class Multivault {
    * @returns transaction assets, transaction hash and events
    */
   public async redeemAtom(vaultId: bigint, shares: bigint, receiver?: Address) {
-    const address = receiver || this.client.wallet.account.address
+    const address = receiver || this.client.walletClient.account.address
 
     try {
       await this.contract.simulate.redeemAtom([shares, address, vaultId], {
-        account: this.client.wallet.account.address,
+        account: this.client.walletClient.account.address,
       })
     } catch (e) {
       this._throwRevertedError(e as BaseError)
@@ -778,9 +776,8 @@ export class Multivault {
       vaultId,
     ])
 
-    const { logs, status } = await this.client.public.waitForTransactionReceipt(
-      { hash },
-    )
+    const { logs, status } =
+      await this.client.publicClient.waitForTransactionReceipt({ hash })
 
     if (status === 'reverted') {
       throw new Error('Transaction reverted')
@@ -810,12 +807,12 @@ export class Multivault {
     assets: bigint,
     receiver?: Address,
   ) {
-    const address = receiver || this.client.wallet.account.address
+    const address = receiver || this.client.walletClient.account.address
 
     try {
       await this.contract.simulate.depositTriple([address, vaultId], {
         value: assets,
-        account: this.client.wallet.account.address,
+        account: this.client.walletClient.account.address,
       })
     } catch (e) {
       this._throwRevertedError(e as BaseError)
@@ -825,9 +822,8 @@ export class Multivault {
       value: assets,
     })
 
-    const { logs, status } = await this.client.public.waitForTransactionReceipt(
-      { hash },
-    )
+    const { logs, status } =
+      await this.client.publicClient.waitForTransactionReceipt({ hash })
 
     if (status === 'reverted') {
       throw new Error('Transaction reverted')
@@ -857,11 +853,11 @@ export class Multivault {
     shares: bigint,
     receiver?: Address,
   ) {
-    const address = receiver || this.client.wallet.account.address
+    const address = receiver || this.client.walletClient.account.address
 
     try {
       await this.contract.simulate.redeemTriple([shares, address, vaultId], {
-        account: this.client.wallet.account.address,
+        account: this.client.walletClient.account.address,
       })
     } catch (e) {
       this._throwRevertedError(e as BaseError)
@@ -873,9 +869,8 @@ export class Multivault {
       vaultId,
     ])
 
-    const { logs, status } = await this.client.public.waitForTransactionReceipt(
-      { hash },
-    )
+    const { logs, status } =
+      await this.client.publicClient.waitForTransactionReceipt({ hash })
 
     if (status === 'reverted') {
       throw new Error('Transaction reverted')
