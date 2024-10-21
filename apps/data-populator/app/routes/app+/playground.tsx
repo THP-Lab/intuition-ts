@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 import { Button } from '@0xintuition/1ui'
 
 import PrivyLogout from '@client/privy-logout'
@@ -43,29 +45,20 @@ export async function loader({ request }: LoaderFunctionArgs) {
       to: '0x1A6950807E33d5bC9975067e6D6b5Ea4cD661665', // multivault contract address
       data: encodeFunctionData({
         abi: multivaultAbi,
-        functionName: 'createAtom',
-        args: [toHex('0xc626CbfE61Bac7A1dB9d227b90878D872C379c6A')],
+        functionName: 'batchCreateAtom',
+        args: [[toHex('jpTest7'), toHex('jpTest7b')]],
       }),
-      value: '300100001000000',
+      value: '600200002000000',
     },
-    // {
-    //   to: '0x1A6950807E33d5bC9975067e6D6b5Ea4cD661665', // multivault contract address
-    //   data: encodeFunctionData({
-    //     abi: multivaultAbi,
-    //     functionName: 'createAtom',
-    //     args: ['5002'],
-    //   }),
-    //   value: '300100001000000',
-    // },
-    // {
-    //   to: '0x1A6950807E33d5bC9975067e6D6b5Ea4cD661665', // multivault contract address
-    //   data: encodeFunctionData({
-    //     abi: multivaultAbi,
-    //     functionName: 'createAtom',
-    //     args: ['5003'],
-    //   }),
-    //   value: '300100001000000',
-    // },
+    {
+      to: '0x1A6950807E33d5bC9975067e6D6b5Ea4cD661665', // multivault contract address
+      data: encodeFunctionData({
+        abi: multivaultAbi,
+        functionName: 'batchCreateAtom',
+        args: [[toHex('jojiTest7'), toHex('jojiTest7b')]],
+      }),
+      value: '600200002000000',
+    },
   ]
 
   return json({
@@ -94,13 +87,14 @@ export default function Playground() {
   const { client } = useSmartWallets()
 
   logger('user', user)
-  const sendBatchTx = async () => {
+
+  const sendBatchTx = useCallback(async () => {
     if (!client) {
       console.error('No smart account client found')
       return
     }
 
-    client.sendTransaction({
+    const txHash = await client.sendTransaction({
       account: client.account,
       calls: atomTransactions.map((tx) => ({
         to: tx.to as `0x${string}`,
@@ -108,7 +102,8 @@ export default function Playground() {
         value: BigInt(tx.value),
       })),
     })
-  }
+    logger('batch txHash', txHash)
+  }, [client, atomTransactions])
 
   const sendTx = async () => {
     if (!client) {

@@ -21,8 +21,16 @@ import {
 import { ProgressModal } from '@components/progress-modal'
 import { ProofreadModal } from '@components/proofread-modal'
 import { Progress } from '@components/ui/progress'
+import { useBatchCreateAtom } from '@lib/hooks/useBatchCreateAtom'
+import {
+  BatchAtomsRequest,
+  createPopulateAtomsRequest,
+  generateBatchAtomsCalldata,
+  pinAtoms,
+} from '@lib/services/populate'
 import { generateCsvContent, parseCsv } from '@lib/utils/csv'
 import { loadThumbnail, loadThumbnails } from '@lib/utils/image'
+import logger from '@lib/utils/logger'
 import {
   detectAdjacentDuplicatesForCell,
   detectAllAdjacentDuplicates,
@@ -31,6 +39,7 @@ import {
   type CellHighlight,
   type UnusualCharacterIssue,
 } from '@lib/utils/proofread'
+import { convertCsvToSchemaObjects } from '@lib/utils/schema'
 import type { SortDirection } from '@lib/utils/sort'
 import { getNextSortDirection, sortData } from '@lib/utils/sort'
 import { json, type ActionFunctionArgs } from '@remix-run/node'
@@ -41,6 +50,7 @@ import {
   useSubmit,
 } from '@remix-run/react'
 import { CheckCircle2, Loader2, Minus, Plus, Save, Search } from 'lucide-react'
+import { Thing, WithContext } from 'schema-dts'
 
 // Add this new interface
 interface AtomExistsResult {
@@ -51,21 +61,83 @@ interface AtomExistsResult {
   originalIndex: number
 }
 
+// Update the ActionData type to be more specific
+export type ActionData =
+  | InitiateActionData
+  | PublishActionData
+  | LogTxActionData
+  | { success: true }
+  | ErrorActionData
+
+export type InitiateActionData = {
+  success: boolean
+  requestHash: string
+  selectedRows: number[]
+  selectedAtoms: WithContext<Thing>[]
+  csvData: string[][]
+}
+
+export type PublishActionData = {
+  success: boolean
+  calls: BatchAtomsRequest[]
+  chunks: string[][]
+  chunkSize: number
+}
+
+export type LogTxActionData = {
+  success: boolean
+}
+
+export type ErrorActionData = {
+  error: string
+}
+
 export const action = async ({ request }: ActionFunctionArgs) => {
   try {
-    console.log('Enter action')
     const formData = await request.formData()
-    console.log('Form data', formData)
+    const action = formData.get('action')
 
-    // TESTING
-    const url = new URL(request.url)
-    const apiUrl = `${url.protocol}//${url.host}/api/csv-editor`
+    switch (action) {
+      case 'initiateBatchAtomRequest': {
+        const selectedRows = JSON.parse(
+          formData.get('selectedRows') as string,
+        ) as number[]
+        const csvData = JSON.parse(
+          formData.get('csvData') as string,
+        ) as string[][]
+        const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
+        const selectedAtoms = selectedRows.map((index) => schemaObjects[index])
 
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      body: formData,
-    })
-    return json(await response.json())
+        const requestHash = await createPopulateAtomsRequest(selectedAtoms)
+        logger(`Initiated batch atom request with hash: ${requestHash}`)
+        logger(`Selected rows: ${selectedRows}`)
+        return json({ success: true, requestHash, selectedRows, selectedAtoms })
+      }
+      case 'publishAtoms': {
+        const requestHash = formData.get('requestHash') as string
+        const selectedAtoms = JSON.parse(
+          formData.get('selectedAtoms') as string,
+        ) as WithContext<Thing>[]
+        const { newCIDs } = await pinAtoms(selectedAtoms, requestHash)
+        const { chunks, chunkSize, calls } = await generateBatchAtomsCalldata(
+          newCIDs,
+          requestHash,
+        )
+        return json({ success: true, calls, chunks, chunkSize })
+      }
+      case 'logTxHash': {
+        const txHash = formData.get('txHash') as string
+        const requestHash = formData.get('requestHash') as string
+        logger(
+          `Logging transaction hash: ${txHash} for request hash: ${requestHash}`,
+        )
+        // Implement the logic to log the transaction hash
+        // For example:
+        // await logTransactionHash(txHash, requestHash)
+        return json({ success: true })
+      }
+      // ... (keep other action cases)
+    }
   } catch (error) {
     console.error('Action error:', error)
     return json({ error: 'An error occurred' })
@@ -74,7 +146,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function CSVEditor() {
   // State variables for managing CSV data, UI interactions, and atom-related operations
-  const actionData = useActionData<typeof action>()
+
+  const actionData = useActionData<ActionData>()
   const submit = useSubmit()
   const navigation = useNavigation()
   const fetcher = useFetcher()
@@ -118,19 +191,17 @@ export default function CSVEditor() {
   //   privateKey: '',
   // })
   // const [showHistory, setShowHistory] = useState(false)
-  const [showProgressModal, setShowProgressModal] = useState(false)
-  const [currentRequestHash, setCurrentRequestHash] = useState('')
+  const [, setShowProgressModal] = useState(false)
   const [proofreadIssues, setProofreadIssues] = useState<
     UnusualCharacterIssue[]
   >([])
   const [showProofreadModal, setShowProofreadModal] = useState(false)
-
+  // const [calls, setCalls] = useState<BatchAtomsRequest[]>([])
   // Ref for file input to trigger file selection programmatically
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Flag to determine if any loading operation is in progress
-  const isLoading =
-    navigation.state === 'submitting' || fetcher.state === 'submitting'
+  const { step, requestHash, isLoading, initiateBatchRequest } =
+    useBatchCreateAtom()
 
   // Function to load thumbnails for image URLs in the CSV data
   const loadThumbnailsForCSV = useCallback(async (data: string[][]) => {
@@ -429,24 +500,16 @@ export default function CSVEditor() {
     )
   }
 
-  // Function to publish selected atoms
-  const publishAtoms = () => {
+  const handlePublishAtoms = useCallback(() => {
     showConfirmModal(
       'Publish selected atoms? This will take about a minute.',
       (confirm) => {
         if (confirm) {
-          submit(
-            {
-              action: 'publishAtoms',
-              selectedRows: JSON.stringify(selectedRows),
-              csvData: JSON.stringify(csvData),
-            },
-            { method: 'post' },
-          )
+          initiateBatchRequest(selectedRows, csvData)
         }
       },
     )
-  }
+  }, [showConfirmModal, initiateBatchRequest, selectedRows, csvData])
 
   // Function to determine the text for the create/tag atoms button
   const getCreateTagButtonText = useCallback(() => {
@@ -714,9 +777,13 @@ export default function CSVEditor() {
   // }
 
   useEffect(() => {
-    if (actionData?.requestHash) {
-      setCurrentRequestHash(actionData.requestHash)
-      setShowProgressModal(true)
+    if (actionData && 'success' in actionData && actionData.success) {
+      if ('requestHash' in actionData) {
+        setShowProgressModal(true)
+      }
+      if ('calls' in actionData) {
+        // setCalls(actionData.calls)
+      }
     }
   }, [actionData])
 
@@ -757,10 +824,10 @@ export default function CSVEditor() {
             Delete Selected Row{selectedRows.length > 1 ? 's' : ''}
           </Button>
           <Button
-            onClick={publishAtoms}
+            onClick={handlePublishAtoms}
             disabled={selectedRows.length === 0 || isLoading}
           >
-            Publish Atoms
+            {isLoading ? 'Processing...' : 'Publish Atoms'}
           </Button>
           <Button onClick={saveCSV}>
             <Save className="h-4 w-4" /> Save CSV
@@ -992,9 +1059,13 @@ export default function CSVEditor() {
       </div>
 
       <ProgressModal
-        isOpen={showProgressModal}
-        onClose={() => setShowProgressModal(false)}
-        requestHash={currentRequestHash}
+        isOpen={isLoading}
+        onClose={() => {
+          // You might want to handle this differently, perhaps by cancelling the operation
+          console.log('Progress modal closed')
+        }}
+        step={step}
+        requestHash={requestHash}
       />
 
       <ProofreadModal

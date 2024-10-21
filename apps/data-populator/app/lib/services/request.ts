@@ -86,7 +86,13 @@ export async function updateRequest(
   }
 }
 
-export async function pushUpdate(hash: string, update: string): Promise<void> {
+export async function pushUpdate(
+  hash: string | undefined,
+  update: string,
+): Promise<void> {
+  if (!hash) {
+    return
+  }
   const request = await getRequest(hash)
   request.updates.push(update)
   await updateRequest(hash, request)

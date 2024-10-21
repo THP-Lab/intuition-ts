@@ -69,8 +69,10 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const env = getEnv()
+
   return json({
-    env: getEnv(),
+    env,
     requestInfo: {
       hints: getHints(request),
       path: new URL(request.url).pathname,

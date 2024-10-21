@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { MIN_DEPOSIT, MULTIVAULT_CONTRACT_ADDRESS } from '@consts/general'
+import { multivaultAbi } from '@lib/abis/multivault'
+import logger from '@lib/utils/logger'
+import { truncateString } from '@lib/utils/misc'
 import { Thing, WithContext } from 'schema-dts'
+import { encodeFunctionData, parseUnits, toHex } from 'viem'
 
 import {
   batchCreateAtomRequest,
@@ -217,6 +222,155 @@ export async function requestPopulateAtoms(atoms: any[]) {
   const requestHash = await createRequest(atoms, msgSender, 'createAtoms')
   populateAtoms(atoms, requestHash, true)
   return requestHash
+}
+
+export async function createPopulateAtomsRequest(atoms: any[]) {
+  const msgSender = await getSender()
+  const requestHash = await createRequest(atoms, msgSender, 'createAtoms')
+  return requestHash
+}
+
+export async function pinAtoms(
+  atoms: any[],
+  requestHash?: string,
+): Promise<{
+  existingCIDs: string[]
+  newCIDs: string[]
+}> {
+  await pushUpdate(requestHash, 'Pinning new data to IPFS...')
+  const pinnedData = requestHash
+    ? await pinAllData(atoms, 100, 3, 1000, requestHash)
+    : await pinAllData(atoms, 100)
+
+  logger(`Checking for existing atoms...`)
+  await pushUpdate(requestHash, 'Checking for existing atoms...')
+  const [filteredData, existingData] = requestHash
+    ? await cullExistingAtoms(pinnedData, 100, 3, requestHash)
+    : await cullExistingAtoms(pinnedData, 100, 3)
+
+  const newCIDs = filteredData.map((data) => data.cid)
+  const existingCIDs = existingData.map((data) => data.cid)
+
+  logger(`Done pinning atoms.`)
+  await pushUpdate(requestHash, 'Done pinning atoms.')
+  return { existingCIDs, newCIDs }
+}
+
+export async function buildChunks(
+  cids: string[],
+  requestHash?: string,
+): Promise<{ chunks: string[][]; chunkSize: number }> {
+  console.log('Processing batch atoms with CIDs: ', cids)
+  await pushUpdate(requestHash, `Processing batch atoms with CIDs: ${cids}`)
+  if (cids.length === 0) {
+    await pushUpdate(requestHash, 'No new atoms to create')
+    console.log('No new atoms to create')
+    return { chunks: [], chunkSize: 0 }
+  }
+
+  // Attempt static execution in iteratively smaller chunks until it either succeeds or we have reason to believe the revert is not due to out of gas
+  console.log('Predetermining number of chunks to process batch atoms...')
+  await pushUpdate(
+    requestHash,
+    'Predetermining number of chunks to process batch atoms...',
+  )
+
+  let numChunks = 1
+
+  if (cids.length > 1) {
+    let staticExecutionReverted = true
+    let latestBatch: string[] = [] // for debugging
+    while (staticExecutionReverted && numChunks < cids.length) {
+      try {
+        const chunkSize = Math.ceil(cids.length / numChunks)
+        const chunks = chunk(cids, chunkSize)
+        for (const batch of chunks) {
+          latestBatch = batch // for debugging
+          const request = batchCreateAtomRequest(batch)
+          const gasEstimate = await estimateGas(request)
+          if (gasEstimate > 30000000) {
+            throw new Error(
+              'Gas estimate for batch atoms will likely exceed block gas limit',
+            )
+          }
+        }
+        staticExecutionReverted = false
+      } catch (error) {
+        console.log(
+          'Batch failed gas estimation, chunking further: ',
+          latestBatch,
+        )
+        await pushUpdate(requestHash, `Reducing chunks: ${latestBatch}`)
+        numChunks++
+      }
+    }
+
+    if (staticExecutionReverted) {
+      await pushUpdate(
+        requestHash,
+        'static execution reverted with chunk size of 1',
+      )
+      throw new Error('static execution reverted with chunk size of 1')
+    }
+  }
+
+  const chunkSize = Math.ceil(cids.length / numChunks)
+  const chunks = chunk(cids, chunkSize)
+  console.log('Number of batch atom chunks: ', numChunks)
+  await pushUpdate(requestHash, `Number of batch atom chunks: ${numChunks}`)
+  console.log(
+    'Chunk lengths: ',
+    chunks.map((chunk) => chunk.length),
+  )
+  await pushUpdate(
+    requestHash,
+    `Chunk lengths: ${chunks.map((chunk) => chunk.length)}`,
+  )
+  return { chunks, chunkSize }
+}
+
+export type BatchAtomsRequest = {
+  to: `0x${string}`
+  data: `0x${string}`
+  value: string
+}
+export function getBatchAtomsCall(
+  cids: string[],
+): BatchAtomsRequest | undefined {
+  const minDeposit = parseUnits(MIN_DEPOSIT, 18).toString()
+  if (cids.length !== 0) {
+    return {
+      to: MULTIVAULT_CONTRACT_ADDRESS as `0x${string}`,
+      data: encodeFunctionData({
+        abi: multivaultAbi,
+        functionName: 'batchCreateAtom',
+        args: [cids.map((cid) => toHex(cid))],
+      }),
+      value: (BigInt(minDeposit) * BigInt(cids.length)).toString(),
+    }
+  }
+}
+
+export async function generateBatchAtomsCalldata(
+  cids: string[],
+  requestHash?: string,
+): Promise<{
+  chunks: string[][]
+  chunkSize: number
+  calls: BatchAtomsRequest[]
+}> {
+  const { chunks, chunkSize } = await buildChunks(cids, requestHash)
+  const calls = chunks
+    .map((batch) => getBatchAtomsCall(batch))
+    .filter((call): call is BatchAtomsRequest => call !== undefined)
+
+  if (calls.length > 0) {
+    await pushUpdate(
+      requestHash,
+      `\nGenerated ${calls.length} batch atom calls:\n${calls.map((call) => call.data).join('\n')}`,
+    )
+  }
+  return { chunks, chunkSize, calls }
 }
 
 export async function populateAtoms(
@@ -616,12 +770,12 @@ export async function cullExistingAtoms(
       batch.map(async ({ filteredObj, cid, originalIndex }) =>
         retryOperation(async () => {
           const alreadyExists = await checkAtomExists(cid)
-          requestHash
-            ? await pushUpdate(
-                requestHash,
-                `${cid} Already exists: ${alreadyExists}`,
-              )
-            : null
+          if (alreadyExists) {
+            await pushUpdate(
+              requestHash,
+              `${truncateString(cid, 20)} already exists`,
+            )
+          }
           return { filteredObj, cid, originalIndex, alreadyExists }
         }, maxRetries),
       ),
