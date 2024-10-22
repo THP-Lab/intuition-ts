@@ -1,10 +1,16 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import { useCallback, useEffect, useReducer, useState } from 'react'
 
-import type { BatchAtomsRequest } from '@lib/services/populate'
+import { toast } from '@0xintuition/1ui'
+
+import type { BatchAtomsRequest, PinDataResult } from '@lib/services/populate'
 import logger from '@lib/utils/logger'
 import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
 import { useFetcher } from '@remix-run/react'
-import { InitiateActionData, PublishActionData } from '@routes/app+'
+import {
+  InitiateActionData,
+  LogTxActionData,
+  PublishActionData,
+} from '@routes/app+'
 import { Thing, WithContext } from 'schema-dts'
 
 type State = {
@@ -13,18 +19,43 @@ type State = {
   selectedRows: number[]
   csvData: string[][]
   calls: BatchAtomsRequest[]
+  existingCIDs: string[]
+  newCIDs: string[]
+  filteredData: PinDataResult[]
   txHash: string
-  step: 'idle' | 'initiating' | 'publishing' | 'sending' | 'logging'
+  setNewAtoms: WithContext<Thing>[]
+  error?: string
+  step:
+    | 'idle'
+    | 'initiating'
+    | 'publishing'
+    | 'sending'
+    | 'logging'
+    | 'complete'
+    | 'error'
 }
 
 type Action =
   | { type: 'SET_REQUEST_HASH'; payload: string }
   | { type: 'SET_SELECTED_ATOMS'; payload: WithContext<Thing>[] }
-  | { type: 'SET_CALLS'; payload: BatchAtomsRequest[] }
+  | {
+      type: 'SET_CALLS'
+      payload: {
+        calls: BatchAtomsRequest[]
+        newCIDs: string[]
+        existingCIDs: string[]
+        filteredData: PinDataResult[]
+      }
+    }
   | { type: 'SET_TX_HASH'; payload: string }
   | { type: 'SET_STEP'; payload: State['step'] }
   | { type: 'SET_SELECTED_ROWS'; payload: number[] }
   | { type: 'SET_CSV_DATA'; payload: string[][] }
+  | {
+      type: 'SET_TX_COMPLETE'
+      txHash?: string
+    }
+  | { type: 'SET_ERROR'; error: string }
 
 const initialState: State = {
   requestHash: '',
@@ -34,6 +65,11 @@ const initialState: State = {
   calls: [],
   txHash: '',
   step: 'idle',
+  setNewAtoms: [],
+  error: '',
+  newCIDs: [],
+  existingCIDs: [],
+  filteredData: [],
 }
 
 function reducer(state: State, action: Action): State {
@@ -43,7 +79,13 @@ function reducer(state: State, action: Action): State {
     case 'SET_SELECTED_ATOMS':
       return { ...state, selectedAtoms: action.payload }
     case 'SET_CALLS':
-      return { ...state, calls: action.payload }
+      return {
+        ...state,
+        calls: action.payload.calls,
+        newCIDs: action.payload.newCIDs,
+        existingCIDs: action.payload.existingCIDs,
+        filteredData: action.payload.filteredData,
+      }
     case 'SET_TX_HASH':
       return { ...state, txHash: action.payload }
     case 'SET_STEP':
@@ -52,6 +94,14 @@ function reducer(state: State, action: Action): State {
       return { ...state, selectedRows: action.payload }
     case 'SET_CSV_DATA':
       return { ...state, csvData: action.payload }
+    case 'SET_ERROR':
+      return { ...state, step: 'error', error: action.error }
+    case 'SET_TX_COMPLETE':
+      return {
+        ...state,
+        step: 'complete',
+        txHash: action.txHash ?? '',
+      }
     default:
       return state
   }
@@ -62,25 +112,9 @@ export function useBatchCreateAtom() {
   const [isProcessing, setIsProcessing] = useState(false)
   const initiateFetcher = useFetcher({ key: 'initiate-batch' })
   const publishFetcher = useFetcher({ key: 'publish-atoms' })
-  const logTxFetcher = useFetcher({ key: 'log-tx-hash' })
+  const logTxFetcher = useFetcher({ key: 'log-tx-hash-and-verify-atoms' })
+
   const { client } = useSmartWallets()
-
-  const mountCount = useRef(0)
-  const renderCount = useRef(0)
-  // const lastActionRef = useRef<string | null>(null)
-
-  useEffect(() => {
-    mountCount.current += 1
-    console.log(
-      `useBatchCreateAtom mounted. Mount count: ${mountCount.current}`,
-    )
-    return () => console.log('useBatchCreateAtom unmounted')
-  }, [])
-
-  renderCount.current += 1
-  console.log(
-    `useBatchCreateAtom rendered. Render count: ${renderCount.current}`,
-  )
 
   const initiateBatchRequest = useCallback(
     (selectedRows: number[], csvData: string[][]) => {
@@ -117,6 +151,8 @@ export function useBatchCreateAtom() {
       return
     }
     console.log('Publishing atoms')
+    console.log('msgSender', client?.account)
+
     setIsProcessing(true)
     publishFetcher.submit(
       {
@@ -152,8 +188,16 @@ export function useBatchCreateAtom() {
     } catch (error) {
       console.error('Error sending batch transaction:', error)
       dispatch({ type: 'SET_STEP', payload: 'idle' })
-      // Optionally, you can add error handling here, such as setting an error state
-      // dispatch({ type: 'SET_ERROR', payload: error.message });
+
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      logger('error', { message: errorMessage, context: 'sendBatchTx' })
+
+      dispatch({
+        type: 'SET_ERROR',
+        error: error instanceof Error ? error.message : String(error),
+      })
+      dispatch({ type: 'SET_STEP', payload: 'error' })
     } finally {
       setIsProcessing(false)
     }
@@ -164,13 +208,18 @@ export function useBatchCreateAtom() {
       return
     }
     console.log('Logging transaction hash')
+
     setIsProcessing(true)
     dispatch({ type: 'SET_STEP', payload: 'logging' })
     logTxFetcher.submit(
       {
-        action: 'logTxHash',
+        action: 'logTxHashAndVerifyAtoms',
         txHash: state.txHash,
         requestHash: state.requestHash,
+        filteredCIDs: JSON.stringify(state.newCIDs),
+        filteredData: JSON.stringify(state.filteredData),
+        msgSender: client?.account.address as `0x${string}`,
+        oldAtomCIDs: JSON.stringify(state.existingCIDs),
       },
       { method: 'post' },
     )
@@ -208,7 +257,16 @@ export function useBatchCreateAtom() {
       const data = publishFetcher.data as PublishActionData
       console.log('Publish fetcher data received:', data)
       if (data.success && data.calls) {
-        dispatch({ type: 'SET_CALLS', payload: data.calls })
+        dispatch({
+          type: 'SET_CALLS',
+          payload: {
+            calls: data.calls,
+            newCIDs: data.newCIDs || [],
+            existingCIDs: data.existingCIDs || [],
+            filteredData: data.filteredData || [],
+          },
+        })
+        // in this payload we have the atoms
         dispatch({ type: 'SET_STEP', payload: 'sending' })
         setIsProcessing(false)
       } else {
@@ -232,7 +290,36 @@ export function useBatchCreateAtom() {
       state.step === 'logging'
     ) {
       console.log('Log TX fetcher data received:', logTxFetcher.data)
-      dispatch({ type: 'SET_STEP', payload: 'idle' })
+
+      // Check if the operation was successful
+      const data = logTxFetcher.data as LogTxActionData
+
+      if (data.success) {
+        console.log('logTxFetcher success')
+
+        dispatch({ type: 'SET_STEP', payload: 'complete' })
+        toast.success('Atom(s) created successfully', {
+          duration: 5000,
+        })
+        // reset to initial state
+        dispatch({
+          type: 'SET_CALLS',
+          payload: {
+            calls: [],
+            newCIDs: [],
+            existingCIDs: [],
+            filteredData: [],
+          },
+        })
+      } else {
+        // Handle the case where the operation was not successful
+        console.error('Failed to create atom(s):', data.error)
+        toast.error('Failed to create atom(s). Please try again.', {
+          duration: 5000,
+        })
+        dispatch({ type: 'SET_STEP', payload: 'idle' })
+      }
+
       setIsProcessing(false)
     }
   }, [logTxFetcher.state, logTxFetcher.data, state.step])
@@ -245,6 +332,7 @@ export function useBatchCreateAtom() {
 
       console.log('state.step', state.step)
       console.log('state.calls', state.calls)
+      console.log('state.filteredData', state.filteredData)
 
       if (state.step === 'sending' && state.calls.length > 0) {
         try {
@@ -265,6 +353,7 @@ export function useBatchCreateAtom() {
     state.step,
     state.requestHash,
     state.calls,
+    state.filteredData,
     state.txHash,
     publishAtoms,
     sendBatchTx,
@@ -275,10 +364,15 @@ export function useBatchCreateAtom() {
   return {
     ...state,
     initiateBatchRequest,
-    isLoading: state.step !== 'idle',
+    isLoading:
+      state.step !== 'idle' &&
+      state.step !== 'complete' &&
+      state.step !== 'error',
     isInitiating: state.step === 'initiating',
     isPublishing: state.step === 'publishing',
     isSending: state.step === 'sending',
     isLoggingTx: state.step === 'logging',
+    isComplete: state.step === 'complete',
+    isError: state.step === 'error',
   }
 }
