@@ -81,7 +81,7 @@ FROM base as build
 RUN npm install -g nx@latest
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # Build the data-populator app
 RUN pnpm run data-populator:build
