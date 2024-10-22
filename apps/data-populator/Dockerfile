@@ -62,35 +62,43 @@ ENV PRIVY_APP_SECRET=${PRIVY_APP_SECRET}
 
 WORKDIR /app
 
-COPY package.json \
-    project.json \
-	tsconfig* \
-	nx.json \
-	pnpm*.yaml \
-    .eslintrc.base.cjs \
-    .verdaccio \
-	./
-COPY apps/portal ./apps/portal
-COPY packages ./packages
+# Copy the entire context
+COPY . .
 
+# Install necessary packages
 RUN apk add --no-cache \
-	python3 \
-	make \
-	gcc \
-	g++
+    python3 \
+    make \
+    gcc \
+    g++
 
 RUN npm install -g pnpm@9.0.6
 
+# Build stage
 FROM base as build
-RUN npm add --global nx@latest
-RUN pnpm i
-RUN pnpm run portal:build
 
+# Install nx globally
+RUN npm install -g nx@latest
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Build the data-populator app
+RUN pnpm run data-populator:build
+
+# Production stage
 FROM base
+
+# Copy built files from the build stage
 COPY --from=build /app /app
+
+# Set environment variables for NX
 ENV NX_REJECT_UNKNOWN_LOCAL_CACHE=0
 ENV PORT=8080
 ENV HOST=0.0.0.0
 
+# Expose the application port
 EXPOSE 8080
-CMD [ "pnpm", "run", "portal:start" ]
+
+# Start the application
+CMD [ "pnpm", "run", "data-populator:start" ]
