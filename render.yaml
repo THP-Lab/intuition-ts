@@ -4,7 +4,7 @@ services:
     env: docker
     region: oregon
     rootDir: apps/data-populator
-    dockerfilePath: ./apps/data-populator/Dockerfile
+    dockerfilePath: ./Dockerfile
     dockerContext: .
     envVars:
       - key: NODE_ENV
