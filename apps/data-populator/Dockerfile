@@ -71,7 +71,7 @@ COPY package.json \
     .eslintrc.base.cjs \
     .verdaccio \
 	./
-COPY apps/portal ./apps/portal
+COPY apps/data-populator ./apps/data-populator
 COPY packages ./packages
 
 # Install necessary packages
