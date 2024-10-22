@@ -62,8 +62,17 @@ ENV PRIVY_APP_SECRET=${PRIVY_APP_SECRET}
 
 WORKDIR /app
 
-# Copy the entire context
-COPY . .
+# Copy things specifically needed for this app
+COPY package.json \
+    project.json \
+	tsconfig* \
+	nx.json \
+	pnpm*.yaml \
+    .eslintrc.base.cjs \
+    .verdaccio \
+	./
+COPY apps/portal ./apps/portal
+COPY packages ./packages
 
 # Install necessary packages
 RUN apk add --no-cache \
