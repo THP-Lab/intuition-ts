@@ -6,6 +6,7 @@ import { PublicClient, WalletClient } from 'viem'
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
 
 export const useUserClient = (): {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   smartWalletClient: any | undefined // TODO: Fix once privy exports SmartAccountClientType
   walletClient: WalletClient | undefined
   publicClient: PublicClient | undefined

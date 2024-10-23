@@ -13,6 +13,8 @@ import {
 } from '@routes/app+'
 import { Thing, WithContext } from 'schema-dts'
 
+import { useUserClient } from './useUserWallet'
+
 type State = {
   requestHash: string
   selectedAtoms: WithContext<Thing>[]
@@ -114,7 +116,16 @@ export function useBatchCreateAtom() {
   const publishFetcher = useFetcher({ key: 'publish-atoms' })
   const logTxFetcher = useFetcher({ key: 'log-tx-hash-and-verify-atoms' })
 
-  const { client } = useSmartWallets()
+  const {
+    smartWalletClient,
+    walletClient,
+    publicClient,
+    address,
+    isSmartWalletUser,
+    ready,
+  } = useUserClient()
+
+  // const { client } = useSmartWallets()
 
   const initiateBatchRequest = useCallback(
     (selectedRows: number[], csvData: string[][]) => {
