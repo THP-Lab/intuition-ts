@@ -1,4 +1,4 @@
-import { User } from "@privy-io/server-auth"
+import { User } from '@privy-io/server-auth'
 
 export function hasSmartWallet(user: User | null): boolean {
   if (!user) {

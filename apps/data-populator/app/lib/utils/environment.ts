@@ -1,8 +1,8 @@
 import { Transport } from 'viem'
 import { base, baseSepolia, type mainnet } from 'viem/chains'
 
-import logger from './logger'
 import { multivaultContractsMap, transportsMap } from './chains'
+import logger from './logger'
 
 type ChainId = typeof base.id | typeof baseSepolia.id | typeof mainnet.id
 

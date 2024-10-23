@@ -1,16 +1,11 @@
-import { Chain, http } from "viem";
-import { baseSepolia, base } from "viem/chains";
-import { Transport } from "wagmi";
+import { Chain, http, Transport } from 'viem'
+import { base, baseSepolia } from 'viem/chains'
 
-const alchemyId =
-  typeof window !== 'undefined'
-    ? window.ENV?.ALCHEMY_API_KEY
-    : process.env.ALCHEMY_API_KEY
+// these will always be available in the browser as they're bundled
+// we need to lock down the API KEY with the Origin URL and allowed domains
+const alchemyId = import.meta.env.VITE_ALCHEMY_API_KEY
 
-const originUrl =
-  typeof window !== 'undefined'
-    ? window.ENV?.ORIGIN_URL
-    : process.env.ORIGIN_URL
+const originUrl = import.meta.env.VITE_ORIGIN_URL
 
 export const orderedChains = [
   84532, // baseSepolia
@@ -56,9 +51,11 @@ const transportsList: { [key: number]: Transport } = {
 
 export const chainsMap = (chainId: number) => chainsList[chainId]
 export const transportsMap = (chainId: number) => transportsList[chainId]
-export const multivaultContractsMap = (chainId: number) => multivaultContractsList[chainId]
+export const multivaultContractsMap = (chainId: number) =>
+  multivaultContractsList[chainId]
 export const alchemyRpcUrlMap = (chainId: number) => alchemyRpcUrlList[chainId]
-export const attestorContractsMap = (chainId: number) => attestorContractsList[chainId]
+export const attestorContractsMap = (chainId: number) =>
+  attestorContractsList[chainId]
 export const getExplorerUrl = (chainId: number) =>
   chainsMap(chainId)?.blockExplorers?.etherscan?.url ||
-  chainsMap(chainId)?.blockExplorers?.default?.url;
+  chainsMap(chainId)?.blockExplorers?.default?.url

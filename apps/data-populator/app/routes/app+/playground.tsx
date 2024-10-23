@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import { Button } from '@0xintuition/1ui'
 
@@ -77,10 +77,10 @@ export default function Playground() {
   } = useUserClient()
 
   const sendTx = useCallback(async () => {
-    if (!ready) {
-      console.error('No active client or address found')
-      return
-    }
+    // if (!ready) {
+    //   console.error('No active client or address found')
+    //   return
+    // }
 
     const txParams = {
       to: '0x04EA475026a0AB3e280F749b206fC6332E6939F1' as `0x${string}`,
@@ -132,7 +132,13 @@ export default function Playground() {
     }
   }, [smartWalletClient, walletClient, address, isSmartWalletUser, ready])
 
-  const { data: sendTxHash, sendTransaction } = useSendTransaction()
+  const [, setTxHashes] = useState<`0x${string}`[]>([])
+  const [isConfirming, setIsConfirming] = useState(false)
+  const [confirmedTxHashes, setConfirmedTxHashes] = useState<`0x${string}`[]>(
+    [],
+  )
+
+  const { sendTransaction } = useSendTransaction()
 
   const sendBatchTx = useCallback(async () => {
     if (!ready) {
@@ -154,33 +160,62 @@ export default function Playground() {
       } else {
         logger('non-smart wallet atom tx calls', atomTransactions)
 
-        for (const tx of atomTransactions) {
-          await sendTransaction({
-            to: tx.to as `0x${string}`,
-            data: tx.data as `0x${string}`,
-            value: BigInt(tx.value),
-          })
-          logger(`Transaction hash for atom: ${sendTxHash}`)
+        setIsConfirming(true)
+        setTxHashes([])
+        setConfirmedTxHashes([])
 
-          // Wait for the transaction to be mined
-          if (sendTxHash) {
-            await publicClient?.waitForTransactionReceipt({ hash: sendTxHash })
-          }
+        const confirmedHashes: `0x${string}`[] = []
+
+        for (const tx of atomTransactions) {
+          await new Promise<void>((resolve, reject) => {
+            sendTransaction(
+              {
+                to: tx.to as `0x${string}`,
+                data: tx.data as `0x${string}`,
+                value: BigInt(tx.value),
+              },
+              {
+                onSuccess: async (hash) => {
+                  setTxHashes((prev) => [...prev, hash])
+
+                  try {
+                    const receipt =
+                      await publicClient?.waitForTransactionReceipt({
+                        hash,
+                      })
+                    confirmedHashes.push(receipt?.transactionHash ?? hash)
+                    setConfirmedTxHashes([...confirmedHashes])
+                    logger(
+                      `Transaction confirmed: ${receipt?.transactionHash ?? hash}`,
+                    )
+                    resolve()
+                  } catch (confirmError) {
+                    console.error('Error confirming transaction:', confirmError)
+                    reject(confirmError)
+                  }
+                },
+                onError: (error) => {
+                  console.error('Error sending transaction:', error)
+                  reject(error)
+                },
+              },
+            )
+          })
         }
+
+        setIsConfirming(false)
+        logger('All confirmed transaction hashes:', confirmedHashes)
       }
     } catch (error) {
       console.error('Error sending batch transaction:', error)
+      setIsConfirming(false)
     }
   }, [
     smartWalletClient,
-    walletClient,
-    address,
     isSmartWalletUser,
     atomTransactions,
     publicClient,
     sendTransaction,
-    sendTxHash,
-    ready,
   ])
 
   return (
@@ -190,9 +225,21 @@ export default function Playground() {
       <div className="flex items-center gap-2">
         <Button onClick={signMessage}>Sign Message</Button>
         <Button onClick={sendTx}>Send Tx</Button>
-        <Button onClick={sendBatchTx}>Send Batch Tx</Button>
+        <Button onClick={sendBatchTx} disabled={isConfirming}>
+          {isConfirming ? 'Confirming...' : 'Send Batch Tx'}
+        </Button>
       </div>
       <PrivyLogout wallet={wallet} />
+      {confirmedTxHashes.length > 0 && (
+        <div>
+          <h3>Confirmed Transactions:</h3>
+          <ul>
+            {confirmedTxHashes.map((hash, index) => (
+              <li key={index}>{hash}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   )
 }

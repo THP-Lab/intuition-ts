@@ -22,7 +22,6 @@ import { ProgressModal } from '@components/progress-modal'
 import { ProofreadModal } from '@components/proofread-modal'
 import { Progress } from '@components/ui/progress'
 import { useBatchCreateAtom } from '@lib/hooks/useBatchCreateAtom'
-import { useUserClient } from '@lib/hooks/useUserWallet'
 import {
   BatchAtomsRequest,
   createPopulateAtomsRequest,
@@ -236,15 +235,6 @@ export default function CSVEditor() {
 
   const { step, requestHash, isLoading, initiateBatchRequest } =
     useBatchCreateAtom()
-
-  const {
-    smartWalletClient,
-    walletClient,
-    publicClient,
-    address,
-    isSmartWalletUser,
-    ready,
-  } = useUserClient()
 
   // Function to load thumbnails for image URLs in the CSV data
   const loadThumbnailsForCSV = useCallback(async (data: string[][]) => {
@@ -1014,10 +1004,6 @@ export default function CSVEditor() {
 
         {/* Tag creation section */}
         <div className="space-y-4">
-          {/* TODO: DELETE THIS -- IT IS A HELPER */}
-          <pre className="text-green-300">
-            User has smart wallet: {isSmartWalletUser ? 'Yes' : 'No'}
-          </pre>
           <h3 className="text-lg font-semibold">Create a Tag</h3>
           <div className="grid grid-cols-2 gap-4">
             {Object.keys(newTag).map((key) => (

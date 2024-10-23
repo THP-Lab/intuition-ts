@@ -1,15 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 
+import {
+  alchemyRpcUrlMap,
+  attestorContractsMap,
+  multivaultContractsMap,
+} from '@lib/utils/chains'
 import { encodePacked, Hex, keccak256, toBytes, toHex } from 'viem'
+import { base, baseSepolia } from 'viem/chains'
 
 import { callAndConfirm, EVMCallRequest, evmRead } from './evm'
 import { getAtomID } from './offchain-store'
-import { multivaultContractsMap, alchemyRpcUrlMap, attestorContractsMap } from '@lib/utils/chains'
-import { base, baseSepolia } from 'viem/chains'
 
 const environment = process.env.ENVIRONMENT
 const rpc =
-  environment === 'dev' ? alchemyRpcUrlMap(baseSepolia.id) : alchemyRpcUrlMap(base.id)
+  environment === 'dev'
+    ? alchemyRpcUrlMap(baseSepolia.id)
+    : alchemyRpcUrlMap(base.id)
 const attestorAddress =
   environment === 'dev'
     ? attestorContractsMap(baseSepolia.id)

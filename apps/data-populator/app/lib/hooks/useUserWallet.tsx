@@ -20,15 +20,6 @@ export const useUserClient = (): {
   const publicClient = usePublicClient()
   const { user } = usePrivy()
 
-  const ready = useMemo(() => {
-    return (
-      !!publicClient &&
-      !!walletClient &&
-      !!smartWalletClient &&
-      !!accountAddress
-    )
-  }, [publicClient, walletClient, smartWalletClient, accountAddress])
-
   // 1. Add check if user has a smart wallet
   const isSmartWalletUser = useMemo(() => {
     return (
@@ -43,6 +34,18 @@ export const useUserClient = (): {
       ? (smartWalletClient?.account.address as `0x${string}`)
       : accountAddress
   }, [isSmartWalletUser, smartWalletClient, accountAddress])
+
+  const ready = useMemo(() => {
+    return isSmartWalletUser
+      ? !!publicClient && !!smartWalletClient && !!accountAddress
+      : !!publicClient && !!walletClient && !!accountAddress
+  }, [
+    publicClient,
+    walletClient,
+    smartWalletClient,
+    accountAddress,
+    isSmartWalletUser,
+  ])
 
   return {
     smartWalletClient,
