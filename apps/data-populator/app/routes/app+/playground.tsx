@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import { Button } from '@0xintuition/1ui'
 
@@ -24,21 +24,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   logger('user', user)
   invariant(wallet, 'Unauthorized')
 
-  // const transactions = [
-  //   {
-  //     to: '0x25709998B542f1Be27D19Fa0B3A9A67302bc1b94',
-  //     value: '300000000000000', // 0.0003 ETH in wei
-  //   },
-  //   {
-  //     to: '0x25709998B542f1Be27D19Fa0B3A9A67302bc1b94',
-  //     value: '200000000000000', // 0.0002 ETH in wei
-  //   },
-  //   {
-  //     to: '0x25709998B542f1Be27D19Fa0B3A9A67302bc1b94',
-  //     value: '100000000000000', // 0.0001 ETH in wei
-  //   },
-  // ]
-
   // when we want to interact with our contract, we'd do it with this format:
   // generate 2 random
 
@@ -63,30 +48,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
   ]
 
-  const atomWagmiTransactions = [
-    {
-      address: '0x1A6950807E33d5bC9975067e6D6b5Ea4cD661665', // multivault contract address
-      abi: multivaultAbi,
-      functionName: 'batchCreateAtom',
-      args: [generateRandomAtoms(2)],
-      value: '600200002000000',
-    },
-    {
-      address: '0x1A6950807E33d5bC9975067e6D6b5Ea4cD661665', // multivault contract address
-      abi: multivaultAbi,
-      functionName: 'batchCreateAtom',
-      args: [generateRandomAtoms(2)],
-      value: '600200002000000',
-    },
-  ]
-
-  logger('atomWagmiTransactions', atomWagmiTransactions)
-
   return json({
     wallet,
     user,
     atomTransactions,
-    atomWagmiTransactions,
   })
 }
 
@@ -100,7 +65,6 @@ export default function Playground() {
     wallet: string
     user: User
     atomTransactions: AtomTransaction[]
-    atomWagmiTransactions: any[]
   }>()
 
   const {
