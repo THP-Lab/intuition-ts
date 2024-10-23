@@ -3,9 +3,7 @@ import { useCallback, useMemo } from 'react'
 import { Button } from '@0xintuition/1ui'
 
 import PrivyLogout from '@client/privy-logout'
-import { MULTIVAULT_CONTRACT_ADDRESS } from '@consts/general'
 import { multivaultAbi } from '@lib/abis/multivault'
-import { useBatchCreateAtomWagmi } from '@lib/hooks/useBatchCreateAtomWagmi'
 import logger from '@lib/utils/logger'
 import { invariant } from '@lib/utils/misc'
 import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
@@ -13,8 +11,14 @@ import { User } from '@privy-io/server-auth'
 import { json, LoaderFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { getUser, requireUserWallet } from '@server/auth'
+import { s } from 'node_modules/vite/dist/node/types.d-aGj9QkWt'
 import { encodeFunctionData, toHex } from 'viem'
-import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
+import {
+  useAccount,
+  usePublicClient,
+  useSendTransaction,
+  useWalletClient,
+} from 'wagmi'
 
 function hasSmartWallet(user: User | null): boolean {
   if (!user) {
@@ -68,7 +72,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       data: encodeFunctionData({
         abi: multivaultAbi,
         functionName: 'batchCreateAtom',
-        args: [[toHex('jpTest11'), toHex('jpTest11b')]],
+        args: [[toHex('jpTest20'), toHex('jpTest20b')]],
       }),
       value: '600200002000000',
     },
@@ -77,7 +81,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       data: encodeFunctionData({
         abi: multivaultAbi,
         functionName: 'batchCreateAtom',
-        args: [[toHex('jojiTest11'), toHex('jojiTest11b')]],
+        args: [[toHex('jojiTest20'), toHex('jojiTest20b')]],
       }),
       value: '600200002000000',
     },
@@ -88,14 +92,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
       address: '0x1A6950807E33d5bC9975067e6D6b5Ea4cD661665', // multivault contract address
       abi: multivaultAbi,
       functionName: 'batchCreateAtom',
-      args: [[toHex('jpTest11'), toHex('jpTest11b')]],
+      args: [[toHex('jpTest20'), toHex('jpTest20b')]],
       value: '600200002000000',
     },
     {
       address: '0x1A6950807E33d5bC9975067e6D6b5Ea4cD661665', // multivault contract address
       abi: multivaultAbi,
       functionName: 'batchCreateAtom',
-      args: [[toHex('jojiTest11'), toHex('jojiTest11b')]],
+      args: [[toHex('jojiTest20'), toHex('jojiTest20b')]],
       value: '600200002000000',
     },
   ]
@@ -117,13 +121,7 @@ type AtomTransaction = {
   value: string
 }
 export default function Playground() {
-  const {
-    wallet,
-    user,
-    atomTransactions,
-    atomWagmiTransactions,
-    userHasSmartWallet,
-  } = useLoaderData<{
+  const { wallet, atomTransactions, userHasSmartWallet } = useLoaderData<{
     wallet: string
     user: User
     atomTransactions: AtomTransaction[]
@@ -132,7 +130,6 @@ export default function Playground() {
   }>()
 
   const { client: smartWalletClient } = useSmartWallets()
-  const { writeContractAsync: writeBatchCreateAtom } = useBatchCreateAtomWagmi()
 
   const { address } = useAccount()
   const { data: walletClient } = useWalletClient()
@@ -198,8 +195,10 @@ export default function Playground() {
     }
   }, [activeClient, activeAddress, userHasSmartWallet])
 
+  const { data: sendTxHash, sendTransaction } = useSendTransaction()
+
   const sendBatchTx = useCallback(async () => {
-    if (!activeClient || !activeAddress) {
+    if (!activeClient || !activeAddress || !publicClient) {
       console.error('No active client or address found')
       return
     }
@@ -217,35 +216,20 @@ export default function Playground() {
         logger('smart wallet batch txHash', txHash)
       } else {
         logger('non-smart wallet atom tx calls', atomTransactions)
-        logger('atomWagmiTransactions', atomWagmiTransactions)
 
-        if (!publicClient) {
-          console.error('No public client found')
-          return
+        for (const tx of atomTransactions) {
+          await sendTransaction({
+            to: tx.to as `0x${string}`,
+            data: tx.data as `0x${string}`,
+            value: BigInt(tx.value),
+          })
+          logger(`Transaction hash for atom: ${sendTxHash}`)
+
+          // Wait for the transaction to be mined
+          if (sendTxHash) {
+            await publicClient.waitForTransactionReceipt({ hash: sendTxHash })
+          }
         }
-
-        // Execute multiple transactions
-        const txHash1 = await writeBatchCreateAtom({
-          address: MULTIVAULT_CONTRACT_ADDRESS,
-          abi: multivaultAbi,
-          functionName: 'batchCreateAtom',
-          args: [[toHex('jpTest15'), toHex('jpTest15b')]],
-          value: BigInt('600200002000000') * BigInt(2),
-        })
-        logger('txHash1', txHash1)
-
-        // Wait for the first transaction to be mined
-        await publicClient.waitForTransactionReceipt({ hash: txHash1 })
-
-        // Execute the second transaction
-        const txHash2 = await writeBatchCreateAtom({
-          address: MULTIVAULT_CONTRACT_ADDRESS,
-          abi: multivaultAbi,
-          functionName: 'batchCreateAtom',
-          args: [[toHex('jojiTest15'), toHex('jojiTest15b')]],
-          value: BigInt('600200002000000') * BigInt(2),
-        })
-        logger('txHash2', txHash2)
       }
     } catch (error) {
       console.error('Error sending batch transaction:', error)
@@ -254,10 +238,9 @@ export default function Playground() {
     activeClient,
     activeAddress,
     atomTransactions,
-    atomWagmiTransactions,
     userHasSmartWallet,
     publicClient,
-    writeBatchCreateAtom,
+    sendTransaction,
   ])
 
   return (
