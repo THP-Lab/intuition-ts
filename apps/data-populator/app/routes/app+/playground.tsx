@@ -8,23 +8,13 @@ import { multivaultAbi } from '@lib/abis/multivault'
 import { useBatchCreateAtomWagmi } from '@lib/hooks/useBatchCreateAtomWagmi'
 import logger from '@lib/utils/logger'
 import { invariant } from '@lib/utils/misc'
-import { wagmiConfig } from '@lib/utils/wagmi'
-// import { User as PrivyUser } from '@privy-io/react-auth'
 import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
 import { User } from '@privy-io/server-auth'
 import { json, LoaderFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { getUser, requireUserWallet } from '@server/auth'
-import { publicClient } from '@server/viem'
-import { multicall } from '@wagmi/core'
-import { createClient, encodeFunctionData, http, toHex } from 'viem'
-import {
-  Config,
-  createConfig,
-  useAccount,
-  usePublicClient,
-  useWalletClient,
-} from 'wagmi'
+import { encodeFunctionData, toHex } from 'viem'
+import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
 
 function hasSmartWallet(user: User | null): boolean {
   if (!user) {
@@ -142,11 +132,7 @@ export default function Playground() {
   }>()
 
   const { client: smartWalletClient } = useSmartWallets()
-  const {
-    writeContractAsync: writeBatchCreateAtom,
-    awaitingWalletConfirmation,
-    awaitingOnChainConfirmation,
-  } = useBatchCreateAtomWagmi()
+  const { writeContractAsync: writeBatchCreateAtom } = useBatchCreateAtomWagmi()
 
   const { address } = useAccount()
   const { data: walletClient } = useWalletClient()
