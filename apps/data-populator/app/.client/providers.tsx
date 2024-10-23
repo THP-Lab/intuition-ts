@@ -21,7 +21,7 @@ const baseSepoliaOverride = addRpcUrlOverrideToChain(
 
 const privyConfig: PrivyClientConfig = {
   embeddedWallets: {
-    createOnLogin: 'all-users',
+    createOnLogin: 'users-without-wallets',
     requireUserPasswordOnCreate: false,
     noPromptOnSignature: false,
   },

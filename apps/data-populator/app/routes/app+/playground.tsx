@@ -6,13 +6,31 @@ import PrivyLogout from '@client/privy-logout'
 import { multivaultAbi } from '@lib/abis/multivault'
 import logger from '@lib/utils/logger'
 import { invariant } from '@lib/utils/misc'
-import { User as PrivyUser } from '@privy-io/react-auth'
+// import { User as PrivyUser } from '@privy-io/react-auth'
 import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
+import { User } from '@privy-io/server-auth'
 import { json, LoaderFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { getUser, requireUserWallet } from '@server/auth'
 import { encodeFunctionData, toHex } from 'viem'
 import { baseSepolia } from 'viem/chains'
+
+function hasSmartWallet(user: User | null): boolean {
+  if (!user) {
+    return false
+  }
+
+  if ('smartWallet' in user && user.smartWallet) {
+    return true
+  }
+
+  const externalWallet = user.linkedAccounts.find(
+    (account) =>
+      account.type === 'wallet' && account.connectorType === 'injected',
+  )
+
+  return !externalWallet
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
   logger('[Loader] Entering app loader')
@@ -22,6 +40,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   logger('wallet', wallet)
   logger('user', user)
   invariant(wallet, 'Unauthorized')
+
+  const userHasSmartWallet = hasSmartWallet(user)
+  logger('userHasSmartWallet', userHasSmartWallet)
 
   // const transactions = [
   //   {
@@ -65,6 +86,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     wallet,
     user,
     atomTransactions,
+    userHasSmartWallet,
   })
 }
 
@@ -74,12 +96,14 @@ type AtomTransaction = {
   value: string
 }
 export default function Playground() {
-  const { wallet, user, atomTransactions } = useLoaderData<{
+  const { wallet, user, atomTransactions, userHasSmartWallet } = useLoaderData<{
     wallet: string
-    user: PrivyUser
+    user: User
     atomTransactions: AtomTransaction[]
+    userHasSmartWallet: boolean
   }>()
 
+  logger('user has smart wallet', userHasSmartWallet)
   // const smartWallet = user.linkedAccounts.find(
   //   (account) => account.type === 'smart_wallet',
   // )
