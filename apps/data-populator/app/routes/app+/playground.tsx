@@ -3,17 +3,28 @@ import { useCallback, useMemo } from 'react'
 import { Button } from '@0xintuition/1ui'
 
 import PrivyLogout from '@client/privy-logout'
+import { MULTIVAULT_CONTRACT_ADDRESS } from '@consts/general'
 import { multivaultAbi } from '@lib/abis/multivault'
+import { useBatchCreateAtomWagmi } from '@lib/hooks/useBatchCreateAtomWagmi'
 import logger from '@lib/utils/logger'
 import { invariant } from '@lib/utils/misc'
+import { wagmiConfig } from '@lib/utils/wagmi'
 // import { User as PrivyUser } from '@privy-io/react-auth'
 import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
 import { User } from '@privy-io/server-auth'
 import { json, LoaderFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { getUser, requireUserWallet } from '@server/auth'
-import { encodeFunctionData, toHex } from 'viem'
-import { useAccount, useWalletClient } from 'wagmi'
+import { publicClient } from '@server/viem'
+import { multicall } from '@wagmi/core'
+import { createClient, encodeFunctionData, http, toHex } from 'viem'
+import {
+  Config,
+  createConfig,
+  useAccount,
+  usePublicClient,
+  useWalletClient,
+} from 'wagmi'
 
 function hasSmartWallet(user: User | null): boolean {
   if (!user) {
@@ -67,7 +78,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       data: encodeFunctionData({
         abi: multivaultAbi,
         functionName: 'batchCreateAtom',
-        args: [[toHex('jpTest7'), toHex('jpTest7b')]],
+        args: [[toHex('jpTest11'), toHex('jpTest11b')]],
       }),
       value: '600200002000000',
     },
@@ -76,16 +87,36 @@ export async function loader({ request }: LoaderFunctionArgs) {
       data: encodeFunctionData({
         abi: multivaultAbi,
         functionName: 'batchCreateAtom',
-        args: [[toHex('jojiTest7'), toHex('jojiTest7b')]],
+        args: [[toHex('jojiTest11'), toHex('jojiTest11b')]],
       }),
       value: '600200002000000',
     },
   ]
 
+  const atomWagmiTransactions = [
+    {
+      address: '0x1A6950807E33d5bC9975067e6D6b5Ea4cD661665', // multivault contract address
+      abi: multivaultAbi,
+      functionName: 'batchCreateAtom',
+      args: [[toHex('jpTest11'), toHex('jpTest11b')]],
+      value: '600200002000000',
+    },
+    {
+      address: '0x1A6950807E33d5bC9975067e6D6b5Ea4cD661665', // multivault contract address
+      abi: multivaultAbi,
+      functionName: 'batchCreateAtom',
+      args: [[toHex('jojiTest11'), toHex('jojiTest11b')]],
+      value: '600200002000000',
+    },
+  ]
+
+  logger('atomWagmiTransactions', atomWagmiTransactions)
+
   return json({
     wallet,
     user,
     atomTransactions,
+    atomWagmiTransactions,
     userHasSmartWallet,
   })
 }
@@ -96,17 +127,30 @@ type AtomTransaction = {
   value: string
 }
 export default function Playground() {
-  const { wallet, user, atomTransactions, userHasSmartWallet } = useLoaderData<{
+  const {
+    wallet,
+    user,
+    atomTransactions,
+    atomWagmiTransactions,
+    userHasSmartWallet,
+  } = useLoaderData<{
     wallet: string
     user: User
     atomTransactions: AtomTransaction[]
+    atomWagmiTransactions: any[]
     userHasSmartWallet: boolean
   }>()
 
   const { client: smartWalletClient } = useSmartWallets()
+  const {
+    writeContractAsync: writeBatchCreateAtom,
+    awaitingWalletConfirmation,
+    awaitingOnChainConfirmation,
+  } = useBatchCreateAtomWagmi()
 
   const { address } = useAccount()
   const { data: walletClient } = useWalletClient()
+  const publicClient = usePublicClient()
 
   const activeClient = useMemo(() => {
     return userHasSmartWallet ? smartWalletClient : walletClient
@@ -169,31 +213,66 @@ export default function Playground() {
   }, [activeClient, activeAddress, userHasSmartWallet])
 
   const sendBatchTx = useCallback(async () => {
-    if (!activeClient) {
-      console.error('No wallet client found')
+    if (!activeClient || !activeAddress) {
+      console.error('No active client or address found')
       return
     }
 
-    const txParams = atomTransactions.map((tx) => ({
-      to: tx.to as `0x${string}`,
-      data: tx.data as `0x${string}`,
-      value: BigInt(tx.value),
-    }))
+    try {
+      if (userHasSmartWallet && 'sendTransaction' in activeClient) {
+        const txHash = await activeClient.sendTransaction({
+          account: activeClient.account,
+          calls: atomTransactions.map((tx) => ({
+            to: tx.to as `0x${string}`,
+            data: tx.data as `0x${string}`,
+            value: BigInt(tx.value),
+          })),
+        })
+        logger('smart wallet batch txHash', txHash)
+      } else {
+        logger('non-smart wallet atom tx calls', atomTransactions)
+        logger('atomWagmiTransactions', atomWagmiTransactions)
 
-    let txHash
-    if (userHasSmartWallet) {
-      txHash = await activeClient.sendTransaction({
-        account: activeClient.account,
-        calls: txParams,
-      })
-    } else {
-      // For viem client, we need to send transactions one by one
-      for (const tx of txParams) {
-        txHash = await activeClient.sendTransaction(tx)
+        if (!publicClient) {
+          console.error('No public client found')
+          return
+        }
+
+        // Execute multiple transactions
+        const txHash1 = await writeBatchCreateAtom({
+          address: MULTIVAULT_CONTRACT_ADDRESS,
+          abi: multivaultAbi,
+          functionName: 'batchCreateAtom',
+          args: [[toHex('jpTest15'), toHex('jpTest15b')]],
+          value: BigInt('600200002000000') * BigInt(2),
+        })
+        logger('txHash1', txHash1)
+
+        // Wait for the first transaction to be mined
+        await publicClient.waitForTransactionReceipt({ hash: txHash1 })
+
+        // Execute the second transaction
+        const txHash2 = await writeBatchCreateAtom({
+          address: MULTIVAULT_CONTRACT_ADDRESS,
+          abi: multivaultAbi,
+          functionName: 'batchCreateAtom',
+          args: [[toHex('jojiTest15'), toHex('jojiTest15b')]],
+          value: BigInt('600200002000000') * BigInt(2),
+        })
+        logger('txHash2', txHash2)
       }
+    } catch (error) {
+      console.error('Error sending batch transaction:', error)
     }
-    logger('batch txHash', txHash)
-  }, [activeClient, atomTransactions, userHasSmartWallet])
+  }, [
+    activeClient,
+    activeAddress,
+    atomTransactions,
+    atomWagmiTransactions,
+    userHasSmartWallet,
+    publicClient,
+    writeBatchCreateAtom,
+  ])
 
   return (
     <div className="h-screen flex flex-col items-center">

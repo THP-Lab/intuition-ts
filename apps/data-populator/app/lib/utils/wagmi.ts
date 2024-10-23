@@ -1,6 +1,6 @@
-import { createConfig } from '@privy-io/wagmi'
+// import { createConfig } from '@privy-io/wagmi'
 import { base, baseSepolia } from 'viem/chains'
-import { Config, http } from 'wagmi'
+import { Config, createConfig, http } from 'wagmi'
 
 const alchemyBaseRpcUrl =
   typeof window !== 'undefined'
