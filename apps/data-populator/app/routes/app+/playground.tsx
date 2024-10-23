@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { Button } from '@0xintuition/1ui'
 
@@ -13,7 +13,7 @@ import { json, LoaderFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { getUser, requireUserWallet } from '@server/auth'
 import { encodeFunctionData, toHex } from 'viem'
-import { baseSepolia } from 'viem/chains'
+import { useAccount, useWalletClient } from 'wagmi'
 
 function hasSmartWallet(user: User | null): boolean {
   if (!user) {
@@ -103,63 +103,102 @@ export default function Playground() {
     userHasSmartWallet: boolean
   }>()
 
-  logger('user has smart wallet', userHasSmartWallet)
-  // const smartWallet = user.linkedAccounts.find(
-  //   (account) => account.type === 'smart_wallet',
-  // )
+  const { client: smartWalletClient } = useSmartWallets()
 
-  const { client } = useSmartWallets()
+  const { address } = useAccount()
+  const { data: walletClient } = useWalletClient()
 
-  logger('user', user)
+  const activeClient = useMemo(() => {
+    return userHasSmartWallet ? smartWalletClient : walletClient
+  }, [userHasSmartWallet, smartWalletClient, walletClient])
+
+  const activeAddress = useMemo(() => {
+    return userHasSmartWallet ? smartWalletClient?.account.address : address
+  }, [userHasSmartWallet, smartWalletClient, address])
+
+  const sendTx = useCallback(async () => {
+    if (!activeClient || !activeAddress) {
+      console.error('No active client or address found')
+      return
+    }
+
+    const txParams = {
+      to: '0x04EA475026a0AB3e280F749b206fC6332E6939F1' as `0x${string}`,
+      value: BigInt(500000000000000), // 0.0005 ETH in wei
+    }
+
+    try {
+      let txHash
+      if (userHasSmartWallet) {
+        txHash = await activeClient.sendTransaction({
+          account: activeClient.account,
+          ...txParams,
+        })
+      } else {
+        txHash = await activeClient.sendTransaction(txParams)
+      }
+      logger('txHash', txHash)
+    } catch (error) {
+      console.error('Error sending transaction:', error)
+    }
+  }, [activeClient, activeAddress, userHasSmartWallet])
+
+  const signMessage = useCallback(async () => {
+    if (!activeClient || !activeAddress) {
+      console.error('No active client or address found')
+      return
+    }
+
+    const message = 'Do u want to build a smart dapp?'
+    try {
+      let signature
+      if (userHasSmartWallet) {
+        signature = await activeClient.signMessage({
+          message,
+        })
+      } else {
+        signature = await activeClient.signMessage({
+          account: activeAddress,
+          message,
+        })
+      }
+      logger('signature', signature)
+    } catch (error) {
+      console.error('Error signing message:', error)
+    }
+  }, [activeClient, activeAddress, userHasSmartWallet])
 
   const sendBatchTx = useCallback(async () => {
-    if (!client) {
-      console.error('No smart account client found')
+    if (!activeClient) {
+      console.error('No wallet client found')
       return
     }
 
-    const txHash = await client.sendTransaction({
-      account: client.account,
-      calls: atomTransactions.map((tx) => ({
-        to: tx.to as `0x${string}`,
-        data: tx.data as `0x${string}`,
-        value: BigInt(tx.value),
-      })),
-    })
+    const txParams = atomTransactions.map((tx) => ({
+      to: tx.to as `0x${string}`,
+      data: tx.data as `0x${string}`,
+      value: BigInt(tx.value),
+    }))
+
+    let txHash
+    if (userHasSmartWallet) {
+      txHash = await activeClient.sendTransaction({
+        account: activeClient.account,
+        calls: txParams,
+      })
+    } else {
+      // For viem client, we need to send transactions one by one
+      for (const tx of txParams) {
+        txHash = await activeClient.sendTransaction(tx)
+      }
+    }
     logger('batch txHash', txHash)
-  }, [client, atomTransactions])
-
-  const sendTx = async () => {
-    if (!client) {
-      console.error('No smart account client found')
-      return
-    }
-
-    logger('client', client)
-    const txHash = await client.sendTransaction({
-      account: client.account,
-      chain: baseSepolia,
-      to: '0x25709998B542f1Be27D19Fa0B3A9A67302bc1b94',
-      value: BigInt(500000000000000), // 0.0005 ETH in wei
-    })
-
-    logger('txHash', txHash)
-  }
-
-  const signMessage = async () => {
-    if (!client) {
-      console.error('No smart account client found')
-      return
-    }
-
-    await client.signMessage({
-      message: 'Do u want to build a smart dapp?',
-    })
-  }
+  }, [activeClient, atomTransactions, userHasSmartWallet])
 
   return (
     <div className="h-screen flex flex-col items-center">
-      {/* <pre>Smart Wallet: {smartWallet?.address || ''}</pre> */}
+      <p>User has smart wallet: {userHasSmartWallet ? 'Yes' : 'No'}</p>
+      <p>Active address: {activeAddress}</p>
       <div className="flex items-center gap-2">
         <Button onClick={signMessage}>Sign Message</Button>
         <Button onClick={sendTx}>Send Tx</Button>
