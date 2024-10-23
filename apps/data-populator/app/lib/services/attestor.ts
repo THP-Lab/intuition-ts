@@ -11,17 +11,17 @@ import { base, baseSepolia } from 'viem/chains'
 import { callAndConfirm, EVMCallRequest, evmRead } from './evm'
 import { getAtomID } from './offchain-store'
 
-const environment = process.env.ENVIRONMENT
+const environment = import.meta.env.VITE_DEPLOY_ENV
 const rpc =
-  environment === 'dev'
+  environment === 'development'
     ? alchemyRpcUrlMap(baseSepolia.id)
     : alchemyRpcUrlMap(base.id)
 const attestorAddress =
-  environment === 'dev'
+  environment === 'development'
     ? attestorContractsMap(baseSepolia.id)
     : attestorContractsMap(base.id)
 const multivaultAddress =
-  environment === 'dev'
+  environment === 'development'
     ? multivaultContractsMap(baseSepolia.id) // dev contract address TODO: Duplicate to be cleaned up once everything is pulling from single source of truth
     : multivaultContractsMap(base.id) // prod contract address // TODO: Duplicate to be cleaned up once everything is pulling from single source of truth
 const additionalStakeAtom = process.env.ADDITIONAL_STAKE_ATOM
@@ -34,9 +34,7 @@ if (
   !multivaultAddress ||
   !additionalStakeTriple
 ) {
-  throw new Error(
-    'Missing required environment variables EVM_RPC, ATTEST_CONTRACT_ADDRESS, ADDITIONAL_STAKE_ATOM, MULTIVAULT_CONTRACT_ADDRESS, ADDITIONAL_STAKE_TRIPLE',
-  )
+  throw new Error('Missing required environment variables.')
 }
 
 const atomCostStr = await getAtomCost()

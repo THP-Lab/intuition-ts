@@ -30,8 +30,9 @@ const privyConfig: PrivyClientConfig = {
     theme: 'dark',
     showWalletLoginFirst: true,
   },
-  defaultChain: baseSepolia,
-  supportedChains: [baseSepoliaOverride, baseMainnetOverride], // TODO: Double check
+  defaultChain:
+    import.meta.env.VITE_DEPLOY_ENV === 'development' ? baseSepolia : base,
+  supportedChains: [baseSepoliaOverride, baseMainnetOverride],
 }
 
 export default function Providers({

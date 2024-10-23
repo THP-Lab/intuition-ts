@@ -22,29 +22,10 @@ services:
       - CLOUDINARY_API_SECRET
       - SUPABASE_URL
       - SUPABASE_KEY
-      - ENVIRONMENT
-      - ALCHEMY_API_KEY
-      - ALCHEMY_MAINNET_RPC_URL
-      - ALCHEMY_OP_SEPOLIA_RPC_URL
-      - WALLETCONNECT_PROJECT_ID
-      - API_URL=https://api.intuition.systems
-      - API_KEY
-      - AWS_SECRET_KEY
-      - AWS_ACCESS_KEY
-      - STORAGE_REGION
-      - STORAGE_BUCKET
-      - ADMIN_PRIVATE_KEY
-      - CLAIMR_AUTH_TOKEN
-      - CLAIMR_CAMPAIGN_ID
-      - ORIGIN_URL=https://portal.intuition.systems
+      - VITE_ALCHEMY_API_KEY
+      - VITE_ORIGIN_URL=https://portal.intuition.systems
       - PRIVY_APP_ID
       - PRIVY_AUTH_URL
       - PRIVY_APP_SECRET
-      - SENTRY_AUTH_TOKEN
-      - SENTRY_DSN
-      - SENTRY_ORG
-      - SENTRY_PROJECT
-      - VITE_DEPLOY_ENV=production
-      - FF_FULL_LOCKDOWN_ENABLED=false
-      - FF_INCIDENT_BANNER_ENABLED=false
-      - FF_GENERIC_BANNER_ENABLED=false
+      - PRIVY_VERIFICATION_KEY
+      - VITE_DEPLOY_ENV=development

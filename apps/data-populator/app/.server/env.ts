@@ -3,8 +3,8 @@ import { z } from 'zod'
 const schema = z.object({
   NODE_ENV: z.enum(['production', 'development'] as const), // remix only has development (local) and production (deployed)
   DEPLOY_ENV: z.enum(['production', 'staging', 'development'] as const), // based on the environment context
-  ALCHEMY_API_KEY: z.string(),
-  ORIGIN_URL: z.string(),
+  VITE_ALCHEMY_API_KEY: z.string(),
+  VITE_ORIGIN_URL: z.string(),
   PRIVY_APP_ID: z.string(),
 })
 
@@ -41,8 +41,8 @@ export function getEnv() {
   return {
     MODE: process.env.NODE_ENV,
     DEPLOY_ENV: process.env.DEPLOY_ENV,
-    ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY,
-    ORIGIN_URL: process.env.ORIGIN_URL,
+    VITE_ALCHEMY_API_KEY: import.meta.env.VITE_ALCHEMY_API_KEY,
+    VITE_ORIGIN_URL: import.meta.env.VITE_ORIGIN_URL,
     PRIVY_APP_ID: process.env.PRIVY_APP_ID,
   }
 }

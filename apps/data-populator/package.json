@@ -59,7 +59,6 @@
     "lucide-react": "^0.441.0",
     "morgan": "1.10.0",
     "multiformats": "^13.2.2",
-    "pnpm": "^9.12.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "remix-utils": "^7.6.0",
