@@ -3,10 +3,7 @@ import { z } from 'zod'
 const schema = z.object({
   NODE_ENV: z.enum(['production', 'development'] as const), // remix only has development (local) and production (deployed)
   DEPLOY_ENV: z.enum(['production', 'staging', 'development'] as const), // based on the environment context
-  ALCHEMY_BASE_SEPOLIA_RPC_URL: z.string(),
-  ALCHEMY_BASE_RPC_URL: z.string(),
-  MULTIVAULT_ADDRESS_BASE_SEPOLIA: z.string(),
-  MULTIVAULT_ADDRESS_BASE_MAINNET: z.string(),
+  ALCHEMY_API_KEY: z.string(),
   ORIGIN_URL: z.string(),
   PRIVY_APP_ID: z.string(),
 })
@@ -14,7 +11,7 @@ const schema = z.object({
 declare global {
   /* eslint-disable @typescript-eslint/no-namespace */
   namespace NodeJS {
-    interface ProcessEnv extends z.infer<typeof schema> {}
+    interface ProcessEnv extends z.infer<typeof schema> { }
   }
 }
 
@@ -44,12 +41,7 @@ export function getEnv() {
   return {
     MODE: process.env.NODE_ENV,
     DEPLOY_ENV: process.env.DEPLOY_ENV,
-    ALCHEMY_BASE_SEPOLIA_RPC_URL: process.env.ALCHEMY_BASE_SEPOLIA_RPC_URL,
-    ALCHEMY_BASE_RPC_URL: process.env.ALCHEMY_BASE_RPC_URL,
-    MULTIVAULT_ADDRESS_BASE_SEPOLIA:
-      process.env.MULTIVAULT_ADDRESS_BASE_SEPOLIA,
-    MULTIVAULT_ADDRESS_BASE_MAINNET:
-      process.env.MULTIVAULT_ADDRESS_BASE_MAINNET,
+    ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY,
     ORIGIN_URL: process.env.ORIGIN_URL,
     PRIVY_APP_ID: process.env.PRIVY_APP_ID,
   }

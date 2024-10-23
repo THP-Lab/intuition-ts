@@ -4,18 +4,20 @@ import { encodePacked, Hex, keccak256, toBytes, toHex } from 'viem'
 
 import { callAndConfirm, EVMCallRequest, evmRead } from './evm'
 import { getAtomID } from './offchain-store'
+import { multivaultContractsMap, alchemyRpcUrlMap, attestorContractsMap } from '@lib/utils/chains'
+import { base, baseSepolia } from 'viem/chains'
 
 const environment = process.env.ENVIRONMENT
 const rpc =
-  environment === 'dev' ? process.env.EVM_RPC_DEV : process.env.EVM_RPC
+  environment === 'dev' ? alchemyRpcUrlMap(baseSepolia.id) : alchemyRpcUrlMap(base.id)
 const attestorAddress =
   environment === 'dev'
-    ? process.env.ATTEST_CONTRACT_ADDRESS_DEV
-    : process.env.ATTEST_CONTRACT_ADDRESS
+    ? attestorContractsMap(baseSepolia.id)
+    : attestorContractsMap(base.id)
 const multivaultAddress =
   environment === 'dev'
-    ? process.env.MULTIVAULT_CONTRACT_ADDRESS_DEV
-    : process.env.MULTIVAULT_CONTRACT_ADDRESS
+    ? multivaultContractsMap(baseSepolia.id) // dev contract address TODO: Duplicate to be cleaned up once everything is pulling from single source of truth
+    : multivaultContractsMap(base.id) // prod contract address // TODO: Duplicate to be cleaned up once everything is pulling from single source of truth
 const additionalStakeAtom = process.env.ADDITIONAL_STAKE_ATOM
 const additionalStakeTriple = process.env.ADDITIONAL_STAKE_TRIPLE
 

@@ -1,38 +1,14 @@
 // import { createConfig } from '@privy-io/wagmi'
+import { createConfig } from '@privy-io/wagmi'
 import { base, baseSepolia } from 'viem/chains'
-import { Config, createConfig, http } from 'wagmi'
+import { Config } from 'wagmi'
+import { transportsMap } from './chains'
 
-const alchemyBaseRpcUrl =
-  typeof window !== 'undefined'
-    ? window.ENV?.ALCHEMY_BASE_RPC_URL
-    : process.env.ALCHEMY_BASE_RPC_URL
-
-const alchemyBaseSepoliaRpcUrl =
-  typeof window !== 'undefined'
-    ? window.ENV?.ALCHEMY_BASE_SEPOLIA_RPC_URL
-    : process.env.ALCHEMY_BASE_SEPOLIA_RPC_URL
-
-const originUrl =
-  typeof window !== 'undefined'
-    ? window.ENV?.ORIGIN_URL
-    : process.env.ORIGIN_URL
 
 export const wagmiConfig: Config = createConfig({
   chains: [base, baseSepolia],
   transports: {
-    [base.id]: http(alchemyBaseRpcUrl, {
-      fetchOptions: {
-        headers: {
-          Origin: originUrl,
-        },
-      },
-    }),
-    [baseSepolia.id]: http(alchemyBaseSepoliaRpcUrl, {
-      fetchOptions: {
-        headers: {
-          Origin: originUrl,
-        },
-      },
-    }),
+    [base.id]: transportsMap(base.id),
+    [baseSepolia.id]: transportsMap(baseSepolia.id),
   },
 })
