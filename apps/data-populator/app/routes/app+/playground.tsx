@@ -4,38 +4,16 @@ import { Button } from '@0xintuition/1ui'
 
 import PrivyLogout from '@client/privy-logout'
 import { multivaultAbi } from '@lib/abis/multivault'
+import { useUserClient } from '@lib/hooks/useUserWallet'
 import logger from '@lib/utils/logger'
 import { invariant } from '@lib/utils/misc'
-import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
+import { generateRandomAtoms } from '@lib/utils/mock'
 import { User } from '@privy-io/server-auth'
 import { json, LoaderFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { getUser, requireUserWallet } from '@server/auth'
-import { s } from 'node_modules/vite/dist/node/types.d-aGj9QkWt'
-import { encodeFunctionData, toHex } from 'viem'
-import {
-  useAccount,
-  usePublicClient,
-  useSendTransaction,
-  useWalletClient,
-} from 'wagmi'
-
-function hasSmartWallet(user: User | null): boolean {
-  if (!user) {
-    return false
-  }
-
-  if ('smartWallet' in user && user.smartWallet) {
-    return true
-  }
-
-  const externalWallet = user.linkedAccounts.find(
-    (account) =>
-      account.type === 'wallet' && account.connectorType === 'injected',
-  )
-
-  return !externalWallet
-}
+import { encodeFunctionData } from 'viem'
+import { useSendTransaction } from 'wagmi'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   logger('[Loader] Entering app loader')
@@ -45,9 +23,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   logger('wallet', wallet)
   logger('user', user)
   invariant(wallet, 'Unauthorized')
-
-  const userHasSmartWallet = hasSmartWallet(user)
-  logger('userHasSmartWallet', userHasSmartWallet)
 
   // const transactions = [
   //   {
@@ -65,6 +40,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // ]
 
   // when we want to interact with our contract, we'd do it with this format:
+  // generate 2 random
 
   const atomTransactions = [
     {
@@ -72,7 +48,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       data: encodeFunctionData({
         abi: multivaultAbi,
         functionName: 'batchCreateAtom',
-        args: [[toHex('jpTest20'), toHex('jpTest20b')]],
+        args: [generateRandomAtoms(2)],
       }),
       value: '600200002000000',
     },
@@ -81,7 +57,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       data: encodeFunctionData({
         abi: multivaultAbi,
         functionName: 'batchCreateAtom',
-        args: [[toHex('jojiTest20'), toHex('jojiTest20b')]],
+        args: [generateRandomAtoms(2)],
       }),
       value: '600200002000000',
     },
@@ -92,14 +68,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
       address: '0x1A6950807E33d5bC9975067e6D6b5Ea4cD661665', // multivault contract address
       abi: multivaultAbi,
       functionName: 'batchCreateAtom',
-      args: [[toHex('jpTest20'), toHex('jpTest20b')]],
+      args: [generateRandomAtoms(2)],
       value: '600200002000000',
     },
     {
       address: '0x1A6950807E33d5bC9975067e6D6b5Ea4cD661665', // multivault contract address
       abi: multivaultAbi,
       functionName: 'batchCreateAtom',
-      args: [[toHex('jojiTest20'), toHex('jojiTest20b')]],
+      args: [generateRandomAtoms(2)],
       value: '600200002000000',
     },
   ]
@@ -111,7 +87,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     user,
     atomTransactions,
     atomWagmiTransactions,
-    userHasSmartWallet,
   })
 }
 
@@ -121,30 +96,24 @@ type AtomTransaction = {
   value: string
 }
 export default function Playground() {
-  const { wallet, atomTransactions, userHasSmartWallet } = useLoaderData<{
+  const { wallet, atomTransactions } = useLoaderData<{
     wallet: string
     user: User
     atomTransactions: AtomTransaction[]
     atomWagmiTransactions: any[]
-    userHasSmartWallet: boolean
   }>()
 
-  const { client: smartWalletClient } = useSmartWallets()
-
-  const { address } = useAccount()
-  const { data: walletClient } = useWalletClient()
-  const publicClient = usePublicClient()
-
-  const activeClient = useMemo(() => {
-    return userHasSmartWallet ? smartWalletClient : walletClient
-  }, [userHasSmartWallet, smartWalletClient, walletClient])
-
-  const activeAddress = useMemo(() => {
-    return userHasSmartWallet ? smartWalletClient?.account.address : address
-  }, [userHasSmartWallet, smartWalletClient, address])
+  const {
+    smartWalletClient,
+    walletClient,
+    publicClient,
+    address,
+    isSmartWalletUser,
+    ready,
+  } = useUserClient()
 
   const sendTx = useCallback(async () => {
-    if (!activeClient || !activeAddress) {
+    if (!ready) {
       console.error('No active client or address found')
       return
     }
@@ -156,22 +125,26 @@ export default function Playground() {
 
     try {
       let txHash
-      if (userHasSmartWallet) {
-        txHash = await activeClient.sendTransaction({
-          account: activeClient.account,
+      if (isSmartWalletUser) {
+        txHash = await smartWalletClient.sendTransaction({
+          account: smartWalletClient.account,
           ...txParams,
         })
       } else {
-        txHash = await activeClient.sendTransaction(txParams)
+        txHash = await walletClient?.sendTransaction({
+          account: address as `0x${string}`,
+          chain: publicClient?.chain,
+          ...txParams,
+        })
       }
       logger('txHash', txHash)
     } catch (error) {
       console.error('Error sending transaction:', error)
     }
-  }, [activeClient, activeAddress, userHasSmartWallet])
+  }, [smartWalletClient, walletClient, address, isSmartWalletUser, ready])
 
   const signMessage = useCallback(async () => {
-    if (!activeClient || !activeAddress) {
+    if (!ready) {
       console.error('No active client or address found')
       return
     }
@@ -179,13 +152,13 @@ export default function Playground() {
     const message = 'Do u want to build a smart dapp?'
     try {
       let signature
-      if (userHasSmartWallet) {
-        signature = await activeClient.signMessage({
+      if (isSmartWalletUser) {
+        signature = await smartWalletClient.signMessage({
           message,
         })
       } else {
-        signature = await activeClient.signMessage({
-          account: activeAddress,
+        signature = await walletClient?.signMessage({
+          account: address as `0x${string}`,
           message,
         })
       }
@@ -193,20 +166,20 @@ export default function Playground() {
     } catch (error) {
       console.error('Error signing message:', error)
     }
-  }, [activeClient, activeAddress, userHasSmartWallet])
+  }, [smartWalletClient, walletClient, address, isSmartWalletUser, ready])
 
   const { data: sendTxHash, sendTransaction } = useSendTransaction()
 
   const sendBatchTx = useCallback(async () => {
-    if (!activeClient || !activeAddress || !publicClient) {
+    if (!ready) {
       console.error('No active client or address found')
       return
     }
 
     try {
-      if (userHasSmartWallet && 'sendTransaction' in activeClient) {
-        const txHash = await activeClient.sendTransaction({
-          account: activeClient.account,
+      if (isSmartWalletUser) {
+        const txHash = await smartWalletClient.sendTransaction({
+          account: smartWalletClient.account,
           calls: atomTransactions.map((tx) => ({
             to: tx.to as `0x${string}`,
             data: tx.data as `0x${string}`,
@@ -227,7 +200,7 @@ export default function Playground() {
 
           // Wait for the transaction to be mined
           if (sendTxHash) {
-            await publicClient.waitForTransactionReceipt({ hash: sendTxHash })
+            await publicClient?.waitForTransactionReceipt({ hash: sendTxHash })
           }
         }
       }
@@ -235,18 +208,21 @@ export default function Playground() {
       console.error('Error sending batch transaction:', error)
     }
   }, [
-    activeClient,
-    activeAddress,
+    smartWalletClient,
+    walletClient,
+    address,
+    isSmartWalletUser,
     atomTransactions,
-    userHasSmartWallet,
     publicClient,
     sendTransaction,
+    sendTxHash,
+    ready,
   ])
 
   return (
     <div className="h-screen flex flex-col items-center">
-      <p>User has smart wallet: {userHasSmartWallet ? 'Yes' : 'No'}</p>
-      <p>Active address: {activeAddress}</p>
+      <p>User has smart wallet: {isSmartWalletUser ? 'Yes' : 'No'}</p>
+      <p>Active address: {address}</p>
       <div className="flex items-center gap-2">
         <Button onClick={signMessage}>Sign Message</Button>
         <Button onClick={sendTx}>Send Tx</Button>
