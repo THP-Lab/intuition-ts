@@ -39,7 +39,11 @@ services:
         sync: false
       - key: VITE_ALCHEMY_API_KEY
         sync: false
+      - key: ALCHEMY_API_KEY
+        sync: false
       - key: VITE_ORIGIN_URL
+        value: https://portal.intuition.systems
+      - key: ORIGIN_URL
         value: https://portal.intuition.systems
       - key: PRIVY_APP_ID
         sync: false
