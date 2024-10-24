@@ -69,8 +69,8 @@ FROM base as build
 # Install nx globally
 RUN npm install -g nx@latest
 
-# # Install dependencies
-# RUN pnpm install --no-frozen-lockfile
+# Install dependencies
+RUN pnpm install
 
 # Build the data-populator app
 RUN pnpm run data-populator:build
