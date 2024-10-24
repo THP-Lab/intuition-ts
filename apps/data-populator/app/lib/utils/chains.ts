@@ -3,9 +3,17 @@ import { base, baseSepolia } from 'viem/chains'
 
 // these will always be available in the browser as they're bundled
 // we need to lock down the API KEY with the Origin URL and allowed domains
-const alchemyId = import.meta.env.VITE_ALCHEMY_API_KEY
+// const alchemyId = import.meta.env.VITE_ALCHEMY_API_KEY
 
-const originUrl = import.meta.env.VITE_ORIGIN_URL
+const alchemyId =
+  typeof window !== 'undefined'
+    ? import.meta.env.VITE_ALCHEMY_API_KEY
+    : process.env.ALCHEMY_API_KEY
+
+const originUrl =
+  typeof window !== 'undefined'
+    ? import.meta.env.VITE_ORIGIN_URL
+    : process.env.ORIGIN_URL
 
 export const orderedChains = [
   84532, // baseSepolia

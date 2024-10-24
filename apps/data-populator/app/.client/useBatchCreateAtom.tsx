@@ -13,7 +13,7 @@ import {
 import { Thing, WithContext } from 'schema-dts'
 import { useSendTransaction } from 'wagmi'
 
-import { useUserClient } from './useUserWallet'
+import { useUserClient } from '../lib/hooks/useUserWallet'
 
 type State = {
   requestHash: string
