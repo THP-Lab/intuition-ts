@@ -56,7 +56,7 @@ export default defineConfig({
       'wagmi',
       'mini-svg-data-uri',
       // /^@walletconnect\/.*/,
-      '@walletconnect/jsonrpc-ws-connection', 
+      '@walletconnect/jsonrpc-ws-connection',
     ],
   },
 })

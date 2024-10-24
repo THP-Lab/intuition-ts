@@ -44,20 +44,13 @@ import {
 import { convertCsvToSchemaObjects } from '@lib/utils/schema'
 import type { SortDirection } from '@lib/utils/sort'
 import { getNextSortDirection, sortData } from '@lib/utils/sort'
-import { User } from '@privy-io/server-auth'
-import {
-  json,
-  LoaderFunctionArgs,
-  type ActionFunctionArgs,
-} from '@remix-run/node'
+import { json, type ActionFunctionArgs } from '@remix-run/node'
 import {
   useActionData,
   useFetcher,
-  useLoaderData,
   useNavigation,
   useSubmit,
 } from '@remix-run/react'
-import { getUser } from '@server/auth'
 import { CheckCircle2, Loader2, Minus, Plus, Save, Search } from 'lucide-react'
 import { Thing, WithContext } from 'schema-dts'
 
@@ -104,13 +97,6 @@ export type LogTxActionData = {
 
 export type ErrorActionData = {
   error: string
-}
-
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const user = await getUser(request)
-
-  logger('user', user)
-  return json({ user })
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -190,10 +176,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function CSVEditor() {
   // State variables for managing CSV data, UI interactions, and atom-related operations
-
-  const { user } = useLoaderData<{
-    user: User
-  }>()
 
   const actionData = useActionData<ActionData>()
   const submit = useSubmit()
