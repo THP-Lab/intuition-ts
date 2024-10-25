@@ -24,8 +24,8 @@ const multivaultAddress =
   environment === 'development'
     ? multivaultContractsMap(baseSepolia.id) // dev contract address TODO: Duplicate to be cleaned up once everything is pulling from single source of truth
     : multivaultContractsMap(base.id) // prod contract address // TODO: Duplicate to be cleaned up once everything is pulling from single source of truth
-const additionalStakeAtom = process.env.ADDITIONAL_STAKE_ATOM
-const additionalStakeTriple = process.env.ADDITIONAL_STAKE_TRIPLE
+const additionalStakeAtom = import.meta.env.VITE_ADDITIONAL_STAKE_ATOM
+const additionalStakeTriple = import.meta.env.VITE_ADDITIONAL_STAKE_TRIPLE
 
 if (
   !rpc ||

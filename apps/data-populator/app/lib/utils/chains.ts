@@ -8,12 +8,12 @@ import { base, baseSepolia } from 'viem/chains'
 const alchemyId =
   typeof window !== 'undefined'
     ? import.meta.env.VITE_ALCHEMY_API_KEY
-    : process.env.ALCHEMY_API_KEY
+    : process.env.VITE_ALCHEMY_API_KEY
 
 const originUrl =
   typeof window !== 'undefined'
     ? import.meta.env.VITE_ORIGIN_URL
-    : process.env.ORIGIN_URL
+    : process.env.VITE_ORIGIN_URL
 
 export const orderedChains = [
   84532, // baseSepolia
