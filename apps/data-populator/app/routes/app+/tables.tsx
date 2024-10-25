@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 import { Button, ButtonSize, ButtonVariant } from '@0xintuition/1ui'
 
@@ -29,10 +29,19 @@ export default function Tables() {
     logger('Proofread result:', proofreadResult)
   }
 
+  const handleDataChange = (newData: Thing[]) => {
+    setThings(newData)
+    // You can also perform any additional actions here, like saving to a database
+  }
+
   return (
     <div className="container mx-auto p-4 space-y-6 relative">
       <UploadCsvButton onFileUpload={onFileUpload} />
-      <DataTable data={things} columns={columns} />
+      <DataTable
+        columns={columns}
+        data={things}
+        onDataChange={handleDataChange}
+      />
     </div>
   )
 }

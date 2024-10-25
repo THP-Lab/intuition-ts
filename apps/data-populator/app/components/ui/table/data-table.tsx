@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useCallback, useState } from 'react'
 
 import {
   Table,
@@ -33,6 +33,7 @@ import { DataTableToolbar } from './data-table-toolbar'
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  onDataChange: (newData: TData[]) => void
 }
 
 const getCommonPinningStyles = (column: Column<any>): CSSProperties => {
@@ -56,11 +57,28 @@ const getCommonPinningStyles = (column: Column<any>): CSSProperties => {
   }
 }
 
+function useSkipper() {
+  const shouldSkipRef = React.useRef(true)
+  const shouldSkip = shouldSkipRef.current
+
+  const skip = React.useCallback(() => {
+    shouldSkipRef.current = false
+  }, [])
+
+  React.useEffect(() => {
+    shouldSkipRef.current = true
+  })
+
+  return [shouldSkip, skip] as const
+}
+
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onDataChange,
 }: DataTableProps<TData, TValue>) {
   const [columnResizeMode] = React.useState<ColumnResizeMode>('onChange')
+  const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper()
 
   const table = useReactTable({
     data,
@@ -84,6 +102,22 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    autoResetPageIndex,
+    meta: {
+      updateData: (rowIndex: number, columnId: string, value: unknown) => {
+        skipAutoResetPageIndex()
+        onDataChange(
+          data.map((row, index) =>
+            index === rowIndex
+              ? {
+                  ...data[rowIndex],
+                  [columnId]: value,
+                }
+              : row,
+          ),
+        )
+      },
+    },
   })
 
   return (

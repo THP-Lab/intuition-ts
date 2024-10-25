@@ -43,7 +43,7 @@ export function DataTableColumnHeader<TData, TValue>({
             size={ButtonSize.md}
             className="px-0"
           >
-            <span>{title}</span>
+            <span className="text-xs uppercase tracking-widest">{title}</span>
             {column.getIsSorted() === 'desc' ? (
               <ArrowDownIcon className="h-4 w-4" />
             ) : column.getIsSorted() === 'asc' ? (
@@ -55,16 +55,16 @@ export function DataTableColumnHeader<TData, TValue>({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-            <ArrowUpIcon className="h-3.5 w-3.5 text-muted-foreground/70" />
+            <ArrowUpIcon className="h-3.5 w-3.5 mr-2 text-muted-foreground/70" />
             Asc
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-            <ArrowDownIcon className="h-3.5 w-3.5 text-muted-foreground/70" />
+            <ArrowDownIcon className="h-3.5 w-3.5  mr-2 text-muted-foreground/70" />
             Desc
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-            <EyeOff className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+            <EyeOff className="mr-2 h-3.5 w-3.5 mr-2 text-muted-foreground/70" />
             Hide
           </DropdownMenuItem>
           {column.getCanPin() && (
@@ -78,10 +78,12 @@ export function DataTableColumnHeader<TData, TValue>({
                 <PinIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
                 Pin Right
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => column.pin(false)}>
-                <PinIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
-                Unpin
-              </DropdownMenuItem>
+              {!!column.getIsPinned() && (
+                <DropdownMenuItem onClick={() => column.pin(false)}>
+                  <PinIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+                  Unpin
+                </DropdownMenuItem>
+              )}
             </>
           )}
         </DropdownMenuContent>
