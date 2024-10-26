@@ -6,5 +6,18 @@ query GetAtoms {
     creator {
       ...AccountMetadata
     }
+    ...AtomTriple
+  }
+}
+
+query GetAtom($id: numeric!) {
+  atom(id: $id) {
+    ...AtomMetadata
+    ...AtomTxn
+    ...AtomVaultDetails
+    creator {
+      ...AccountMetadata
+    }
+    ...AtomTriple
   }
 }

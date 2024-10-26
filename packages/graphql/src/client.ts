@@ -1,34 +1,46 @@
 import { GraphQLClient } from 'graphql-request'
 
-const API_URL = process.env.HASURA_PROJECT_ENDPOINT || ''
-// const HASURA_ADMIN_SECRET = process.env.HASURA_GRAPHQL_ADMIN_SECRET;
+// Define chain configurations using environment variables
+const CHAIN_CONFIGS = {
+  8453: process.env.BASE_GRAPHQL_URL || 'https://api.i7n.app/v1/graphql', // Base
+  84532:
+    process.env.BASE_SEPOLIA_GRAPHQL_URL || 'https://api.i7n.dev/v1/graphql', // Base Sepolia
+}
+
+type ChainId = keyof typeof CHAIN_CONFIGS
 
 type ClientParams = {
   token?: string
   userId?: string
+  chainId?: ChainId
 }
 
 const X_HASURA_USER_ID = 'x-hasura-user-id'
-// const X_HASURA_ADMIN_SECRET = 'x-hasura-admin-secret';
 
-const client = ({ token, userId }: ClientParams) => {
+const client = ({ token, userId, chainId }: ClientParams) => {
+  // Determine API_URL based on chainId or fallback to environment variable
+  const API_URL = chainId
+    ? CHAIN_CONFIGS[chainId]
+    : process.env.HASURA_PROJECT_ENDPOINT || ''
+
+  if (!API_URL) {
+    throw new Error(
+      'No API URL provided. Please specify a chainId or set HASURA_PROJECT_ENDPOINT.',
+    )
+  }
+
   const headers: {
     authorization?: string
     [X_HASURA_USER_ID]?: string
-    // [X_HASURA_ADMIN_SECRET]?: string;
   } = {}
 
   if (token) {
     headers.authorization = `Bearer ${token}`
 
-    // * Set matching session variables for Hasura where needed
     if (userId) {
       headers[X_HASURA_USER_ID] = userId
     }
   }
-  // if (HASURA_ADMIN_SECRET) {
-  //   headers[X_HASURA_ADMIN_SECRET] = HASURA_ADMIN_SECRET;
-  // }
 
   return new GraphQLClient(API_URL, { headers })
 }
