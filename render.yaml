@@ -7,8 +7,8 @@ services:
     dockerfilePath: ./apps/investor-landing/Dockerfile
     dockerContext: .
     buildFilter:
-    paths:
-        - apps/investor-landing/**  # Only deploy when files in this directory change
+      paths:
+      - apps/investor-landing/**  # Only deploy when files in this directory change
     envVars:
       - key: NODE_ENV
         value: production
