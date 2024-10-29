@@ -1,0 +1,13 @@
+query GetTriples {
+  triples {
+    ...TripleMetadata
+    ...TripleVaultDetails
+  }
+}
+
+query GetTriple($id: numeric!) {
+  triple(id: $id) {
+    ...TripleMetadata
+    ...TripleVaultDetails
+  }
+}
