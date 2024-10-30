@@ -6,7 +6,7 @@ query GetAccounts {
   }
 }
 
-query GetAccountInfo($address: String!) {
+query GetAccount($address: String!) {
   account(id: $address) {
     ...AccountMetadata
     ...AccountClaims
