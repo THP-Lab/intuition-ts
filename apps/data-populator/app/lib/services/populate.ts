@@ -228,6 +228,8 @@ export async function generateTagAtomsCallData(
   chunks: Triple[][]
   chunkSize: number
   calls: BatchTriplesRequest[]
+  filteredTriples: Triple[]
+  existingTriples: Triple[]
 }> {
   const atomExistsResults = await checkAtomsExist(atoms)
   const subjectIds = atomExistsResults.map((result) => result.atomId)
@@ -247,12 +249,21 @@ export async function generateTagAtomsCallData(
     }),
   )
 
-  const callData = await generateBatchTriplesCalldata(
+  const [filteredTriples, existingTriples] = await cullExistingTriples(
     triplesToGenerateCallDataFor,
+    100,
+  )
+
+  const callData = await generateBatchTriplesCalldata(
+    filteredTriples,
     requestHash,
   )
 
-  return callData
+  return {
+    ...callData,
+    filteredTriples,
+    existingTriples,
+  }
 }
 
 export interface PopulateAtomsResponse {
@@ -777,6 +788,7 @@ export async function logTransactionHashAndVerifyTriples(
 
     console.log('Done verifying and logging triples.')
     await pushUpdate(requestHash, 'Done verifying and logging triples.')
+    await updateRequest(requestHash, { status: 'fulfilled' })
 
     return response
   } catch (error) {

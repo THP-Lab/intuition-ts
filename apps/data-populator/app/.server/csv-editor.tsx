@@ -12,6 +12,7 @@ import {
   checkAtomsExist,
   createPopulateAtomsRequest,
   createTagAtomsRequest,
+  cullExistingTriples,
   generateBatchAtomsCalldata,
   generateTagAtomsCallData,
   getAtomDataFromID,
@@ -207,17 +208,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         formData.get('tag') as string,
       ) as WithContext<Thing>
 
-      const { calls, chunks, chunkSize } = await generateTagAtomsCallData(
-        selectedAtoms,
-        tag,
-        requestHash,
-      )
+      const { calls, chunks, chunkSize, filteredTriples, existingTriples } =
+        await generateTagAtomsCallData(selectedAtoms, tag, requestHash)
 
       return json({
         success: true,
         calls,
         chunks,
         chunkSize,
+        filteredTriples,
+        existingTriples,
       })
     }
 

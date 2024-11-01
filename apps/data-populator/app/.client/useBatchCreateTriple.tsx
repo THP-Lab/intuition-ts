@@ -333,8 +333,8 @@ export function useBatchCreateTriple() {
           type: 'SET_CALLS',
           payload: {
             calls: data.calls,
-            newTriples: data.newTriples,
-            existingTriples: data.existingTriples,
+            newTriples: data.newTriples || [],
+            existingTriples: data.existingTriples || [],
           },
         })
         dispatch({ type: 'SET_STEP', payload: 'sending' })
@@ -368,6 +368,7 @@ export function useBatchCreateTriple() {
         toast.success('Atom(s) tagged successfully', {
           duration: 5000,
         })
+        // Reset state
         dispatch({
           type: 'SET_CALLS',
           payload: {
@@ -377,7 +378,7 @@ export function useBatchCreateTriple() {
           },
         })
       } else {
-        console.error('Failed to tag atom(s):', data.error)
+        console.error('Failed to tag atom(s):', data.error) // Add error logging
         toast.error('Failed to tag atom(s). Please try again.', {
           duration: 5000,
         })

@@ -68,7 +68,7 @@ export async function createRequest(
  * @param updates - An object containing the fields to update.
  */
 export async function updateRequest(
-  hash: string,
+  hash: string | undefined,
   updates: Partial<
     Omit<
       RequestData,
@@ -125,8 +125,7 @@ export async function getRequest(
 
   if (error || !data) {
     throw new Error(
-      `Request not found or access denied: ${
-        error ? error.message : 'No data returned'
+      `Request not found or access denied: ${error ? error.message : 'No data returned'
       }`,
     )
   }
