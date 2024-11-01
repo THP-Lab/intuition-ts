@@ -172,6 +172,70 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return json({ success: true, atomExistsResults })
     }
 
+    case 'initiateTagRequest': {
+      const selectedRows = JSON.parse(
+        formData.get('selectedRows') as string,
+      ) as number[]
+      const selectedAtoms = JSON.parse(
+        formData.get('selectedAtoms') as string,
+      ) as WithContext<Thing>[]
+      const tag = JSON.parse(
+        formData.get('tag') as string,
+      ) as WithContext<Thing>
+
+      const requestHash = await createTagAtomsRequest(selectedAtoms, tag)
+
+      return json({
+        success: true,
+        requestHash,
+        selectedRows,
+        selectedAtoms,
+        tag,
+      })
+    }
+
+    case 'publishTriples': {
+      const requestHash = formData.get('requestHash') as string
+      const selectedAtoms = JSON.parse(
+        formData.get('selectedAtoms') as string,
+      ) as WithContext<Thing>[]
+      const tag = JSON.parse(
+        formData.get('tag') as string,
+      ) as WithContext<Thing>
+
+      const { calls, newTriples, existingTriples } =
+        await generateTagAtomsCallData(selectedAtoms, tag, requestHash)
+
+      return json({
+        success: true,
+        calls,
+        newTriples,
+        existingTriples,
+      })
+    }
+
+    case 'logTxHashAndVerifyTriples': {
+      const txHash = formData.get('txHash') as string
+      const requestHash = formData.get('requestHash') as string
+      const newTriples = JSON.parse(
+        formData.get('newTriples') as string,
+      ) as Triple[]
+      const existingTriples = JSON.parse(
+        formData.get('existingTriples') as string,
+      ) as Triple[]
+      const msgSender = formData.get('msgSender') as `0x${string}`
+
+      const result = await logTransactionHashAndVerifyTriples(
+        txHash,
+        newTriples,
+        existingTriples,
+        msgSender,
+        requestHash,
+      )
+
+      return json({ success: true, ...result })
+    }
+
     default:
       return json({ error: 'Invalid action' }, { status: 400 })
   }

@@ -19,6 +19,7 @@ import {
 } from '@0xintuition/1ui'
 
 import { useBatchCreateAtom } from '@client/useBatchCreateAtom'
+import { useBatchCreateTriple } from '@client/useBatchCreateTriple'
 import { ProgressModal } from '@components/progress-modal'
 import { ProofreadModal } from '@components/proofread-modal'
 import { Progress } from '@components/ui/progress'
@@ -232,6 +233,17 @@ export default function CSVEditor() {
 
   const { step, requestHash, isLoading, initiateBatchRequest } =
     useBatchCreateAtom()
+
+  const {
+    step: tagStep,
+    requestHash: tagRequestHash,
+    isLoading: isTagLoading,
+    initiateTagRequest,
+  } = useBatchCreateTriple()
+
+  // Add this state near other state declarations
+  const [tagExists, setTagExists] = useState(false)
+  const [isCheckingTag, setIsCheckingTag] = useState(false)
 
   // Function to load thumbnails for image URLs in the CSV data
   const loadThumbnailsForCSV = useCallback(async (data: string[][]) => {
@@ -543,47 +555,16 @@ export default function CSVEditor() {
 
   // Function to determine the text for the create/tag atoms button
   const getCreateTagButtonText = useCallback(() => {
-    const selectedAtomsExist = selectedRows.every((rowIndex) =>
-      existingAtoms.has(rowIndex),
-    )
-    const selectedAtomsNotExist = selectedRows.every(
-      (rowIndex) => !existingAtoms.has(rowIndex),
-    )
-
-    if (selectedAtomsExist) {
-      return 'Tag Selected Atoms'
-    }
-    if (selectedAtomsNotExist) {
-      return 'Create and Tag Selected Atoms'
-    }
-    return 'Create / Tag Selected Atoms'
-  }, [selectedRows, existingAtoms])
+    return 'Tag Selected Atoms'
+  }, [])
 
   // Function to handle creating and tagging atoms
   const handleCreateAndTagAtoms = () => {
     showConfirmModal(
-      `${getCreateTagButtonText()}?  This will take up to a minute or two.`,
+      'Tag Selected Atoms?  This will take up to a minute or two.',
       (confirm) => {
         if (confirm) {
-          setIsTagging(true)
-          const tag = {
-            '@context': newTag['@context'],
-            '@type': newTag['@type'],
-            name: newTag.name,
-            description: newTag.description,
-            image: newTag.image,
-            url: newTag.url,
-          }
-
-          submit(
-            {
-              action: 'createAndTagAtoms',
-              selectedRows: JSON.stringify(selectedRows),
-              csvData: JSON.stringify(csvData),
-              tag: JSON.stringify(tag),
-            },
-            { method: 'post' },
-          )
+          initiateTagRequest(selectedRows, selectedAtoms, newTag)
         }
       },
     )
@@ -817,6 +798,94 @@ export default function CSVEditor() {
     }
   }, [actionData])
 
+  // Add this function to handle tag creation
+  const handleCreateTag = useCallback(() => {
+    const tagAtom = {
+      '@context': newTag['@context'],
+      '@type': newTag['@type'],
+      name: newTag.name,
+      description: newTag.description,
+      image: newTag.image,
+      url: newTag.url,
+    }
+
+    showConfirmModal(
+      'Create tag as atom? This will take about a minute.',
+      (confirm) => {
+        if (confirm) {
+          // Use the existing batch create flow with just one atom
+          initiateBatchRequest(
+            [0],
+            [
+              ['@context', '@type', 'name', 'description', 'image', 'url'],
+              [
+                tagAtom['@context'],
+                tagAtom['@type'],
+                tagAtom.name,
+                tagAtom.description,
+                tagAtom.image,
+                tagAtom.url,
+              ],
+            ],
+          )
+        }
+      },
+    )
+  }, [newTag, initiateBatchRequest, showConfirmModal])
+
+  // Add this function to check if tag exists
+  const checkTagExists = useCallback(async () => {
+    if (!newTag.name) {
+      return
+    }
+
+    setIsCheckingTag(true)
+    const formData = new FormData()
+    formData.append('action', 'checkAtomExists')
+    formData.append(
+      'csvData',
+      JSON.stringify([
+        ['@context', '@type', 'name', 'description', 'image', 'url'],
+        [
+          newTag['@context'],
+          newTag['@type'],
+          newTag.name,
+          newTag.description,
+          newTag.image,
+          newTag.url,
+        ],
+      ]),
+    )
+    formData.append('index', '0')
+
+    try {
+      const response = await fetch('/api/csv-editor', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success && result.atomExistsResults) {
+          setTagExists(result.atomExistsResults[0].alreadyExists)
+        }
+      }
+    } catch (error) {
+      console.error('Error checking tag existence:', error)
+    } finally {
+      setIsCheckingTag(false)
+    }
+  }, [newTag])
+
+  // Add this effect to check tag existence when tag fields change
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      checkTagExists()
+    }, 500) // Debounce the check
+
+    return () => clearTimeout(timeoutId)
+  }, [newTag, checkTagExists])
+
   // The main render function, containing the UI structure
   return (
     <>
@@ -1001,7 +1070,14 @@ export default function CSVEditor() {
 
         {/* Tag creation section */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Create a Tag</h3>
+          <div className="flex items-center space-x-2">
+            <h3 className="text-lg font-semibold">Create a Tag</h3>
+            {isCheckingTag ? (
+              <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
+            ) : tagExists ? (
+              <CheckCircle2 className="text-green-500 w-5 h-5" />
+            ) : null}
+          </div>
           <div className="grid grid-cols-2 gap-4">
             {Object.keys(newTag).map((key) => (
               <div key={key}>
@@ -1039,6 +1115,21 @@ export default function CSVEditor() {
                 </>
               ) : (
                 getCreateTagButtonText()
+              )}
+            </Button>
+            <Button
+              onClick={handleCreateTag}
+              disabled={
+                !newTag.name || isLoading || navigation.state === 'submitting'
+              }
+            >
+              {isLoading || navigation.state === 'submitting' ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                'Create Tag'
               )}
             </Button>
           </div>
@@ -1089,13 +1180,12 @@ export default function CSVEditor() {
       </div>
 
       <ProgressModal
-        isOpen={isLoading}
+        isOpen={isLoading || isTagLoading}
         onClose={() => {
-          // You might want to handle this differently, perhaps by cancelling the operation
           console.log('Progress modal closed')
         }}
-        step={step}
-        requestHash={requestHash}
+        step={isTagLoading ? tagStep : step}
+        requestHash={isTagLoading ? tagRequestHash : requestHash}
       />
 
       <ProofreadModal
