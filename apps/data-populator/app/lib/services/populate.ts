@@ -8,6 +8,7 @@ import { Thing, WithContext } from 'schema-dts'
 import { encodeFunctionData, parseUnits, toHex } from 'viem'
 
 import {
+  atomValue,
   batchCreateAtomRequest,
   batchCreateAtoms,
   batchCreateTripleRequest,
@@ -15,6 +16,7 @@ import {
   checkAtomExists,
   getOrCreateAtom,
   getOrCreateTriple,
+  tripleValue,
 } from './attestor'
 import { precomputeCID } from './cid'
 import { estimateGas, getSender } from './evm'
@@ -29,18 +31,18 @@ import { pinataPinJSON } from './pinata'
 import { createRequest, pushUpdate, updateRequest } from './request'
 import { appendToAtomLog, appendToTripleLog } from './supabase'
 
-export async function populateAtom(obj: any) {
-  try {
-    const msgSender = await getSender()
-    const [filteredObj, cid] = await pinAtomData(obj)
-    obj = filteredObj
-    const [atomID, txID] = await getOrCreateAtom(`ipfs://${cid}`)
-    await appendToAtomLog(atomID, cid, txID, obj, msgSender)
-    return atomID
-  } catch (error) {
-    console.error('Error populating atom:', error)
-  }
-}
+// export async function populateAtom(obj: any) {
+//   try {
+//     const msgSender = await getSender()
+//     const [filteredObj, cid] = await pinAtomData(obj)
+//     obj = filteredObj
+//     const [atomID, txID] = await getOrCreateAtom(`ipfs://${cid}`)
+//     await appendToAtomLog(atomID, cid, txID, obj, msgSender)
+//     return atomID
+//   } catch (error) {
+//     console.error('Error populating atom:', error)
+//   }
+// }
 
 export async function pinAtomData(obj: any, requestHash?: string) {
   try {
@@ -169,6 +171,11 @@ export interface PopulateAndTagAtomsResponse {
   existingTripleIds: string[]
 }
 
+export interface TagAtomsResponse {
+  newTripleIds: string[]
+  existingTripleIds: string[]
+}
+
 export async function requestPopulateAndTagAtoms(
   atoms: any[],
   tag: WithContext<Thing>,
@@ -213,21 +220,69 @@ export async function populateAndTagAtoms(
   return response
 }
 
+export async function generateTagAtomsCallData(
+  atoms: any[],
+  tag: WithContext<Thing>,
+  requestHash?: string,
+): Promise<{
+  chunks: Triple[][]
+  chunkSize: number
+  calls: BatchTriplesRequest[]
+}> {
+  const atomExistsResults = await checkAtomsExist(atoms)
+  const subjectIds = atomExistsResults.map((result) => result.atomId)
+
+  // If keyword tag doesn't exist, we can create it with our own signer
+  // It should always exist though
+  const [predicateId] = await getOrCreateAtom('https://schema.org/keywords')
+
+  const tagExistsResult = await checkAtomsExist([tag])
+  const objectId = tagExistsResult[0].atomId
+
+  const triplesToGenerateCallDataFor: Triple[] = subjectIds.map(
+    (subjectId) => ({
+      subjectId: subjectId as string,
+      predicateId,
+      objectId: objectId as string,
+    }),
+  )
+
+  const callData = await generateBatchTriplesCalldata(
+    triplesToGenerateCallDataFor,
+    requestHash,
+  )
+
+  return callData
+}
+
 export interface PopulateAtomsResponse {
   newAtomIDs: string[]
   existingAtomIDs: string[]
 }
 
-export async function requestPopulateAtoms(atoms: any[]) {
-  const msgSender = await getSender()
-  const requestHash = await createRequest(atoms, msgSender, 'createAtoms')
-  populateAtoms(atoms, requestHash, true)
-  return requestHash
-}
+// export async function requestPopulateAtoms(atoms: any[]) {
+//   const msgSender = await getSender()
+//   const requestHash = await createRequest(atoms, msgSender, 'createAtoms')
+//   populateAtoms(atoms, requestHash, true)
+//   return requestHash
+// }
 
 export async function createPopulateAtomsRequest(atoms: any[]) {
   const msgSender = await getSender()
   const requestHash = await createRequest(atoms, msgSender, 'createAtoms')
+  return requestHash
+}
+
+export async function createTagAtomsRequest(
+  atoms: any[],
+  tag: WithContext<Thing>,
+) {
+  const msgSender = await getSender()
+  const requestHash = await createRequest(
+    [tag, ...atoms],
+    msgSender,
+    'createTriples',
+  )
   return requestHash
 }
 
@@ -259,7 +314,7 @@ export async function pinAtoms(
   return { existingCIDs, newCIDs, filteredData, existingData }
 }
 
-export async function buildChunks(
+export async function buildBatchCreateAtomChunks(
   cids: string[],
   requestHash?: string,
 ): Promise<{ chunks: string[][]; chunkSize: number }> {
@@ -340,7 +395,6 @@ export type BatchAtomsRequest = {
 export function getBatchAtomsCall(
   cids: string[],
 ): BatchAtomsRequest | undefined {
-  const minDeposit = parseUnits(MIN_DEPOSIT, 18).toString()
   if (cids.length !== 0) {
     return {
       to: MULTIVAULT_CONTRACT_ADDRESS as `0x${string}`,
@@ -349,7 +403,32 @@ export function getBatchAtomsCall(
         functionName: 'batchCreateAtom',
         args: [cids.map((cid) => toHex(cid))],
       }),
-      value: (BigInt(minDeposit) * BigInt(cids.length)).toString(),
+      value: (BigInt(atomValue) * BigInt(cids.length)).toString(),
+    }
+  }
+}
+
+export type BatchTriplesRequest = {
+  to: `0x${string}`
+  data: `0x${string}`
+  value: string
+}
+export function getBatchTriplesCall(
+  triples: Triple[],
+): BatchTriplesRequest | undefined {
+  if (triples.length !== 0) {
+    return {
+      to: MULTIVAULT_CONTRACT_ADDRESS as `0x${string}`,
+      data: encodeFunctionData({
+        abi: multivaultAbi,
+        functionName: 'batchCreateTriple',
+        args: [
+          triples.map((triple) => BigInt(triple.subjectId)),
+          triples.map((triple) => BigInt(triple.predicateId)),
+          triples.map((triple) => BigInt(triple.objectId)),
+        ],
+      }),
+      value: (BigInt(tripleValue) * BigInt(triples.length)).toString(),
     }
   }
 }
@@ -362,7 +441,10 @@ export async function generateBatchAtomsCalldata(
   chunkSize: number
   calls: BatchAtomsRequest[]
 }> {
-  const { chunks, chunkSize } = await buildChunks(cids, requestHash)
+  const { chunks, chunkSize } = await buildBatchCreateAtomChunks(
+    cids,
+    requestHash,
+  )
   const calls = chunks
     .map((batch) => getBatchAtomsCall(batch))
     .filter((call): call is BatchAtomsRequest => call !== undefined)
@@ -374,6 +456,108 @@ export async function generateBatchAtomsCalldata(
     )
   }
   return { chunks, chunkSize, calls }
+}
+
+async function generateBatchTriplesCalldata(
+  triples: Triple[],
+  requestHash?: string,
+): Promise<{
+  chunks: Triple[][]
+  chunkSize: number
+  calls: BatchTriplesRequest[]
+}> {
+  const { chunks, chunkSize } = await buildBatchCreateTripleChunks(
+    triples,
+    requestHash,
+  )
+  const calls = chunks
+    .map((batch) => getBatchTriplesCall(batch))
+    .filter((call): call is BatchTriplesRequest => call !== undefined)
+
+  if (calls.length > 0) {
+    await pushUpdate(
+      requestHash,
+      `\nGenerated ${calls.length} batch triple calls:\n${calls.map((call) => call.data).join('\n')}`,
+    )
+  }
+  return { chunks, chunkSize, calls }
+}
+
+async function buildBatchCreateTripleChunks(
+  triples: Triple[],
+  requestHash?: string,
+): Promise<{ chunks: Triple[][]; chunkSize: number }> {
+  console.log('Processing batch triples:', triples)
+  await pushUpdate(requestHash, `Processing batch triples: ${triples}`)
+  if (triples.length === 0) {
+    await pushUpdate(requestHash, 'No new triples to create')
+    console.log('No new triples to create')
+    return { chunks: [], chunkSize: 0 }
+  }
+
+  // Attempt static execution in iteratively smaller chunks until it either succeeds or we have reason to believe the revert is not due to out of gas
+  console.log('Predetermining number of chunks to process batch triples...')
+  await pushUpdate(
+    requestHash,
+    'Predetermining number of chunks to process batch triples...',
+  )
+
+  let numChunks = 1
+
+  if (triples.length > 1) {
+    let staticExecutionReverted = true
+    let latestBatch: Triple[] = [] // for debugging
+    while (staticExecutionReverted && numChunks < triples.length) {
+      try {
+        const chunkSize = Math.ceil(triples.length / numChunks)
+        const chunks = chunk(triples, chunkSize)
+        for (const batch of chunks) {
+          latestBatch = batch // for debugging
+          const request = batchCreateTripleRequest(
+            batch.map((triple) => triple.subjectId),
+            batch.map((triple) => triple.predicateId),
+            batch.map((triple) => triple.objectId),
+          )
+          const gasEstimate = await estimateGas(request)
+          if (gasEstimate > 30000000) {
+            throw new Error(
+              'Gas estimate for batch triples will likely exceed block gas limit',
+            )
+          }
+        }
+        staticExecutionReverted = false
+      } catch (error) {
+        console.log(
+          'Batch failed gas estimation, chunking further: ',
+          latestBatch,
+        )
+        await pushUpdate(requestHash, `Reducing chunks: ${latestBatch}`)
+        numChunks++
+      }
+    }
+
+    if (staticExecutionReverted) {
+      await pushUpdate(
+        requestHash,
+        'static execution reverted with chunk size of 1',
+      )
+      throw new Error('static execution reverted with chunk size of 1')
+    }
+  }
+
+  const chunkSize = Math.ceil(triples.length / numChunks)
+  const chunks = chunk(triples, chunkSize)
+  console.log('Number of batch triple chunks: ', numChunks)
+  await pushUpdate(requestHash, `Number of batch triple chunks: ${numChunks}`)
+  console.log(
+    'Chunk lengths: ',
+    chunks.map((chunk) => chunk.length),
+  )
+  await pushUpdate(
+    requestHash,
+    `Chunk lengths: ${chunks.map((chunk) => chunk.length)}`,
+  )
+  return { chunks, chunkSize }
 }
 
 export async function populateAtoms(
@@ -541,6 +725,70 @@ export async function logTransactionHashAndVerifyAtoms(
   return { newAtomIDs, existingAtomIDs } as PopulateAtomsResponse
 }
 
+export interface LogAndVerifyTriplesResponse {
+  newTripleIds: string[]
+  existingTripleIds: string[]
+}
+
+export async function logTransactionHashAndVerifyTriples(
+  txHash: string,
+  newTriples: Triple[],
+  existingTriples: Triple[],
+  msgSender: `0x${string}`,
+  requestHash?: string,
+): Promise<LogAndVerifyTriplesResponse> {
+  const response: LogAndVerifyTriplesResponse = {
+    newTripleIds: [],
+    existingTripleIds: [],
+  }
+
+  try {
+    console.log(`Logging transaction hash: ${txHash}`)
+    await pushUpdate(requestHash, `Logging transaction hash: ${txHash}`)
+
+    // Verify new triple IDs
+    console.log('Verifying new triple IDs...')
+    await pushUpdate(requestHash, 'Verifying new triple IDs...')
+    const verifiedTriples = await getTripleIdsFromTripleData(newTriples, 100)
+    response.newTripleIds = verifiedTriples.map(
+      (triple) => triple.tripleId,
+    ) as string[]
+
+    // Log new triples to database
+    console.log('Logging new triples to database...')
+    await pushUpdate(requestHash, 'Logging new triples to database...')
+    for (const triple of verifiedTriples) {
+      await appendToTripleLog(
+        triple.tripleId as string,
+        txHash,
+        triple.subjectId,
+        triple.predicateId,
+        triple.objectId,
+        msgSender,
+      )
+    }
+
+    // Handle existing triples
+    console.log('Processing existing triples...')
+    await pushUpdate(requestHash, 'Processing existing triples...')
+    response.existingTripleIds = existingTriples.map(
+      (triple) => triple.tripleId,
+    ) as string[]
+
+    console.log('Done verifying and logging triples.')
+    await pushUpdate(requestHash, 'Done verifying and logging triples.')
+
+    return response
+  } catch (error) {
+    console.error('Error logging and verifying triples:', error)
+    await pushUpdate(
+      requestHash,
+      `Error logging and verifying triples: ${error}`,
+    )
+    throw error
+  }
+}
+
 export async function checkAtomsExist(
   atoms: any[],
 ): Promise<AtomExistsResult[]> {
@@ -586,9 +834,9 @@ export async function prepareTag(
     : null
   requestHash
     ? await pushUpdate(
-        requestHash,
-        `Keywords Predicate Atom ID: ${keywordsPredicateAtomID}`,
-      )
+      requestHash,
+      `Keywords Predicate Atom ID: ${keywordsPredicateAtomID}`,
+    )
     : null
 
   return [keywordsPredicateAtomID, tagAtomID]
@@ -699,9 +947,9 @@ export async function pinAllData(
   // Process duplicate atoms after unique atoms
   requestHash
     ? await pushUpdate(
-        requestHash,
-        'Pinning atom data with duplicate images...',
-      )
+      requestHash,
+      'Pinning atom data with duplicate images...',
+    )
     : null
   const duplicatePinnedData = await processAtomDataBatches(
     duplicateAtoms,
@@ -1001,9 +1249,9 @@ export async function processBatchAtoms(
   console.log('Predetermining number of chunks to process batch atoms...')
   requestHash
     ? await pushUpdate(
-        requestHash,
-        'Predetermining number of chunks to process batch atoms...',
-      )
+      requestHash,
+      'Predetermining number of chunks to process batch atoms...',
+    )
     : null
   let numChunks = 1
 
@@ -1040,9 +1288,9 @@ export async function processBatchAtoms(
     if (staticExecutionReverted) {
       requestHash
         ? await pushUpdate(
-            requestHash,
-            'static execution reverted with chunk size of 1',
-          )
+          requestHash,
+          'static execution reverted with chunk size of 1',
+        )
         : null
       throw new Error('static execution reverted with chunk size of 1')
     }
@@ -1057,9 +1305,9 @@ export async function processBatchAtoms(
     console.log('Number of batch atom chunks: ', numChunks)
     requestHash
       ? await pushUpdate(
-          requestHash,
-          `Number of batch atom chunks: ${numChunks}`,
-        )
+        requestHash,
+        `Number of batch atom chunks: ${numChunks}`,
+      )
       : null
     console.log(
       'Chunk lengths: ',
@@ -1067,9 +1315,9 @@ export async function processBatchAtoms(
     )
     requestHash
       ? await pushUpdate(
-          requestHash,
-          `Chunk lengths: ${chunks.map((chunk) => chunk.length)}`,
-        )
+        requestHash,
+        `Chunk lengths: ${chunks.map((chunk) => chunk.length)}`,
+      )
       : null
     for (const batch of chunks) {
       lastChunkForDebug = batch
@@ -1113,9 +1361,9 @@ export async function processBatchTriples(
     console.log('Predetermining number of chunks to process batch triples...')
     requestHash
       ? await pushUpdate(
-          requestHash,
-          'Predetermining number of chunks to process batch triples...',
-        )
+        requestHash,
+        'Predetermining number of chunks to process batch triples...',
+      )
       : null
     while (staticExecutionReverted && numChunks < triples.length) {
       try {
@@ -1151,9 +1399,9 @@ export async function processBatchTriples(
     if (staticExecutionReverted) {
       requestHash
         ? await pushUpdate(
-            requestHash,
-            'static execution reverted with chunk size of 1',
-          )
+          requestHash,
+          'static execution reverted with chunk size of 1',
+        )
         : null
       throw new Error('static execution reverted with chunk size of 1')
     }
@@ -1168,9 +1416,9 @@ export async function processBatchTriples(
     console.log('Number of batch triple chunks: ', numChunks)
     requestHash
       ? await pushUpdate(
-          requestHash,
-          `Number of batch triple chunks: ${numChunks}`,
-        )
+        requestHash,
+        `Number of batch triple chunks: ${numChunks}`,
+      )
       : null
     console.log(
       'Chunk lengths: ',
@@ -1178,9 +1426,9 @@ export async function processBatchTriples(
     )
     requestHash
       ? await pushUpdate(
-          requestHash,
-          `Chunk lengths: ${chunks.map((chunk) => chunk.length)}`,
-        )
+        requestHash,
+        `Chunk lengths: ${chunks.map((chunk) => chunk.length)}`,
+      )
       : null
     for (const batch of chunks) {
       lastChunkForDebug = batch
@@ -1200,9 +1448,9 @@ export async function processBatchTriples(
     console.error('Error processing batch triples...', lastChunkForDebug)
     requestHash
       ? await pushUpdate(
-          requestHash,
-          `Error processing batch triples: ${error}`,
-        )
+        requestHash,
+        `Error processing batch triples: ${error}`,
+      )
       : null
     return result
   }
