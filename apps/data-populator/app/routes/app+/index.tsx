@@ -26,8 +26,11 @@ import { Progress } from '@components/ui/progress'
 import {
   BatchAtomsRequest,
   createPopulateAtomsRequest,
+  createTagAtomsRequest,
   generateBatchAtomsCalldata,
+  generateTagAtomsCallData,
   logTransactionHashAndVerifyAtoms,
+  logTransactionHashAndVerifyTriples,
   pinAtoms,
   PinDataResult,
 } from '@lib/services/populate'
@@ -119,8 +122,38 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         const requestHash = await createPopulateAtomsRequest(selectedAtoms)
         logger(`Initiated batch atom request with hash: ${requestHash}`)
         logger(`Selected rows: ${selectedRows}`)
-        return json({ success: true, requestHash, selectedRows, selectedAtoms })
+        return json({
+          success: true,
+          requestHash,
+          selectedRows,
+          selectedAtoms,
+          csvData,
+        })
       }
+
+      case 'initiateBatchTripleRequest': {
+        const selectedRows = JSON.parse(
+          formData.get('selectedRows') as string,
+        ) as number[]
+        const selectedAtoms = JSON.parse(
+          formData.get('selectedAtoms') as string,
+        ) as WithContext<Thing>[]
+        const tag = JSON.parse(
+          formData.get('tag') as string,
+        ) as WithContext<Thing>
+
+        const requestHash = await createTagAtomsRequest(selectedAtoms, tag)
+        logger(`Initiated batch triple request with hash: ${requestHash}`)
+        logger(`Selected rows: ${selectedRows}`)
+        return json({
+          success: true,
+          requestHash,
+          selectedRows,
+          selectedAtoms,
+          tag,
+        })
+      }
+
       case 'publishAtoms': {
         const requestHash = formData.get('requestHash') as string
         const selectedAtoms = JSON.parse(
@@ -132,8 +165,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           newCIDs,
           requestHash,
         )
-        // return this on the payload in the same way we're setting the calls
-        // use in the final step for verifying the atoms
         return json({
           success: true,
           calls,
@@ -145,6 +176,28 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           existingData,
         })
       }
+
+      case 'publishTriples': {
+        const requestHash = formData.get('requestHash') as string
+        const selectedAtoms = JSON.parse(
+          formData.get('selectedAtoms') as string,
+        ) as WithContext<Thing>[]
+        const tag = JSON.parse(
+          formData.get('tag') as string,
+        ) as WithContext<Thing>
+        const { calls, chunks, chunkSize } = await generateTagAtomsCallData(
+          selectedAtoms,
+          tag,
+          requestHash,
+        )
+        return json({
+          success: true,
+          calls,
+          chunks,
+          chunkSize,
+        })
+      }
+
       case 'logTxHashAndVerifyAtoms': {
         const txHash = formData.get('txHash') as string
         const requestHash = formData.get('requestHash') as string
@@ -152,10 +205,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         const filteredData = JSON.parse(formData.get('filteredData') as string)
         const msgSender = formData.get('msgSender') as `0x${string}`
         const oldAtomCIDs = JSON.parse(formData.get('oldAtomCIDs') as string)
-        logger(
-          `Logging transaction hash: ${txHash} for request hash: ${requestHash}`,
-        )
-        logger('[index] we are now at this step: logTxHash')
         const { newAtomIDs, existingAtomIDs } =
           await logTransactionHashAndVerifyAtoms(
             txHash,
@@ -165,9 +214,30 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             oldAtomCIDs,
             requestHash,
           )
-        return json({ success: true, newAtomIDs, existingAtomIDs, txHash })
+        return json({ success: true, newAtomIDs, existingAtomIDs })
       }
-      // ... (keep other action cases)
+
+      case 'logTxHashAndVerifyTriples': {
+        const txHash = formData.get('txHash') as string
+        const requestHash = formData.get('requestHash') as string
+        const newTriples = JSON.parse(formData.get('newTriples') as string)
+        const existingTriples = JSON.parse(
+          formData.get('existingTriples') as string,
+        )
+        const msgSender = formData.get('msgSender') as `0x${string}`
+        const { newTripleIds, existingTripleIds } =
+          await logTransactionHashAndVerifyTriples(
+            txHash,
+            newTriples,
+            existingTriples,
+            msgSender,
+            requestHash,
+          )
+        return json({ success: true, newTripleIds, existingTripleIds })
+      }
+
+      default:
+        return json({ error: 'Invalid action' }, { status: 400 })
     }
   } catch (error) {
     console.error('Action error:', error)
@@ -559,16 +629,24 @@ export default function CSVEditor() {
   }, [])
 
   // Function to handle creating and tagging atoms
-  const handleCreateAndTagAtoms = () => {
+  const handleCreateAndTagAtoms = useCallback(() => {
+    // Convert selected rows to schema objects
+    const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
+    const selectedAtoms = selectedRows.map((index) => schemaObjects[index])
+
     showConfirmModal(
       'Tag Selected Atoms?  This will take up to a minute or two.',
       (confirm) => {
         if (confirm) {
-          initiateTagRequest(selectedRows, selectedAtoms, newTag)
+          initiateTagRequest(
+            selectedRows,
+            selectedAtoms,
+            newTag as WithContext<Thing>,
+          )
         }
       },
     )
-  }
+  }, [selectedRows, csvData, newTag, initiateTagRequest, showConfirmModal])
 
   // Effect to reset tagging state when the action is complete
   useEffect(() => {

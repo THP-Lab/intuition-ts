@@ -11,10 +11,14 @@ import { Thing, WithContext } from 'schema-dts'
 import {
   checkAtomsExist,
   createPopulateAtomsRequest,
+  createTagAtomsRequest,
   generateBatchAtomsCalldata,
+  generateTagAtomsCallData,
   getAtomDataFromID,
+  logTransactionHashAndVerifyTriples,
   pinAtoms,
   requestPopulateAndTagAtoms,
+  Triple,
 } from '../lib/services/populate'
 
 // TODO: Implement real functions for CSV editor operations
@@ -203,14 +207,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         formData.get('tag') as string,
       ) as WithContext<Thing>
 
-      const { calls, newTriples, existingTriples } =
-        await generateTagAtomsCallData(selectedAtoms, tag, requestHash)
+      const { calls, chunks, chunkSize } = await generateTagAtomsCallData(
+        selectedAtoms,
+        tag,
+        requestHash,
+      )
 
       return json({
         success: true,
         calls,
-        newTriples,
-        existingTriples,
+        chunks,
+        chunkSize,
       })
     }
 

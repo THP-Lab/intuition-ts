@@ -131,7 +131,7 @@ export function useBatchCreateTriple() {
       dispatch({ type: 'SET_TAG', payload: tag })
       initiateFetcher.submit(
         {
-          action: 'initiateTagRequest',
+          action: 'initiateBatchTripleRequest',
           selectedRows: JSON.stringify(selectedRows),
           selectedAtoms: JSON.stringify(selectedAtoms),
           tag: JSON.stringify(tag),
@@ -286,7 +286,6 @@ export function useBatchCreateTriple() {
     isProcessing,
   ])
 
-  // Effect handlers for fetcher states
   useEffect(() => {
     if (
       initiateFetcher.state === 'idle' &&
@@ -296,15 +295,24 @@ export function useBatchCreateTriple() {
       const data = initiateFetcher.data as {
         success: boolean
         requestHash: string
+        selectedRows: number[]
+        selectedAtoms: WithContext<Thing>[]
+        tag: WithContext<Thing>
       }
-      if (data.success && data.requestHash) {
+
+      if (data.success) {
         dispatch({ type: 'SET_REQUEST_HASH', payload: data.requestHash })
+        dispatch({ type: 'SET_SELECTED_ATOMS', payload: data.selectedAtoms })
+        dispatch({ type: 'SET_TAG', payload: data.tag })
         dispatch({ type: 'SET_STEP', payload: 'publishing' })
-        setIsProcessing(false)
       } else {
+        console.error('Failed to initiate tag request:', data.error)
+        toast.error('Failed to initiate tag request. Please try again.', {
+          duration: 5000,
+        })
         dispatch({ type: 'SET_STEP', payload: 'idle' })
-        setIsProcessing(false)
       }
+      setIsProcessing(false)
     }
   }, [initiateFetcher.state, initiateFetcher.data, state.step])
 
