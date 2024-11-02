@@ -119,7 +119,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
         const selectedAtoms = selectedRows.map((index) => schemaObjects[index])
 
-        const requestHash = await createPopulateAtomsRequest(selectedAtoms)
+        const requestHash = await createPopulateAtomsRequest(
+          selectedAtoms,
+          request,
+        )
         logger(`Initiated batch atom request with hash: ${requestHash}`)
         logger(`Selected rows: ${selectedRows}`)
         return json({
@@ -142,7 +145,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           formData.get('tag') as string,
         ) as WithContext<Thing>
 
-        const requestHash = await createTagAtomsRequest(selectedAtoms, tag)
+        console.log('Initiating tag request from app+/index.tsx')
+
+        const requestHash = await createTagAtomsRequest(
+          selectedAtoms,
+          tag,
+          request,
+        )
         logger(`Initiated batch triple request with hash: ${requestHash}`)
         logger(`Selected rows: ${selectedRows}`)
         return json({
@@ -159,6 +168,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         const selectedAtoms = JSON.parse(
           formData.get('selectedAtoms') as string,
         ) as WithContext<Thing>[]
+        console.log('Pinning atoms from app+/index.tsx')
         const { existingCIDs, newCIDs, filteredData, existingData } =
           await pinAtoms(selectedAtoms, requestHash)
         const { chunks, chunkSize, calls } = await generateBatchAtomsCalldata(
@@ -203,16 +213,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         const requestHash = formData.get('requestHash') as string
         const filteredCIDs = JSON.parse(formData.get('filteredCIDs') as string)
         const filteredData = JSON.parse(formData.get('filteredData') as string)
-        const msgSender = formData.get('msgSender') as `0x${string}`
         const oldAtomCIDs = JSON.parse(formData.get('oldAtomCIDs') as string)
         const { newAtomIDs, existingAtomIDs } =
           await logTransactionHashAndVerifyAtoms(
             txHash,
             filteredCIDs,
             filteredData,
-            msgSender,
             oldAtomCIDs,
             requestHash,
+            request,
           )
         return json({ success: true, newAtomIDs, existingAtomIDs })
       }
@@ -224,14 +233,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         const existingTriples = JSON.parse(
           formData.get('existingTriples') as string,
         )
-        const msgSender = formData.get('msgSender') as `0x${string}`
         const { newTripleIds, existingTripleIds } =
           await logTransactionHashAndVerifyTriples(
             txHash,
             newTriples,
             existingTriples,
-            msgSender,
             requestHash,
+            request,
           )
         return json({ success: true, newTripleIds, existingTripleIds })
       }

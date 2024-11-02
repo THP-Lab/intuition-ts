@@ -19,7 +19,7 @@ import {
   tripleValue,
 } from './attestor'
 import { precomputeCID } from './cid'
-import { estimateGas, getSender } from './evm'
+import { estimateGas } from './evm'
 import { checkImageAlreadyUploaded, resolveAndFilterImage } from './image'
 import {
   getAtomID,
@@ -29,6 +29,7 @@ import {
 } from './offchain-store'
 import { pinataPinJSON } from './pinata'
 import { createRequest, pushUpdate, updateRequest } from './request'
+import { getSender } from './requestSender'
 import { appendToAtomLog, appendToTripleLog } from './supabase'
 
 // export async function populateAtom(obj: any) {
@@ -58,167 +59,167 @@ export async function pinAtomData(obj: any, requestHash?: string) {
   return [obj, '']
 }
 
-export async function populateTriple(
-  subjectId: string,
-  predicateId: string,
-  objectId: string,
-) {
-  try {
-    const msgSender = await getSender()
-    const [tripleID, txID] = await getOrCreateTriple(
-      subjectId,
-      predicateId,
-      objectId,
-    )
-    console.log('Triple ID: ', tripleID)
-    await appendToTripleLog(
-      tripleID,
-      txID,
-      subjectId,
-      predicateId,
-      objectId,
-      msgSender,
-    )
-    return tripleID
-  } catch (error) {
-    console.error('Error populating triple:', error)
-  }
-}
+// export async function populateTriple(
+//   subjectId: string,
+//   predicateId: string,
+//   objectId: string,
+// ) {
+//   try {
+//     const msgSender = await getSender()
+//     const [tripleID, txID] = await getOrCreateTriple(
+//       subjectId,
+//       predicateId,
+//       objectId,
+//     )
+//     console.log('Triple ID: ', tripleID)
+//     await appendToTripleLog(
+//       tripleID,
+//       txID,
+//       subjectId,
+//       predicateId,
+//       objectId,
+//       msgSender,
+//     )
+//     return tripleID
+//   } catch (error) {
+//     console.error('Error populating triple:', error)
+//   }
+// }
 
 export interface TagAtomIDsResponse {
   newTripleIds: string[]
   existingTripleIds: string[]
 }
 
-export async function tagAtomIDs(
-  tag: WithContext<Thing>,
-  atomIds: string[],
-  requestHash?: string,
-) {
-  const response: TagAtomIDsResponse = {
-    newTripleIds: [],
-    existingTripleIds: [],
-  }
-  try {
-    const msgSender = await getSender()
-    // Create a bunch of triples for each atom given the tag
-    console.log('Preparing create triples request...')
-    requestHash
-      ? await pushUpdate(requestHash, 'Preparing create triples request...')
-      : null
-    const triples = await prepareTriplesFromTagAndAtomIDs(
-      tag,
-      atomIds,
-      requestHash,
-    )
+// export async function tagAtomIDs(
+//   tag: WithContext<Thing>,
+//   atomIds: string[],
+//   requestHash?: string,
+// ) {
+//   const response: TagAtomIDsResponse = {
+//     newTripleIds: [],
+//     existingTripleIds: [],
+//   }
+//   try {
+//     const msgSender = await getSender()
+//     // Create a bunch of triples for each atom given the tag
+//     console.log('Preparing create triples request...')
+//     requestHash
+//       ? await pushUpdate(requestHash, 'Preparing create triples request...')
+//       : null
+//     const triples = await prepareTriplesFromTagAndAtomIDs(
+//       tag,
+//       atomIds,
+//       requestHash,
+//     )
 
-    // Check if any triples already exist and remove them from the batch request
-    console.log('Checking for existing triples...')
-    requestHash
-      ? await pushUpdate(requestHash, 'Checking for existing triples...')
-      : null
-    // eslint-disable-next-line prefer-const
-    let [newTriples, existingTriples] = await cullExistingTriples(triples, 100)
+//     // Check if any triples already exist and remove them from the batch request
+//     console.log('Checking for existing triples...')
+//     requestHash
+//       ? await pushUpdate(requestHash, 'Checking for existing triples...')
+//       : null
+//     // eslint-disable-next-line prefer-const
+//     let [newTriples, existingTriples] = await cullExistingTriples(triples, 100)
 
-    // console.log("New Triples: ", newTriples);
-    // console.log("Existing Triples: ", existingTriples);
+//     // console.log("New Triples: ", newTriples);
+//     // console.log("Existing Triples: ", existingTriples);
 
-    // Batch create triples
-    console.log('Tagging atoms...')
-    requestHash ? await pushUpdate(requestHash, 'Tagging atoms...') : null
-    // const txID = await batchCreateTriples(newTriples.map((triple) => triple.subjectId), newTriples.map((triple) => triple.predicateId), newTriples.map((triple) => triple.objectId));
-    const txIDs = await processBatchTriples(newTriples, requestHash)
-    const txID = txIDs.join(' ') // temporary fix before we create objects for each atom and assign a txID to each along with other data
+//     // Batch create triples
+//     console.log('Tagging atoms...')
+//     requestHash ? await pushUpdate(requestHash, 'Tagging atoms...') : null
+//     // const txID = await batchCreateTriples(newTriples.map((triple) => triple.subjectId), newTriples.map((triple) => triple.predicateId), newTriples.map((triple) => triple.objectId));
+//     const txIDs = await processBatchTriples(newTriples, requestHash)
+//     const txID = txIDs.join(' ') // temporary fix before we create objects for each atom and assign a txID to each along with other data
 
-    // Verify their IDs and log them
-    console.log('Verifying new triple IDs...')
-    requestHash
-      ? await pushUpdate(requestHash, 'Verifying new triple IDs...')
-      : null
-    newTriples = await getTripleIdsFromTripleData(newTriples, 100)
-    response.newTripleIds = newTriples.map(
-      (triple) => triple.tripleId,
-    ) as string[]
-    newTriples.forEach(
-      async (triple) =>
-        await appendToTripleLog(
-          triple.tripleId as string,
-          txID,
-          triple.subjectId,
-          triple.predicateId,
-          triple.objectId,
-          msgSender,
-        ),
-    )
+//     // Verify their IDs and log them
+//     console.log('Verifying new triple IDs...')
+//     requestHash
+//       ? await pushUpdate(requestHash, 'Verifying new triple IDs...')
+//       : null
+//     newTriples = await getTripleIdsFromTripleData(newTriples, 100)
+//     response.newTripleIds = newTriples.map(
+//       (triple) => triple.tripleId,
+//     ) as string[]
+//     newTriples.forEach(
+//       async (triple) =>
+//         await appendToTripleLog(
+//           triple.tripleId as string,
+//           txID,
+//           triple.subjectId,
+//           triple.predicateId,
+//           triple.objectId,
+//           msgSender,
+//         ),
+//     )
 
-    console.log('Done tagging atoms.')
-    requestHash ? await pushUpdate(requestHash, 'Done tagging atoms.') : null
-    response.existingTripleIds = existingTriples.map(
-      (triple) => triple.tripleId,
-    ) as string[]
+//     console.log('Done tagging atoms.')
+//     requestHash ? await pushUpdate(requestHash, 'Done tagging atoms.') : null
+//     response.existingTripleIds = existingTriples.map(
+//       (triple) => triple.tripleId,
+//     ) as string[]
 
-    return response
-  } catch (error) {
-    console.error('Error tagging atoms:', error)
-  }
-  return response
-}
+//     return response
+//   } catch (error) {
+//     console.error('Error tagging atoms:', error)
+//   }
+//   return response
+// }
 
-export interface PopulateAndTagAtomsResponse {
-  newAtomIDs: string[]
-  existingAtomIDs: string[]
-  newTripleIds: string[]
-  existingTripleIds: string[]
-}
+// export interface PopulateAndTagAtomsResponse {
+//   newAtomIDs: string[]
+//   existingAtomIDs: string[]
+//   newTripleIds: string[]
+//   existingTripleIds: string[]
+// }
 
 export interface TagAtomsResponse {
   newTripleIds: string[]
   existingTripleIds: string[]
 }
 
-export async function requestPopulateAndTagAtoms(
-  atoms: any[],
-  tag: WithContext<Thing>,
-) {
-  try {
-    const msgSender = await getSender()
-    const requestHash = await createRequest(atoms, msgSender, 'createTriples')
-    populateAndTagAtoms(atoms, tag, requestHash)
-    return requestHash
-  } catch (error) {
-    console.error('Error populating and tagging atoms:', error)
-  }
-}
+// export async function requestPopulateAndTagAtoms(
+//   atoms: any[],
+//   tag: WithContext<Thing>,
+// ) {
+//   try {
+//     const msgSender = await getSender()
+//     const requestHash = await createRequest(atoms, msgSender, 'createTriples')
+//     populateAndTagAtoms(atoms, tag, requestHash)
+//     return requestHash
+//   } catch (error) {
+//     console.error('Error populating and tagging atoms:', error)
+//   }
+// }
 
-export async function populateAndTagAtoms(
-  atoms: any[],
-  tag: WithContext<Thing>,
-  requestHash?: string,
-) {
-  const response: PopulateAndTagAtomsResponse = {
-    newAtomIDs: [],
-    existingAtomIDs: [],
-    newTripleIds: [],
-    existingTripleIds: [],
-  }
-  // Populate any new atoms
-  const populateResponse = await populateAtoms(atoms, requestHash, false)
-  response.newAtomIDs = populateResponse.newAtomIDs
-  response.existingAtomIDs = populateResponse.existingAtomIDs
+// export async function populateAndTagAtoms(
+//   atoms: any[],
+//   tag: WithContext<Thing>,
+//   requestHash?: string,
+// ) {
+//   const response: PopulateAndTagAtomsResponse = {
+//     newAtomIDs: [],
+//     existingAtomIDs: [],
+//     newTripleIds: [],
+//     existingTripleIds: [],
+//   }
+//   // Populate any new atoms
+//   const populateResponse = await populateAtoms(atoms, requestHash, false)
+//   response.newAtomIDs = populateResponse.newAtomIDs
+//   response.existingAtomIDs = populateResponse.existingAtomIDs
 
-  // Tag all provided atoms, both new and pre-existing
-  const tagResponse = await tagAtomIDs(
-    tag,
-    [...populateResponse.newAtomIDs, ...populateResponse.existingAtomIDs],
-    requestHash,
-  )
-  response.newTripleIds = tagResponse.newTripleIds
-  response.existingTripleIds = tagResponse.existingTripleIds
+//   // Tag all provided atoms, both new and pre-existing
+//   const tagResponse = await tagAtomIDs(
+//     tag,
+//     [...populateResponse.newAtomIDs, ...populateResponse.existingAtomIDs],
+//     requestHash,
+//   )
+//   response.newTripleIds = tagResponse.newTripleIds
+//   response.existingTripleIds = tagResponse.existingTripleIds
 
-  requestHash ? await updateRequest(requestHash, { status: 'fulfilled' }) : null
+//   requestHash ? await updateRequest(requestHash, { status: 'fulfilled' }) : null
 
-  return response
-}
+//   return response
+// }
 
 export async function generateTagAtomsCallData(
   atoms: any[],
@@ -278,8 +279,11 @@ export interface PopulateAtomsResponse {
 //   return requestHash
 // }
 
-export async function createPopulateAtomsRequest(atoms: any[]) {
-  const msgSender = await getSender()
+export async function createPopulateAtomsRequest(
+  atoms: any[],
+  nodeRequest?: Request,
+) {
+  const msgSender = await getSender(nodeRequest)
   const requestHash = await createRequest(atoms, msgSender, 'createAtoms')
   return requestHash
 }
@@ -287,8 +291,9 @@ export async function createPopulateAtomsRequest(atoms: any[]) {
 export async function createTagAtomsRequest(
   atoms: any[],
   tag: WithContext<Thing>,
+  nodeRequest?: Request,
 ) {
-  const msgSender = await getSender()
+  const msgSender = await getSender(nodeRequest)
   const requestHash = await createRequest(
     [tag, ...atoms],
     msgSender,
@@ -571,109 +576,110 @@ async function buildBatchCreateTripleChunks(
   return { chunks, chunkSize }
 }
 
-export async function populateAtoms(
-  atoms: any[],
-  requestHash?: string,
-  concludeRequest?: boolean,
-): Promise<PopulateAtomsResponse> {
-  try {
-    requestHash
-      ? await updateRequest(requestHash, { status: 'processing' })
-      : null
-    const msgSender = await getSender()
+// export async function populateAtoms(
+//   atoms: any[],
+//   requestHash?: string,
+//   concludeRequest?: boolean,
+// ): Promise<PopulateAtomsResponse> {
+//   try {
+//     requestHash
+//       ? await updateRequest(requestHash, { status: 'processing' })
+//       : null
+//     const msgSender = await getSender()
 
-    // Pin all data in parallel threads
-    console.log('Pinning new data to IPFS...')
-    requestHash
-      ? await pushUpdate(requestHash, 'Pinning new data to IPFS...')
-      : null
-    const pinnedData = requestHash
-      ? await pinAllData(atoms, 100, 3, 1000, requestHash)
-      : await pinAllData(atoms, 100)
+//     // Pin all data in parallel threads
+//     console.log('Pinning new data to IPFS...')
+//     requestHash
+//       ? await pushUpdate(requestHash, 'Pinning new data to IPFS...')
+//       : null
+//     const pinnedData = requestHash
+//       ? await pinAllData(atoms, 100, 3, 1000, requestHash)
+//       : await pinAllData(atoms, 100)
 
-    // Check if any atoms already exist and remove them from the batch request (it will revert otherwise)
-    console.log('Checking for existing atoms...')
-    requestHash
-      ? await pushUpdate(requestHash, 'Checking for existing atoms...')
-      : null
-    const [filteredData, existingData] = requestHash
-      ? await cullExistingAtoms(pinnedData, 100, 3, requestHash)
-      : await cullExistingAtoms(pinnedData, 100, 3)
+//     // Check if any atoms already exist and remove them from the batch request (it will revert otherwise)
+//     console.log('Checking for existing atoms...')
+//     requestHash
+//       ? await pushUpdate(requestHash, 'Checking for existing atoms...')
+//       : null
+//     const [filteredData, existingData] = requestHash
+//       ? await cullExistingAtoms(pinnedData, 100, 3, requestHash)
+//       : await cullExistingAtoms(pinnedData, 100, 3)
 
-    // Pare out the CIDs from the filtered data for batch population
-    const filteredCIDs = filteredData.map((data) => data.cid)
-    const oldAtomCIDs = existingData.map((data) => data.cid)
+//     // Pare out the CIDs from the filtered data for batch population
+//     const filteredCIDs = filteredData.map((data) => data.cid)
+//     const oldAtomCIDs = existingData.map((data) => data.cid)
 
-    // Batch create atoms
-    console.log('Creating new atoms...')
-    requestHash ? await pushUpdate(requestHash, 'Creating new atoms...') : null
-    const txIDs = requestHash
-      ? await processBatchAtoms(filteredCIDs, requestHash)
-      : await processBatchAtoms(filteredCIDs)
+//     // Batch create atoms
+//     console.log('Creating new atoms...')
+//     requestHash ? await pushUpdate(requestHash, 'Creating new atoms...') : null
+//     const txIDs = requestHash
+//       ? await processBatchAtoms(filteredCIDs, requestHash)
+//       : await processBatchAtoms(filteredCIDs)
 
-    const txID = txIDs.join(' ') // temporary fix before we create objects for each atom and assign a txID to each along with other data
+//     const txID = txIDs.join(' ') // temporary fix before we create objects for each atom and assign a txID to each along with other data
 
-    // send the txHash from previous step as txId
-    // we need to use the new CIDs
-    // new cids are the filtered cids
+//     // send the txHash from previous step as txId
+//     // we need to use the new CIDs
+//     // new cids are the filtered cids
 
-    // Verify atom IDs from URIs
-    console.log('Verifying new atom IDs...')
-    requestHash
-      ? await pushUpdate(requestHash, 'Verifying new atom IDs...')
-      : null
-    const newAtoms = await getAtomIdsFromURI(filteredCIDs, 100)
-    const newAtomIDs = newAtoms.map((atom) => atom.atomId)
+//     // Verify atom IDs from URIs
+//     console.log('Verifying new atom IDs...')
+//     requestHash
+//       ? await pushUpdate(requestHash, 'Verifying new atom IDs...')
+//       : null
+//     const newAtoms = await getAtomIdsFromURI(filteredCIDs, 100)
+//     const newAtomIDs = newAtoms.map((atom) => atom.atomId)
 
-    // Append to atom log
-    console.log('Logging new atoms to database...')
-    requestHash
-      ? await pushUpdate(requestHash, 'Logging new atoms to database...')
-      : null
-    newAtoms.forEach(
-      async (atom) =>
-        await appendToAtomLog(
-          atom.atomId,
-          atom.uri,
-          txID, // txHash from previous step
-          filteredData[atom.originalIndex].filteredObj,
-          msgSender, // from the privy auth'd user (smart wallet)
-        ),
-    )
+//     // Append to atom log
+//     console.log('Logging new atoms to database...')
+//     requestHash
+//       ? await pushUpdate(requestHash, 'Logging new atoms to database...')
+//       : null
+//     newAtoms.forEach(
+//       async (atom) =>
+//         await appendToAtomLog(
+//           atom.atomId,
+//           atom.uri,
+//           txID, // txHash from previous step
+//           filteredData[atom.originalIndex].filteredObj,
+//           msgSender, // from the privy auth'd user (smart wallet)
+//         ),
+//     )
 
-    // Verify old atom IDs from URIs
-    console.log('Verifying old atom IDs...')
-    requestHash
-      ? await pushUpdate(requestHash, 'Verifying old atom IDs...')
-      : null
-    const oldAtoms = await getAtomIdsFromURI(oldAtomCIDs, 100)
-    const existingAtomIDs = oldAtoms.map((atom) => atom.atomId)
+//     // Verify old atom IDs from URIs
+//     console.log('Verifying old atom IDs...')
+//     requestHash
+//       ? await pushUpdate(requestHash, 'Verifying old atom IDs...')
+//       : null
+//     const oldAtoms = await getAtomIdsFromURI(oldAtomCIDs, 100)
+//     const existingAtomIDs = oldAtoms.map((atom) => atom.atomId)
 
-    // Return the new and existing atom IDs
-    console.log('Done populating atoms.')
-    requestHash ? await pushUpdate(requestHash, 'Done populating atoms.') : null
-    requestHash && concludeRequest
-      ? await updateRequest(requestHash, { status: 'fulfilled' })
-      : null
-    return { newAtomIDs, existingAtomIDs } as PopulateAtomsResponse
-  } catch (error) {
-    requestHash
-      ? await pushUpdate(requestHash, `Error populating atoms: ${error}`)
-      : null
-    requestHash ? await updateRequest(requestHash, { status: 'failed' }) : null
-    console.error('Error populating atoms:', error)
-  }
-  return { newAtomIDs: [], existingAtomIDs: [] } as PopulateAtomsResponse
-}
+//     // Return the new and existing atom IDs
+//     console.log('Done populating atoms.')
+//     requestHash ? await pushUpdate(requestHash, 'Done populating atoms.') : null
+//     requestHash && concludeRequest
+//       ? await updateRequest(requestHash, { status: 'fulfilled' })
+//       : null
+//     return { newAtomIDs, existingAtomIDs } as PopulateAtomsResponse
+//   } catch (error) {
+//     requestHash
+//       ? await pushUpdate(requestHash, `Error populating atoms: ${error}`)
+//       : null
+//     requestHash ? await updateRequest(requestHash, { status: 'failed' }) : null
+//     console.error('Error populating atoms:', error)
+//   }
+//   return { newAtomIDs: [], existingAtomIDs: [] } as PopulateAtomsResponse
+// }
 
 export async function logTransactionHashAndVerifyAtoms(
   txHash: string,
   filteredCIDs: string[],
   filteredData: PinDataResult[],
-  msgSender: `0x${string}`,
   oldAtomCIDs: string[],
   requestHash?: string,
+  nodeRequest?: Request,
 ): Promise<PopulateAtomsResponse> {
+  const msgSender = await getSender(nodeRequest)
   console.log(`Logging transaction hash: ${txHash}`)
 
   await pushUpdate(requestHash, `Logging transaction hash: ${txHash}`)
@@ -745,9 +751,10 @@ export async function logTransactionHashAndVerifyTriples(
   txHash: string,
   newTriples: Triple[],
   existingTriples: Triple[],
-  msgSender: `0x${string}`,
   requestHash?: string,
+  nodeRequest?: Request,
 ): Promise<LogAndVerifyTriplesResponse> {
+  const msgSender = await getSender(nodeRequest)
   const response: LogAndVerifyTriplesResponse = {
     newTripleIds: [],
     existingTripleIds: [],
@@ -808,68 +815,68 @@ export async function checkAtomsExist(
   return atomExistsResults
 }
 
-export async function prepareTag(
-  tag: WithContext<Thing>,
-  requestHash?: string,
-) {
-  const msgSender = await getSender()
-  requestHash
-    ? await pushUpdate(requestHash, 'Fetching keywords predicate atom...')
-    : null
-  const [keywordsPredicateAtomID, keywordsPredicateTxID] =
-    await getOrCreateAtom('https://schema.org/keywords')
+// export async function prepareTag(
+//   tag: WithContext<Thing>,
+//   requestHash?: string,
+// ) {
+//   const msgSender = await getSender()
+//   requestHash
+//     ? await pushUpdate(requestHash, 'Fetching keywords predicate atom...')
+//     : null
+//   const [keywordsPredicateAtomID, keywordsPredicateTxID] =
+//     await getOrCreateAtom('https://schema.org/keywords')
 
-  await appendToAtomLog(
-    keywordsPredicateAtomID,
-    'https://schema.org/keywords',
-    keywordsPredicateTxID,
-    {},
-    msgSender,
-  )
+//   await appendToAtomLog(
+//     keywordsPredicateAtomID,
+//     'https://schema.org/keywords',
+//     keywordsPredicateTxID,
+//     {},
+//     msgSender,
+//   )
 
-  // Avoid re-uploading images that have already been uploaded
-  if ('image' in tag && typeof tag.image === 'string') {
-    tag.image = await resolveAndFilterImage(tag.image, requestHash)
-  }
+//   // Avoid re-uploading images that have already been uploaded
+//   if ('image' in tag && typeof tag.image === 'string') {
+//     tag.image = await resolveAndFilterImage(tag.image, requestHash)
+//   }
 
-  requestHash ? await pushUpdate(requestHash, 'Pinning tag atom...') : null
-  const tagCID = await pinataPinJSON(tag)
-  requestHash ? await pushUpdate(requestHash, `${tagCID} Pinned`) : null
-  const [tagAtomID, tagTxID] = await getOrCreateAtom(`ipfs://${tagCID}`)
+//   requestHash ? await pushUpdate(requestHash, 'Pinning tag atom...') : null
+//   const tagCID = await pinataPinJSON(tag)
+//   requestHash ? await pushUpdate(requestHash, `${tagCID} Pinned`) : null
+//   const [tagAtomID, tagTxID] = await getOrCreateAtom(`ipfs://${tagCID}`)
 
-  await appendToAtomLog(tagAtomID, tagCID, tagTxID, tag, msgSender)
+//   await appendToAtomLog(tagAtomID, tagCID, tagTxID, tag, msgSender)
 
-  console.log('Tag Atom ID: ', tagAtomID)
-  console.log('keywordsPredicateAtomID: ', keywordsPredicateAtomID)
-  requestHash
-    ? await pushUpdate(requestHash, `Tag Atom ID: ${tagAtomID}`)
-    : null
-  requestHash
-    ? await pushUpdate(
-      requestHash,
-      `Keywords Predicate Atom ID: ${keywordsPredicateAtomID}`,
-    )
-    : null
+//   console.log('Tag Atom ID: ', tagAtomID)
+//   console.log('keywordsPredicateAtomID: ', keywordsPredicateAtomID)
+//   requestHash
+//     ? await pushUpdate(requestHash, `Tag Atom ID: ${tagAtomID}`)
+//     : null
+//   requestHash
+//     ? await pushUpdate(
+//       requestHash,
+//       `Keywords Predicate Atom ID: ${keywordsPredicateAtomID}`,
+//     )
+//     : null
 
-  return [keywordsPredicateAtomID, tagAtomID]
-}
+//   return [keywordsPredicateAtomID, tagAtomID]
+// }
 
-export async function prepareTriplesFromTagAndAtomIDs(
-  tag: WithContext<Thing>,
-  atomIDs: string[],
-  requestHash?: string,
-) {
-  const [keywordsPredicateAtomID, tagAtomID] = await prepareTag(
-    tag,
-    requestHash,
-  )
-  const triples = atomIDs.map((atomID) => ({
-    subjectId: atomID,
-    predicateId: keywordsPredicateAtomID,
-    objectId: tagAtomID,
-  }))
-  return triples
-}
+// export async function prepareTriplesFromTagAndAtomIDs(
+//   tag: WithContext<Thing>,
+//   atomIDs: string[],
+//   requestHash?: string,
+// ) {
+//   const [keywordsPredicateAtomID, tagAtomID] = await prepareTag(
+//     tag,
+//     requestHash,
+//   )
+//   const triples = atomIDs.map((atomID) => ({
+//     subjectId: atomID,
+//     predicateId: keywordsPredicateAtomID,
+//     objectId: tagAtomID,
+//   }))
+//   return triples
+// }
 
 // Optimized Functions:
 
