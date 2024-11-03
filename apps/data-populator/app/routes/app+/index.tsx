@@ -984,6 +984,20 @@ export default function CSVEditor() {
     return () => clearTimeout(timeoutId)
   }, [newTag, checkTagExists])
 
+  // Add effect to recheck atoms when progress modal closes
+  useEffect(() => {
+    if (!isLoading && step === 'complete' && csvData.length > 0) {
+      checkExistingAtoms(csvData)
+    }
+  }, [isLoading, step, csvData])
+
+  // Add effect to recheck tag existence when tag creation completes
+  useEffect(() => {
+    if (!isLoading && step === 'complete') {
+      checkTagExists()
+    }
+  }, [isLoading, step, checkTagExists])
+
   // The main render function, containing the UI structure
   return (
     <>
