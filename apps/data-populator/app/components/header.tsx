@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 
-import { Button } from '@0xintuition/1ui'
+import { Button, Text } from '@0xintuition/1ui'
 
 import PrivyLogoutButton from '@client/privy-logout-button'
 import { Link } from '@remix-run/react'
+import { CURRENT_ENV } from 'app/consts'
 import { History, Moon, Settings, Sun } from 'lucide-react'
 import { ClientOnly } from 'remix-utils/client-only'
 
@@ -33,13 +34,24 @@ export function Header({
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <img
-            src="https://cdn.prod.website-files.com/65cdf366e68587fd384547f0/65d8fe503890d1bc9776916c_intuition-logo-type-ws.svg"
-            alt="Intuition Logo"
-            className="h-8"
-          />
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link to="/" className="flex items-center space-x-2">
+            <img
+              src="https://cdn.prod.website-files.com/65cdf366e68587fd384547f0/65d8fe503890d1bc9776916c_intuition-logo-type-ws.svg"
+              alt="Intuition Logo"
+              className="h-8"
+            />
+          </Link>
+          <Text
+            className={`px-2 py-1 rounded-md ${
+              CURRENT_ENV === 'production'
+                ? 'text-green-500 bg-green-500/10'
+                : 'text-cyan-500 bg-cyan-500/10'
+            }`}
+          >
+            {CURRENT_ENV === 'production' ? 'MAINNET' : 'TESTNET'}
+          </Text>
+        </div>
         <nav className="flex items-center space-x-4">
           <Button variant="ghost" size="icon" onClick={handleToggleTheme}>
             {theme === 'light' ? (
