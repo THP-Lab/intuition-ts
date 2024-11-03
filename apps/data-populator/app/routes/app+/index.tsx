@@ -269,7 +269,7 @@ export default function CSVEditor() {
   const [csvData, setCsvData] = useState<string[][]>([])
   const [selectedRows, setSelectedRows] = useState<number[]>([])
   // const [tags, setTags] = useState<string[][]>([])
-  const [newTag, setNewTag] = useState<WithContext<Thing>>({
+  const [newTag, setNewTag] = useState<Record<string, string>>({
     '@context': 'https://schema.org',
     '@type': 'Thing',
     name: '',
@@ -826,7 +826,7 @@ export default function CSVEditor() {
   // }
 
   // Function to search for atoms (currently not implemented)
-  const searchAtoms = () => {
+  const searchAtoms = (searchQuery: string) => {
     fetcher.load(`/api/csv-editor?action=searchAtoms&query=${searchQuery}`)
   }
 

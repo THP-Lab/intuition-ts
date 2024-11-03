@@ -44,9 +44,8 @@ export function Header({
     const newTheme = theme === 'light' ? 'dark' : 'light'
     setTheme(newTheme)
   }
-
   const toggleTooltips = () => {
-    setTooltipsEnabled((prev) => {
+    setTooltipsEnabled((prev: boolean) => {
       const newValue = !prev
       localStorage.setItem('tooltipsEnabled', JSON.stringify(newValue))
       return newValue
