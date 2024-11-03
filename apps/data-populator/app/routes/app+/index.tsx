@@ -21,7 +21,6 @@ import {
   TooltipTrigger,
 } from '@0xintuition/1ui'
 
-import { useTooltips } from '@client/providers'
 import { useBatchCreateAtom } from '@client/useBatchCreateAtom'
 import { useBatchCreateTriple } from '@client/useBatchCreateTriple'
 import { ProgressModal } from '@components/progress-modal'
@@ -327,7 +326,7 @@ export default function CSVEditor() {
   const [tagExists, setTagExists] = useState(false)
   const [isCheckingTag, setIsCheckingTag] = useState(false)
 
-  const [tooltipsEnabled, setTooltipsEnabled] = useState(() => {
+  const [tooltipsEnabled] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('tooltipsEnabled')
       return saved ? JSON.parse(saved) : true
@@ -661,7 +660,7 @@ export default function CSVEditor() {
           initiateTagRequest(
             selectedRows,
             selectedAtoms,
-            newTag as WithContext<Thing>,
+            newTag as unknown as WithContext<Thing>,
           )
         }
       },
@@ -1360,14 +1359,14 @@ export default function CSVEditor() {
             {tooltipsEnabled ? (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button onClick={searchAtoms}>
+                  <Button onClick={() => searchAtoms('query')}>
                     <Search className="mr-2 h-4 w-4" /> Search
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{getTooltip(TooltipKey.SEARCH)}</TooltipContent>
               </Tooltip>
             ) : (
-              <Button onClick={searchAtoms}>
+              <Button onClick={() => searchAtoms('query')}>
                 <Search className="mr-2 h-4 w-4" /> Search
               </Button>
             )}
