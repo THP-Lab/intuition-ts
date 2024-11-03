@@ -16,8 +16,12 @@ import {
   TableHeader,
   TableRow,
   Textarea,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from '@0xintuition/1ui'
 
+import { useTooltips } from '@client/providers'
 import { useBatchCreateAtom } from '@client/useBatchCreateAtom'
 import { useBatchCreateTriple } from '@client/useBatchCreateTriple'
 import { ProgressModal } from '@components/progress-modal'
@@ -48,6 +52,7 @@ import {
 import { convertCsvToSchemaObjects } from '@lib/utils/schema'
 import type { SortDirection } from '@lib/utils/sort'
 import { getNextSortDirection, sortData } from '@lib/utils/sort'
+import { getTooltip, TooltipKey } from '@lib/utils/tooltips'
 import { json, type ActionFunctionArgs } from '@remix-run/node'
 import {
   useActionData,
@@ -264,7 +269,7 @@ export default function CSVEditor() {
   const [csvData, setCsvData] = useState<string[][]>([])
   const [selectedRows, setSelectedRows] = useState<number[]>([])
   // const [tags, setTags] = useState<string[][]>([])
-  const [newTag, setNewTag] = useState<Record<string, string>>({
+  const [newTag, setNewTag] = useState<WithContext<Thing>>({
     '@context': 'https://schema.org',
     '@type': 'Thing',
     name: '',
@@ -278,7 +283,6 @@ export default function CSVEditor() {
   const [modalCallback, setModalCallback] = useState<
     (confirm: boolean) => void
   >(() => {})
-  const [searchQuery, setSearchQuery] = useState('')
   const [thumbnails, setThumbnails] = useState<Record<number, string>>({})
   // const [imageCache, setImageCache] = useState<Record<string, string>>({})
   const [existingAtoms, setExistingAtoms] = useState<Set<number>>(new Set())
@@ -322,6 +326,14 @@ export default function CSVEditor() {
   // Add this state near other state declarations
   const [tagExists, setTagExists] = useState(false)
   const [isCheckingTag, setIsCheckingTag] = useState(false)
+
+  const [tooltipsEnabled, setTooltipsEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('tooltipsEnabled')
+      return saved ? JSON.parse(saved) : true
+    }
+    return true
+  })
 
   // Function to load thumbnails for image URLs in the CSV data
   const loadThumbnailsForCSV = useCallback(async (data: string[][]) => {
@@ -979,44 +991,116 @@ export default function CSVEditor() {
       <div className="container mx-auto p-4 space-y-6 relative">
         {/* Button row for main actions */}
         <div className="flex space-x-4">
-          <Button onClick={() => fileInputRef.current?.click()}>
-            Load CSV
-          </Button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={loadCSV}
-            style={{ display: 'none' }}
-            accept=".csv"
-          />
-          <Button onClick={addNewRow} disabled={isLoading}>
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Plus className="h-4 w-4" />
-            )}
-            Add New Row
-          </Button>
-          <Button
-            onClick={deleteSelectedRows}
-            disabled={selectedRows.length === 0 || isLoading}
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Minus className="h-4 w-4" />
-            )}
-            Delete Selected Row{selectedRows.length > 1 ? 's' : ''}
-          </Button>
-          <Button
-            onClick={handlePublishAtoms}
-            disabled={selectedRows.length === 0 || isLoading}
-          >
-            {isLoading ? 'Processing...' : 'Publish Atoms'}
-          </Button>
-          <Button onClick={saveCSV}>
-            <Save className="h-4 w-4" /> Save CSV
-          </Button>
+          {tooltipsEnabled ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={() => fileInputRef.current?.click()}>
+                  Load CSV
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{getTooltip(TooltipKey.LOAD_CSV)}</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button onClick={() => fileInputRef.current?.click()}>
+              Load CSV
+            </Button>
+          )}
+
+          {tooltipsEnabled ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={addNewRow} disabled={isLoading}>
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Plus className="h-4 w-4" />
+                  )}
+                  Add New Row
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{getTooltip(TooltipKey.ADD_ROW)}</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button onClick={addNewRow} disabled={isLoading}>
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+              Add New Row
+            </Button>
+          )}
+
+          {tooltipsEnabled ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={deleteSelectedRows}
+                  disabled={selectedRows.length === 0 || isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Minus className="h-4 w-4" />
+                  )}
+                  Delete Selected Row{selectedRows.length > 1 ? 's' : ''}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {getTooltip(TooltipKey.DELETE_ROWS)}
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              onClick={deleteSelectedRows}
+              disabled={selectedRows.length === 0 || isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Minus className="h-4 w-4" />
+              )}
+              Delete Selected Row{selectedRows.length > 1 ? 's' : ''}
+            </Button>
+          )}
+
+          {tooltipsEnabled ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={handlePublishAtoms}
+                  disabled={selectedRows.length === 0 || isLoading}
+                >
+                  {isLoading ? 'Processing...' : 'Publish Atoms'}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {getTooltip(TooltipKey.PUBLISH_ATOMS)}
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              onClick={handlePublishAtoms}
+              disabled={selectedRows.length === 0 || isLoading}
+            >
+              {isLoading ? 'Processing...' : 'Publish Atoms'}
+            </Button>
+          )}
+
+          {tooltipsEnabled ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={saveCSV}>
+                  <Save className="h-4 w-4" /> Save CSV
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{getTooltip(TooltipKey.SAVE_CSV)}</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button onClick={saveCSV}>
+              <Save className="h-4 w-4" /> Save CSV
+            </Button>
+          )}
         </div>
 
         {/* Progress bar for loading states */}
@@ -1185,39 +1269,65 @@ export default function CSVEditor() {
             ))}
           </div>
           <div className="flex space-x-4">
-            <Button
-              onClick={handleCreateAndTagAtoms}
-              disabled={
-                selectedRows.length === 0 ||
-                !newTag.name ||
-                isTagging ||
-                navigation.state === 'submitting'
-              }
-            >
-              {isTagging || navigation.state === 'submitting' ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Tagging...
-                </>
-              ) : (
-                getCreateTagButtonText()
-              )}
-            </Button>
-            <Button
-              onClick={handleCreateTag}
-              disabled={
-                !newTag.name || isLoading || navigation.state === 'submitting'
-              }
-            >
-              {isLoading || navigation.state === 'submitting' ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                'Create Tag'
-              )}
-            </Button>
+            {tooltipsEnabled ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={handleCreateAndTagAtoms}
+                    disabled={
+                      selectedRows.length === 0 ||
+                      !newTag.name ||
+                      isTagging ||
+                      navigation.state === 'submitting'
+                    }
+                  >
+                    {isTagging || navigation.state === 'submitting' ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Tagging...
+                      </>
+                    ) : (
+                      getCreateTagButtonText()
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {getTooltip(TooltipKey.TAG_ATOMS)}
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <Button
+                onClick={handleCreateAndTagAtoms}
+                disabled={
+                  selectedRows.length === 0 ||
+                  !newTag.name ||
+                  isTagging ||
+                  navigation.state === 'submitting'
+                }
+              >
+                {isTagging || navigation.state === 'submitting' ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Tagging...
+                  </>
+                ) : (
+                  getCreateTagButtonText()
+                )}
+              </Button>
+            )}
+
+            {tooltipsEnabled ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={handleCreateTag}>Create Tag</Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {getTooltip(TooltipKey.CREATE_TAG)}
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <Button onClick={handleCreateTag}>Create Tag</Button>
+            )}
           </div>
         </div>
 
@@ -1225,14 +1335,20 @@ export default function CSVEditor() {
         <div className="space-y-4 opacity-50 pointer-events-none">
           <h3 className="text-lg font-semibold">Search for Atom</h3>
           <div className="flex space-x-4">
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search for atoms"
-            />
-            <Button onClick={searchAtoms}>
-              <Search className="mr-2 h-4 w-4" /> Search
-            </Button>
+            {tooltipsEnabled ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={searchAtoms}>
+                    <Search className="mr-2 h-4 w-4" /> Search
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{getTooltip(TooltipKey.SEARCH)}</TooltipContent>
+              </Tooltip>
+            ) : (
+              <Button onClick={searchAtoms}>
+                <Search className="mr-2 h-4 w-4" /> Search
+              </Button>
+            )}
           </div>
           <p className="text-red-500 font-bold">Under Construction</p>
           {/* ... existing search results table ... */}
@@ -1247,7 +1363,18 @@ export default function CSVEditor() {
             placeholder="Enter your message for the LLM"
             rows={4}
           />
-          <Button onClick={handleLLMInteraction}>Send to LLM</Button>
+          {tooltipsEnabled ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={handleLLMInteraction}>Send to LLM</Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {getTooltip(TooltipKey.SEND_TO_LLM)}
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button onClick={handleLLMInteraction}>Send to LLM</Button>
+          )}
           <p className="text-red-500 font-bold">Under Construction</p>
         </div>
 
