@@ -99,6 +99,23 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+type InitiateTagResponse = {
+  success: boolean
+  requestHash: string
+  selectedRows: number[]
+  selectedAtoms: WithContext<Thing>[]
+  tag: WithContext<Thing>
+  error?: string
+}
+
+type PublishTriplesResponse = {
+  success: boolean
+  calls: BatchTriplesRequest[]
+  newTriples: Triple[]
+  existingTriples: Triple[]
+  error?: string
+}
+
 export function useBatchCreateTriple() {
   const [state, dispatch] = useReducer(reducer, initialState)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -129,15 +146,14 @@ export function useBatchCreateTriple() {
       setIsProcessing(true)
       dispatch({ type: 'SET_STEP', payload: 'initiating' })
       dispatch({ type: 'SET_TAG', payload: tag })
-      initiateFetcher.submit(
-        {
-          action: 'initiateBatchTripleRequest',
-          selectedRows: JSON.stringify(selectedRows),
-          selectedAtoms: JSON.stringify(selectedAtoms),
-          tag: JSON.stringify(tag),
-        },
-        { method: 'post' },
-      )
+
+      const formData = new FormData()
+      formData.append('action', 'initiateBatchTripleRequest')
+      formData.append('selectedRows', JSON.stringify(selectedRows))
+      formData.append('selectedAtoms', JSON.stringify(selectedAtoms))
+      formData.append('tag', JSON.stringify(tag))
+
+      initiateFetcher.submit(formData, { method: 'post' })
     },
     [initiateFetcher, isProcessing],
   )
@@ -149,15 +165,14 @@ export function useBatchCreateTriple() {
     console.log('Publishing triples')
 
     setIsProcessing(true)
-    publishFetcher.submit(
-      {
-        action: 'publishTriples',
-        requestHash: state.requestHash,
-        selectedAtoms: JSON.stringify(state.selectedAtoms),
-        tag: JSON.stringify(state.tag),
-      },
-      { method: 'post' },
-    )
+
+    const formData = new FormData()
+    formData.append('action', 'publishTriples')
+    formData.append('requestHash', state.requestHash)
+    formData.append('selectedAtoms', JSON.stringify(state.selectedAtoms))
+    formData.append('tag', JSON.stringify(state.tag))
+
+    publishFetcher.submit(formData, { method: 'post' })
   }, [publishFetcher, state.requestHash, state.selectedAtoms, state.tag])
 
   const sendBatchTx = useCallback(async () => {
@@ -261,25 +276,23 @@ export function useBatchCreateTriple() {
 
     setIsProcessing(true)
     dispatch({ type: 'SET_STEP', payload: 'logging' })
-    logTxFetcher.submit(
-      {
-        action: 'logTxHashAndVerifyTriples',
-        txHash: state.txHash,
-        requestHash: state.requestHash,
-        newTriples: JSON.stringify(state.newTriples),
-        existingTriples: JSON.stringify(state.existingTriples),
-        msgSender: isSmartWalletUser
-          ? (smartWalletClient?.account.address as `0x${string}`)
-          : (address as `0x${string}`),
-      },
-      { method: 'post' },
+
+    const formData = new FormData()
+    formData.append('action', 'logTxHashAndVerifyTriples')
+    formData.append('txHash', state.txHash)
+    formData.append('requestHash', state.requestHash)
+    formData.append('newTriples', JSON.stringify(state.newTriples))
+    formData.append('existingTriples', JSON.stringify(state.existingTriples))
+    formData.append(
+      'msgSender',
+      isSmartWalletUser ? smartWalletClient?.account.address : address,
     )
+
+    logTxFetcher.submit(formData, { method: 'post' })
   }, [
     logTxFetcher,
     state.txHash,
     state.requestHash,
-    state.newTriples,
-    state.existingTriples,
     isSmartWalletUser,
     smartWalletClient,
     address,
@@ -292,13 +305,7 @@ export function useBatchCreateTriple() {
       initiateFetcher.data &&
       state.step === 'initiating'
     ) {
-      const data = initiateFetcher.data as {
-        success: boolean
-        requestHash: string
-        selectedRows: number[]
-        selectedAtoms: WithContext<Thing>[]
-        tag: WithContext<Thing>
-      }
+      const data = initiateFetcher.data as InitiateTagResponse
 
       if (data.success) {
         dispatch({ type: 'SET_REQUEST_HASH', payload: data.requestHash })
@@ -322,12 +329,7 @@ export function useBatchCreateTriple() {
       publishFetcher.data &&
       state.step === 'publishing'
     ) {
-      const data = publishFetcher.data as {
-        success: boolean
-        calls: BatchTriplesRequest[]
-        newTriples: Triple[]
-        existingTriples: Triple[]
-      }
+      const data = publishFetcher.data as PublishTriplesResponse
       if (data.success && data.calls) {
         dispatch({
           type: 'SET_CALLS',
@@ -361,6 +363,7 @@ export function useBatchCreateTriple() {
     ) {
       const data = logTxFetcher.data as LogAndVerifyTriplesResponse & {
         success: boolean
+        error?: string
       }
 
       if (data.success) {
@@ -378,7 +381,7 @@ export function useBatchCreateTriple() {
           },
         })
       } else {
-        console.error('Failed to tag atom(s):', data.error) // Add error logging
+        console.error('Failed to tag atom(s):', data.error)
         toast.error('Failed to tag atom(s). Please try again.', {
           duration: 5000,
         })

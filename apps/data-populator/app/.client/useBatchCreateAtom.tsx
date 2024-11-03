@@ -109,6 +109,24 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+type InitiateActionResponse = {
+  success: boolean
+  requestHash: string
+  selectedRows: number[]
+  selectedAtoms: WithContext<Thing>[]
+  csvData: string[][]
+  error?: string
+}
+
+type PublishAtomsResponse = {
+  success: boolean
+  calls: BatchAtomsRequest[]
+  newCIDs: string[]
+  existingCIDs: string[]
+  filteredData: PinDataResult[]
+  error?: string
+}
+
 export function useBatchCreateAtom() {
   const [state, dispatch] = useReducer(reducer, initialState)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -140,34 +158,32 @@ export function useBatchCreateAtom() {
       console.log('CSV Data:', csvData)
       setIsProcessing(true)
       dispatch({ type: 'SET_STEP', payload: 'initiating' })
-      initiateFetcher.submit(
-        {
-          action: 'initiateBatchAtomRequest',
-          selectedRows: JSON.stringify(selectedRows),
-          csvData: JSON.stringify(csvData),
-        },
-        { method: 'post' },
-      )
+
+      const formData = new FormData()
+      formData.append('action', 'initiateBatchAtomRequest')
+      formData.append('selectedRows', JSON.stringify(selectedRows))
+      formData.append('csvData', JSON.stringify(csvData))
+
+      initiateFetcher.submit(formData, { method: 'post' })
     },
     [initiateFetcher, isProcessing],
   )
 
   const publishAtoms = useCallback(() => {
-    if (!state.requestHash || isProcessing) {
+    if (!state.requestHash || isProcessing || publishFetcher.state !== 'idle') {
       return
     }
-    console.log('Publishing atoms')
 
+    console.log('Publishing atoms')
     setIsProcessing(true)
-    publishFetcher.submit(
-      {
-        action: 'publishAtoms',
-        requestHash: state.requestHash,
-        selectedAtoms: JSON.stringify(state.selectedAtoms),
-      },
-      { method: 'post' },
-    )
-  }, [publishFetcher, state.requestHash, state.calls])
+
+    const formData = new FormData()
+    formData.append('action', 'publishAtoms')
+    formData.append('requestHash', state.requestHash)
+    formData.append('selectedAtoms', JSON.stringify(state.selectedAtoms))
+
+    publishFetcher.submit(formData, { method: 'post' })
+  }, [publishFetcher, state.requestHash, state.selectedAtoms, isProcessing])
 
   const sendBatchTx = useCallback(async () => {
     console.log('Sending batch transaction')
@@ -270,24 +286,27 @@ export function useBatchCreateAtom() {
 
     setIsProcessing(true)
     dispatch({ type: 'SET_STEP', payload: 'logging' })
-    logTxFetcher.submit(
-      {
-        action: 'logTxHashAndVerifyAtoms',
-        txHash: state.txHash,
-        requestHash: state.requestHash,
-        filteredCIDs: JSON.stringify(state.newCIDs),
-        filteredData: JSON.stringify(state.filteredData),
-        msgSender: isSmartWalletUser
-          ? (smartWalletClient?.account.address as `0x${string}`)
-          : (address as `0x${string}`),
-        oldAtomCIDs: JSON.stringify(state.existingCIDs),
-      },
-      { method: 'post' },
+
+    const formData = new FormData()
+    formData.append('action', 'logTxHashAndVerifyAtoms')
+    formData.append('txHash', state.txHash)
+    formData.append('requestHash', state.requestHash)
+    formData.append('filteredCIDs', JSON.stringify(state.newCIDs))
+    formData.append('filteredData', JSON.stringify(state.filteredData))
+    formData.append(
+      'msgSender',
+      isSmartWalletUser ? smartWalletClient?.account.address : address,
     )
+    formData.append('oldAtomCIDs', JSON.stringify(state.existingCIDs))
+
+    logTxFetcher.submit(formData, { method: 'post' })
   }, [
     logTxFetcher,
     state.txHash,
     state.requestHash,
+    state.newCIDs,
+    state.filteredData,
+    state.existingCIDs,
     isSmartWalletUser,
     smartWalletClient,
     address,
@@ -300,20 +319,22 @@ export function useBatchCreateAtom() {
       initiateFetcher.data &&
       state.step === 'initiating'
     ) {
-      const data = initiateFetcher.data as InitiateActionData
+      const data = initiateFetcher.data as InitiateActionResponse
       console.log('Initiate fetcher data received:', data)
       if (data.success && data.requestHash) {
-        console.log('Initiate fetcher data received:', data)
         dispatch({ type: 'SET_REQUEST_HASH', payload: data.requestHash })
         dispatch({ type: 'SET_SELECTED_ATOMS', payload: data.selectedAtoms })
         dispatch({ type: 'SET_SELECTED_ROWS', payload: data.selectedRows })
         dispatch({ type: 'SET_CSV_DATA', payload: data.csvData })
         dispatch({ type: 'SET_STEP', payload: 'publishing' })
-        setIsProcessing(false)
       } else {
+        console.error('Failed to initiate batch request:', data.error)
+        toast.error('Failed to initiate batch request. Please try again.', {
+          duration: 5000,
+        })
         dispatch({ type: 'SET_STEP', payload: 'idle' })
-        setIsProcessing(false)
       }
+      setIsProcessing(false)
     }
   }, [initiateFetcher.state, initiateFetcher.data, state.step])
 
@@ -323,7 +344,7 @@ export function useBatchCreateAtom() {
       publishFetcher.data &&
       state.step === 'publishing'
     ) {
-      const data = publishFetcher.data as PublishActionData
+      const data = publishFetcher.data as PublishAtomsResponse
       console.log('Publish fetcher data received:', data)
       if (data.success && data.calls) {
         dispatch({
@@ -335,13 +356,15 @@ export function useBatchCreateAtom() {
             filteredData: data.filteredData || [],
           },
         })
-        // in this payload we have the atoms
         dispatch({ type: 'SET_STEP', payload: 'sending' })
-        setIsProcessing(false)
       } else {
+        console.error('Failed to publish atoms:', data.error)
+        toast.error('Failed to publish atoms. Please try again.', {
+          duration: 5000,
+        })
         dispatch({ type: 'SET_STEP', payload: 'idle' })
-        setIsProcessing(false)
       }
+      setIsProcessing(false)
     }
   }, [publishFetcher.state, publishFetcher.data, state.step])
 
@@ -399,21 +422,36 @@ export function useBatchCreateAtom() {
         return
       }
 
-      console.log('state.step', state.step)
-      console.log('state.calls', state.calls)
-      console.log('state.filteredData', state.filteredData)
+      try {
+        switch (state.step) {
+          case 'sending':
+            if (state.calls.length > 0) {
+              await sendBatchTx()
+            }
+            break
 
-      if (state.step === 'sending' && state.calls.length > 0) {
-        try {
-          await sendBatchTx()
-        } catch (error) {
-          console.error('Error in sendBatchTx:', error)
-          // Handle error appropriately
+          case 'logging':
+            if (state.txHash) {
+              logTxHash()
+            }
+            break
+
+          case 'publishing':
+            if (
+              state.requestHash &&
+              !publishFetcher.data &&
+              publishFetcher.state === 'idle'
+            ) {
+              publishAtoms()
+            }
+            break
         }
-      } else if (state.step === 'logging' && state.txHash) {
-        logTxHash()
-      } else if (state.step === 'publishing' && state.requestHash) {
-        publishAtoms()
+      } catch (error) {
+        console.error('Error in async operations:', error)
+        dispatch({
+          type: 'SET_ERROR',
+          error: error instanceof Error ? error.message : String(error),
+        })
       }
     }
 
@@ -422,12 +460,13 @@ export function useBatchCreateAtom() {
     state.step,
     state.requestHash,
     state.calls,
-    state.filteredData,
     state.txHash,
     publishAtoms,
     sendBatchTx,
     logTxHash,
     isProcessing,
+    publishFetcher.state,
+    publishFetcher.data,
   ])
 
   return {
