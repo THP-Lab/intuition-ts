@@ -989,7 +989,15 @@ export default function CSVEditor() {
     <>
       {/* Main content */}
       <div className="container mx-auto p-4 space-y-6 relative">
-        {/* Button row for main actions */}
+        {/* Add the file input before the buttons */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={loadCSV}
+          style={{ display: 'none' }}
+          accept=".csv"
+        />
+
         <div className="flex space-x-4">
           {tooltipsEnabled ? (
             <Tooltip>
