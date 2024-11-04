@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: data-populator
+    name: data-populator-dev
     env: docker
     region: oregon
     rootDir: .
