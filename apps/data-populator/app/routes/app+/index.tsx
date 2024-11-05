@@ -38,7 +38,11 @@ import {
   PinDataResult,
 } from '@lib/services/populate'
 import { generateCsvContent, parseCsv } from '@lib/utils/csv'
-import { defaultCSVData, defaultCSVDescriptions } from '@lib/utils/default-data'
+import {
+  defaultCSVData,
+  defaultCSVDescriptions,
+  defaultCSVValues,
+} from '@lib/utils/default-data'
 import { loadThumbnail, loadThumbnails } from '@lib/utils/image'
 import logger from '@lib/utils/logger'
 import {
@@ -575,7 +579,12 @@ export default function CSVEditor() {
 
   // Function to add a new empty row to the CSV data
   const addNewRow = () => {
-    setCsvData((prev) => [...prev, Array(prev[0]?.length || 0).fill('')])
+    setCsvData((prev) => {
+      const newRow = prev[0].map(
+        (columnHeader) => defaultCSVValues[columnHeader] || '',
+      )
+      return [...prev, newRow]
+    })
   }
 
   // Function to delete selected rows from the CSV data

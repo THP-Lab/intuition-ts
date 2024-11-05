@@ -10,3 +10,8 @@ export const defaultCSVDescriptions: Record<string, string> = {
   image: "URL for the atom's image",
   url: 'URL for the website associated with the atom',
 }
+
+export const defaultCSVValues: Record<string, string> = {
+  '@context': 'https://schema.org',
+  '@type': 'Thing',
+}
