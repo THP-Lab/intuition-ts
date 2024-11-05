@@ -1138,148 +1138,160 @@ export default function CSVEditor() {
 
         {/* CSV data table */}
         {csvData.length > 0 && (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-8"></TableHead>{' '}
-                  {/* New column for checkmark */}
-                  {csvData[0].map((header, index) => (
-                    <TableHead
-                      key={index}
-                      className={`cursor-pointer hover:bg-gray-100 ${
-                        header === '@context'
-                          ? 'w-40'
-                          : header === '@type'
-                            ? 'w-24'
-                            : header === 'name'
-                              ? 'w-48'
-                              : header === 'image'
-                                ? 'w-64'
-                                : ''
-                      }`}
-                      onClick={() => handleSort(index)}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <span>{header}</span>
-                        {sortState.column === index && (
-                          <span>
-                            {sortState.direction === 'asc' ? '▲' : '▼'}
-                          </span>
-                        )}
-                      </div>
-                    </TableHead>
-                  ))}
-                  <TableHead
-                    className="cursor-pointer hover:bg-gray-100 w-16"
-                    onClick={toggleAllRows}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={selectedRows.length === csvData.length - 1}
-                        onCheckedChange={toggleAllRows}
-                        className="w-4 h-4"
-                      />
-                    </div>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(sortedIndices.length > 0
-                  ? sortedIndices
-                  : csvData.slice(1).map((_, i) => i + 1)
-                ).map((rowIndex, displayIndex) => (
-                  <TableRow key={rowIndex}>
-                    <TableCell className="w-8 p-0">
-                      {loadingRows.has(rowIndex - 1) ? (
-                        <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
-                      ) : existingAtoms.has(rowIndex - 1) ? (
-                        <CheckCircle2 className="text-green-500 w-5 h-5" />
-                      ) : null}
-                    </TableCell>
-                    {csvData[rowIndex].map((cell, cellIndex) => (
-                      <TableCell
-                        key={cellIndex}
-                        className={`p-0 ${
-                          csvData[0][cellIndex] === '@context'
-                            ? 'w-40'
-                            : csvData[0][cellIndex] === '@type'
-                              ? 'w-24'
-                              : csvData[0][cellIndex] === 'name'
-                                ? 'w-48'
-                                : csvData[0][cellIndex] === 'image'
-                                  ? 'w-64'
-                                  : ''
-                        } ${
-                          cellHighlights.some(
-                            (highlight) =>
-                              highlight.rowIndex === displayIndex &&
-                              highlight.cellIndex === cellIndex,
-                          )
-                            ? 'border-yellow-400 border-2'
-                            : ''
-                        }`}
-                      >
-                        <div className="flex items-center">
-                          <Textarea
-                            value={cell}
-                            onChange={(e) =>
-                              handleCellEdit(
-                                rowIndex,
-                                cellIndex,
-                                e.target.value,
-                              )
-                            }
-                            onFocus={handleFocus}
-                            onBlur={(e) =>
-                              handleCellBlur(e, rowIndex, cellIndex)
-                            }
-                            onPaste={(e) =>
-                              handleCellPaste(e, rowIndex, cellIndex)
-                            }
-                            placeholder={
-                              !cell &&
-                              defaultCSVDescriptions[csvData[0][cellIndex]]
-                                ? defaultCSVDescriptions[csvData[0][cellIndex]]
-                                : ''
-                            }
-                            className={`w-full border-none focus:outline-none focus:ring-0 resize-none overflow-hidden h-8 ${
-                              !cell ? 'text-gray-400 italic' : ''
-                            }`}
-                            readOnly={
-                              csvData[0][cellIndex] === '@context' ||
-                              csvData[0][cellIndex] === '@type'
-                            }
-                          />
-                          {csvData[0][cellIndex] === 'image' &&
-                            thumbnails[rowIndex] && (
-                              <img
-                                src={thumbnails[rowIndex]}
-                                alt="Thumbnail"
-                                className="w-8 h-8 object-cover ml-2 flex-shrink-0"
-                              />
+          <>
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Atoms View</h3>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-8"></TableHead>{' '}
+                      {/* New column for checkmark */}
+                      {csvData[0].map((header, index) => (
+                        <TableHead
+                          key={index}
+                          className={`cursor-pointer hover:bg-gray-100 ${
+                            header === '@context'
+                              ? 'w-40'
+                              : header === '@type'
+                                ? 'w-24'
+                                : header === 'name'
+                                  ? 'w-48'
+                                  : header === 'image'
+                                    ? 'w-64'
+                                    : ''
+                          }`}
+                          onClick={() => handleSort(index)}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <span>{header}</span>
+                            {sortState.column === index && (
+                              <span>
+                                {sortState.direction === 'asc' ? '▲' : '▼'}
+                              </span>
                             )}
+                          </div>
+                        </TableHead>
+                      ))}
+                      <TableHead
+                        className="cursor-pointer hover:bg-gray-100 w-16"
+                        onClick={toggleAllRows}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            checked={selectedRows.length === csvData.length - 1}
+                            onCheckedChange={toggleAllRows}
+                            className="w-4 h-4"
+                          />
                         </div>
-                      </TableCell>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {(sortedIndices.length > 0
+                      ? sortedIndices
+                      : csvData.slice(1).map((_, i) => i + 1)
+                    ).map((rowIndex, displayIndex) => (
+                      <TableRow key={rowIndex}>
+                        <TableCell className="w-8 p-0">
+                          {loadingRows.has(rowIndex - 1) ? (
+                            <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
+                          ) : existingAtoms.has(rowIndex - 1) ? (
+                            <CheckCircle2 className="text-green-500 w-5 h-5" />
+                          ) : null}
+                        </TableCell>
+                        {csvData[rowIndex].map((cell, cellIndex) => (
+                          <TableCell
+                            key={cellIndex}
+                            className={`p-0 ${
+                              csvData[0][cellIndex] === '@context'
+                                ? 'w-40'
+                                : csvData[0][cellIndex] === '@type'
+                                  ? 'w-24'
+                                  : csvData[0][cellIndex] === 'name'
+                                    ? 'w-48'
+                                    : csvData[0][cellIndex] === 'image'
+                                      ? 'w-64'
+                                      : ''
+                            } ${
+                              cellHighlights.some(
+                                (highlight) =>
+                                  highlight.rowIndex === displayIndex &&
+                                  highlight.cellIndex === cellIndex,
+                              )
+                                ? 'border-yellow-400 border-2'
+                                : ''
+                            }`}
+                          >
+                            <div className="flex items-center">
+                              <Textarea
+                                value={cell}
+                                onChange={(e) =>
+                                  handleCellEdit(
+                                    rowIndex,
+                                    cellIndex,
+                                    e.target.value,
+                                  )
+                                }
+                                onFocus={handleFocus}
+                                onBlur={(e) =>
+                                  handleCellBlur(e, rowIndex, cellIndex)
+                                }
+                                onPaste={(e) =>
+                                  handleCellPaste(e, rowIndex, cellIndex)
+                                }
+                                placeholder={
+                                  !cell &&
+                                  defaultCSVDescriptions[csvData[0][cellIndex]]
+                                    ? defaultCSVDescriptions[
+                                        csvData[0][cellIndex]
+                                      ]
+                                    : ''
+                                }
+                                className={`w-full border-none focus:outline-none focus:ring-0 resize-none overflow-hidden h-8 ${
+                                  !cell ? 'text-gray-400 italic' : ''
+                                }`}
+                                readOnly={
+                                  csvData[0][cellIndex] === '@context' ||
+                                  csvData[0][cellIndex] === '@type'
+                                }
+                              />
+                              {csvData[0][cellIndex] === 'image' &&
+                                thumbnails[rowIndex] && (
+                                  <img
+                                    src={thumbnails[rowIndex]}
+                                    alt="Thumbnail"
+                                    className="w-8 h-8 object-cover ml-2 flex-shrink-0"
+                                  />
+                                )}
+                            </div>
+                          </TableCell>
+                        ))}
+                        <TableCell className="w-16">
+                          <Checkbox
+                            checked={selectedRows.includes(rowIndex - 1)}
+                            onCheckedChange={() =>
+                              toggleRowSelection(rowIndex - 1)
+                            }
+                            className="w-4 h-4"
+                          />
+                        </TableCell>
+                      </TableRow>
                     ))}
-                    <TableCell className="w-16">
-                      <Checkbox
-                        checked={selectedRows.includes(rowIndex - 1)}
-                        onCheckedChange={() => toggleRowSelection(rowIndex - 1)}
-                        className="w-4 h-4"
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </>
         )}
 
-        {/* Tag creation section */}
+        {/* Add a horizontal divider */}
+        <hr className="my-6 border-gray-200" />
+
+        {/* Tag creation section with all its content */}
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
-            <h3 className="text-lg font-semibold">Create a Tag</h3>
+            <h3 className="text-lg font-semibold">Tag View</h3>
             {isCheckingTag ? (
               <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
             ) : tagExists ? (
@@ -1369,7 +1381,10 @@ export default function CSVEditor() {
           </div>
         </div>
 
-        {/* Search for Atom section (currently disabled) */}
+        {/* Add a horizontal divider */}
+        <hr className="my-6 border-gray-200" />
+
+        {/* Search for Atom section */}
         <div className="space-y-4 opacity-50 pointer-events-none">
           <h3 className="text-lg font-semibold">Search for Atom</h3>
           <div className="flex space-x-4">
@@ -1392,7 +1407,10 @@ export default function CSVEditor() {
           {/* ... existing search results table ... */}
         </div>
 
-        {/* LLM Interaction section (currently disabled) */}
+        {/* Add another horizontal divider */}
+        <hr className="my-6 border-gray-200" />
+
+        {/* LLM Interaction section */}
         <div className="space-y-2 opacity-50 pointer-events-none">
           <h3 className="text-lg font-semibold">LLM Interaction</h3>
           <Textarea
