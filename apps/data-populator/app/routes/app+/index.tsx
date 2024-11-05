@@ -422,6 +422,47 @@ export default function CSVEditor() {
     modalCallback(confirm)
   }
 
+  // Move checkExistingAtoms before loadCSV and handleApplyFixes
+  const checkExistingAtoms = async (data: string[][]) => {
+    const formData = new FormData()
+    formData.append('action', 'checkAtomsExist')
+    formData.append('csvData', JSON.stringify(data))
+
+    try {
+      setLoadingRows(new Set(data.slice(1).map((_, index) => index)))
+
+      const response = await fetch('/api/csv-editor', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success && result.atomExistsResults) {
+          const existingIndexes = new Set(
+            result.atomExistsResults
+              .filter((result: AtomExistsResult) => result.alreadyExists)
+              .map((result: AtomExistsResult) => result.originalIndex),
+          )
+          console.log('Existing atom indexes:', existingIndexes)
+          setExistingAtoms(
+            new Set(
+              Array.from(existingIndexes).filter(
+                (index): index is number => typeof index === 'number',
+              ),
+            ),
+          )
+        }
+      } else {
+        console.error('Failed to check existing atoms')
+      }
+    } catch (error) {
+      console.error('Error checking existing atoms:', error)
+    } finally {
+      setLoadingRows(new Set())
+    }
+  }
+
   // Function to load and process a CSV file
   const loadCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -451,16 +492,19 @@ export default function CSVEditor() {
                   !proofreadResult.duplicates.duplicateIndices.includes(index),
               )
               setCsvData(finalRows)
+              checkExistingAtoms(finalRows)
+            } else {
+              checkExistingAtoms(rows)
             }
           },
         )
+      } else {
+        checkExistingAtoms(rows)
       }
-
-      checkExistingAtoms(rows)
     }
   }
 
-  // Add this function to handle applying fixes
+  // Function to handle applying fixes
   const handleApplyFixes = useCallback(
     (updatedIssues: UnusualCharacterIssue[]) => {
       setCsvData((prevData) => {
@@ -499,11 +543,13 @@ export default function CSVEditor() {
             )
           }
         })
+
+        checkExistingAtoms(newData)
         return newData
       })
       setShowProofreadModal(false)
     },
-    [],
+    [checkExistingAtoms],
   )
 
   // // Function to update all cell highlights based on adjacent duplicates
@@ -576,49 +622,6 @@ export default function CSVEditor() {
   //   )
   //   setCellHighlights(initialHighlights)
   // }
-
-  // Function to check which atoms already exist in the system
-  const checkExistingAtoms = async (data: string[][]) => {
-    const formData = new FormData()
-    formData.append('action', 'checkAtomsExist')
-    formData.append('csvData', JSON.stringify(data))
-
-    try {
-      setLoadingRows(new Set(data.slice(1).map((_, index) => index)))
-
-      const response = await fetch('/api/csv-editor', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        if (result.success && result.atomExistsResults) {
-          const existingIndexes = new Set(
-            result.atomExistsResults
-              .filter((result: AtomExistsResult) => result.alreadyExists)
-              .map((result: AtomExistsResult) => result.originalIndex),
-          )
-          console.log('Existing atom indexes:', existingIndexes)
-          // setExistingAtoms(new Set(existingIndexes as number[]))
-          setExistingAtoms(
-            new Set(
-              Array.from(existingIndexes).filter(
-                (index): index is number => typeof index === 'number',
-              ),
-            ),
-          )
-        }
-      } else {
-        console.error('Failed to check existing atoms')
-      }
-    } catch (error) {
-      console.error('Error checking existing atoms:', error)
-    } finally {
-      // Clear all loading states after check is complete
-      setLoadingRows(new Set())
-    }
-  }
 
   // Function to add a new empty row to the CSV data
   const addNewRow = () => {
