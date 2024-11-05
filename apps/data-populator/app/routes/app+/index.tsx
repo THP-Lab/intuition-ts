@@ -38,6 +38,7 @@ import {
   PinDataResult,
 } from '@lib/services/populate'
 import { generateCsvContent, parseCsv } from '@lib/utils/csv'
+import { defaultCSVData } from '@lib/utils/default-data'
 import { loadThumbnail, loadThumbnails } from '@lib/utils/image'
 import logger from '@lib/utils/logger'
 import {
@@ -973,6 +974,14 @@ export default function CSVEditor() {
       setIsCheckingTag(false)
     }
   }, [newTag])
+
+  // Set default CSV data to Thing Schema
+  useEffect(() => {
+    if (csvData.length === 0) {
+      // Only set if no data exists
+      setCsvData(defaultCSVData)
+    }
+  }, [csvData.length])
 
   // Add this effect to check tag existence when tag fields change
   useEffect(() => {
