@@ -38,7 +38,7 @@ import {
   PinDataResult,
 } from '@lib/services/populate'
 import { generateCsvContent, parseCsv } from '@lib/utils/csv'
-import { defaultCSVData } from '@lib/utils/default-data'
+import { defaultCSVData, defaultCSVDescriptions } from '@lib/utils/default-data'
 import { loadThumbnail, loadThumbnails } from '@lib/utils/image'
 import logger from '@lib/utils/logger'
 import {
@@ -1237,7 +1237,15 @@ export default function CSVEditor() {
                             onPaste={(e) =>
                               handleCellPaste(e, rowIndex, cellIndex)
                             }
-                            className="w-full border-none focus:outline-none focus:ring-0 resize-none overflow-hidden h-8"
+                            placeholder={
+                              !cell &&
+                              defaultCSVDescriptions[csvData[0][cellIndex]]
+                                ? defaultCSVDescriptions[csvData[0][cellIndex]]
+                                : ''
+                            }
+                            className={`w-full border-none focus:outline-none focus:ring-0 resize-none overflow-hidden h-8 ${
+                              !cell ? 'text-gray-400 italic' : ''
+                            }`}
                             readOnly={
                               csvData[0][cellIndex] === '@context' ||
                               csvData[0][cellIndex] === '@type'
