@@ -262,25 +262,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 }
 
-// Add the new hook near the other hooks at the top of the component
+// Revert useCSVData to its original simple form
 const useCSVData = (initialData: string[][]) => {
-  const [csvData, setCsvDataRaw] = useState<string[][]>(() =>
-    JSON.parse(JSON.stringify(initialData)),
-  )
-
-  const setCsvData = useCallback(
-    (data: string[][] | ((prev: string[][]) => string[][])) => {
-      if (typeof data === 'function') {
-        setCsvDataRaw((prev: string[][]) =>
-          JSON.parse(JSON.stringify(data(prev))),
-        )
-      } else {
-        setCsvDataRaw(JSON.parse(JSON.stringify(data)))
-      }
-    },
-    [],
-  )
-
+  const [csvData, setCsvData] = useState<string[][]>(initialData)
   return [csvData, setCsvData] as const
 }
 
