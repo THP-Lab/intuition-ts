@@ -339,6 +339,41 @@ export default function CSVEditor() {
     return true
   })
 
+  const useLoadedCSVData = () => {
+    const [loadedCSVData, setLoadedCSVDataRaw] = useState<string[][]>([])
+
+    // Wrap the setter to enforce deep copying
+    const setLoadedCSVData = useCallback((data: string[][]) => {
+      setLoadedCSVDataRaw(JSON.parse(JSON.stringify(data)))
+    }, [])
+
+    return [loadedCSVData, setLoadedCSVData] as const
+  }
+
+  const [isCSVDataModified, setIsCSVDataModified] = useState(false)
+  const [loadedCSVData, setLoadedCSVData] = useLoadedCSVData() // enforces deep copy
+
+  // Effect to check if the CSV data is worth saving
+  useEffect(() => {
+    if (csvData.length === 0) {
+      setIsCSVDataModified(false)
+      return
+    }
+
+    // Check against both default and loaded data
+    const matchesDefault =
+      JSON.stringify(csvData) === JSON.stringify(defaultCSVData)
+    const matchesLoaded =
+      JSON.stringify(csvData) === JSON.stringify(loadedCSVData)
+
+    console.log('matchesDefault', matchesDefault)
+    console.log('defaultCSVData', JSON.stringify(defaultCSVData))
+    console.log('csvData', JSON.stringify(csvData))
+
+    // Data is modified if it matches neither the default nor the loaded data
+    setIsCSVDataModified(!matchesDefault && !matchesLoaded)
+  }, [csvData, loadedCSVData])
+
   // Function to load thumbnails for image URLs in the CSV data
   const loadThumbnailsForCSV = useCallback(async (data: string[][]) => {
     const imageColumnIndex = data[0].indexOf('image')
@@ -386,7 +421,8 @@ export default function CSVEditor() {
     if (file) {
       const rows = await parseCsv(file)
       console.log('Parsed CSV rows:', rows.length)
-      setCsvData(rows) // Set the CSV data immediately
+      setCsvData(rows)
+      setLoadedCSVData(rows)
 
       const proofreadResult = proofreadAll(rows)
       console.log('Proofread result:', proofreadResult)
@@ -857,6 +893,7 @@ export default function CSVEditor() {
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
+      setLoadedCSVData(csvData)
     }
   }
 
@@ -1129,14 +1166,14 @@ export default function CSVEditor() {
           {tooltipsEnabled ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button onClick={saveCSV}>
+                <Button onClick={saveCSV} disabled={!isCSVDataModified}>
                   <Save className="h-4 w-4" /> Save CSV
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{getTooltip(TooltipKey.SAVE_CSV)}</TooltipContent>
             </Tooltip>
           ) : (
-            <Button onClick={saveCSV}>
+            <Button onClick={saveCSV} disabled={!isCSVDataModified}>
               <Save className="h-4 w-4" /> Save CSV
             </Button>
           )}
