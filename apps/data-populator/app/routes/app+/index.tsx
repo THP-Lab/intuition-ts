@@ -262,6 +262,28 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 }
 
+// Add the new hook near the other hooks at the top of the component
+const useCSVData = (initialData: string[][]) => {
+  const [csvData, setCsvDataRaw] = useState<string[][]>(() =>
+    JSON.parse(JSON.stringify(initialData)),
+  )
+
+  const setCsvData = useCallback(
+    (data: string[][] | ((prev: string[][]) => string[][])) => {
+      if (typeof data === 'function') {
+        setCsvDataRaw((prev: string[][]) =>
+          JSON.parse(JSON.stringify(data(prev))),
+        )
+      } else {
+        setCsvDataRaw(JSON.parse(JSON.stringify(data)))
+      }
+    },
+    [],
+  )
+
+  return [csvData, setCsvData] as const
+}
+
 export default function CSVEditor() {
   // State variables for managing CSV data, UI interactions, and atom-related operations
 
@@ -270,7 +292,8 @@ export default function CSVEditor() {
   const navigation = useNavigation()
   const fetcher = useFetcher()
 
-  const [csvData, setCsvData] = useState<string[][]>([])
+  // Ensure we always have a deep copy of the CSV data
+  const [csvData, setCsvData] = useCSVData([])
   const [selectedRows, setSelectedRows] = useState<number[]>([])
   // const [tags, setTags] = useState<string[][]>([])
   const [newTag, setNewTag] = useState<Record<string, string>>({
@@ -615,9 +638,9 @@ export default function CSVEditor() {
 
   // Function to add a new empty row to the CSV data
   const addNewRow = () => {
-    setCsvData((prev) => {
+    setCsvData((prev: string[][]) => {
       const newRow = prev[0].map(
-        (columnHeader) => defaultCSVValues[columnHeader] || '',
+        (columnHeader: string) => defaultCSVValues[columnHeader] || '',
       )
       return [...prev, newRow]
     })
@@ -629,11 +652,11 @@ export default function CSVEditor() {
       `Delete ${selectedRows.length > 1 ? 'selected rows' : 'selected row'}?`,
       (confirm) => {
         if (confirm) {
-          setCsvData((prev) => {
+          setCsvData((prev: string[][]) => {
+            // Ensure we always have at least the header row
             const newData = prev.filter(
               (_, index) => index === 0 || !selectedRows.includes(index - 1),
             )
-            // Ensure we always have at least the header row
             return newData.length > 1 ? newData : [prev[0]]
           })
 
@@ -656,8 +679,8 @@ export default function CSVEditor() {
           // Clear selected rows
           setSelectedRows([])
 
-          // Use a callback to ensure we're working with the latest state
-          setCsvData((currentCsvData) => {
+          // Update highlights
+          setCsvData((currentCsvData: string[][]) => {
             setSortedIndices((currentSortedIndices) => {
               const dataIndices =
                 currentSortedIndices.length > 0
@@ -748,7 +771,7 @@ export default function CSVEditor() {
   // Function to handle cell edits
   const handleCellEdit = useCallback(
     (rowIndex: number, cellIndex: number, value: string) => {
-      setCsvData((prev) => {
+      setCsvData((prev: string[][]) => {
         const newData = [...prev]
         newData[rowIndex][cellIndex] = value
         return newData
