@@ -28,7 +28,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     case 'getAtomHistory': {
       const atomPage = parseInt(url.searchParams.get('page') || '0')
       const atomPageSize = parseInt(url.searchParams.get('pageSize') || '10')
-      console.log('Getting atom history from csv-editor.tsx')
+      // console.log('Getting atom history from csv-editor.tsx')
       const atoms = await getMyAtoms(
         request,
         atomPageSize,
@@ -40,7 +40,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     case 'getTripleHistory': {
       const triplePage = parseInt(url.searchParams.get('page') || '0')
       const triplePageSize = parseInt(url.searchParams.get('pageSize') || '10')
-      console.log('Getting triple history from csv-editor.tsx')
+      // console.log('Getting triple history from csv-editor.tsx')
       const triples = await getMyTriples(
         request,
         triplePageSize,
@@ -61,14 +61,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     case 'getAtomData': {
       const atomID = url.searchParams.get('atomID') as string
-      console.log('Getting atom data from csv-editor.tsx')
+      // console.log('Getting atom data from csv-editor.tsx')
       const atomData = await getAtomDataFromID(atomID)
       return json({ result: { atomID, atomData } })
     }
 
     case 'getRequestUpdate': {
       const requestHash = url.searchParams.get('requestHash') as string
-      console.log('Getting request update from csv-editor.tsx')
+      // console.log('Getting request update from csv-editor.tsx')
       const requestUpdate = await getRequest(requestHash)
       // console.log("requestUpdate response:",requestUpdate)
       return json({ result: requestUpdate })
@@ -77,7 +77,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     case 'getMyRequests': {
       const limit = parseInt(url.searchParams.get('limit') || '100')
       const offset = parseInt(url.searchParams.get('offset') || '0')
-      console.log('Getting my requests from csv-editor.tsx')
+      // console.log('Getting my requests from csv-editor.tsx')
       const myRequests = await getMyRequests(request, limit, offset)
       return json({ result: myRequests })
     }
@@ -90,7 +90,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 // Action function to handle POST requests
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData()
-  console.log('Form data:', formData)
+  // console.log('Form data:', formData)
   const action = formData.get('action')
 
   switch (action) {

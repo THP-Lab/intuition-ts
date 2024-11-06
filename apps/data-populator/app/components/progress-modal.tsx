@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef } from 'react'
+import { useContext, useEffect, useRef } from 'react'
 
 import {
   Dialog,
@@ -11,6 +11,7 @@ import {
 import { usePollRequestDetails } from '@lib/hooks/usePollRequestDetails'
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 
+import { BatchCreateContext } from '../.client/useBatchCreateAtom'
 import { ScrollArea } from './ui/scroll-area'
 
 interface ProgressModalProps {
@@ -44,14 +45,19 @@ export function ProgressModal({
   requestHash,
   step,
 }: ProgressModalProps) {
-  // TODO: going to need this to handle UI on transaction stages anyway
-  console.log('step', step)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
 
   const { requestData } = usePollRequestDetails({
     requestHash,
     active: isOpen,
   })
+
+  // Only log step when modal is actually open
+  useEffect(() => {
+    if (isOpen) {
+      console.log('step', step)
+    }
+  }, [isOpen, step])
 
   // Make sure to clean things up on close
   useEffect(() => {
@@ -82,6 +88,11 @@ export function ProgressModal({
           <Loader2 className="w-6 h-6 text-blue-500 animate-spin flex-shrink-0" />
         )
     }
+  }
+
+  // Skip rendering if not open
+  if (!isOpen) {
+    return null
   }
 
   return (

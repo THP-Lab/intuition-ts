@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useReducer, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react'
 
 import { toast } from '@0xintuition/1ui'
 
@@ -59,6 +65,7 @@ type Action =
     }
   | { type: 'SET_ERROR'; error: string }
   | { type: 'RESET' }
+  | { type: 'FORCE_UPDATE' }
 
 const initialState: State = {
   requestHash: '',
@@ -108,7 +115,9 @@ function reducer(state: State, action: Action): State {
     case 'RESET':
       console.log('Reducer returning to initial state')
       console.log('Initial state:', initialState)
-      return initialState
+      return { ...initialState }
+    case 'FORCE_UPDATE':
+      return { ...state }
     default:
       return state
   }
@@ -131,6 +140,11 @@ type PublishAtomsResponse = {
   filteredData: PinDataResult[]
   error?: string
 }
+
+export const BatchCreateContext = createContext<{
+  state: typeof initialState
+  dispatch: React.Dispatch<any>
+}>({ state: initialState, dispatch: () => null })
 
 export function useBatchCreateAtom() {
   const [state, dispatch] = useReducer(reducer, initialState)
@@ -322,14 +336,18 @@ export function useBatchCreateAtom() {
   const resetState = useCallback(() => {
     console.log('initiating resetState')
 
-    // Reset fetcher states by submitting empty data
+    // Reset fetcher states
     initiateFetcher.submit({}, { method: 'get' })
     publishFetcher.submit({}, { method: 'get' })
     logTxFetcher.submit({}, { method: 'get' })
 
     setIsProcessing(false)
 
+    // Force context update
     dispatch({ type: 'RESET' })
+
+    // Force rerender of context consumers
+    dispatch({ type: 'FORCE_UPDATE' })
   }, [initiateFetcher, publishFetcher, logTxFetcher])
 
   const handleClose = useCallback(() => {

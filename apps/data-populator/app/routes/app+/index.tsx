@@ -1519,7 +1519,10 @@ export default function CSVEditor() {
       <ProgressModal
         isOpen={isLoading || isTagLoading}
         onClose={() => {
-          console.log('Progress modal closed')
+          // Only log when actually closing from an open state
+          if (isLoading || isTagLoading) {
+            console.log('Progress modal closed')
+          }
         }}
         step={isTagLoading ? tagStep : step}
         requestHash={isTagLoading ? tagRequestHash : requestHash}
