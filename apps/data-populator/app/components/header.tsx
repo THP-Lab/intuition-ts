@@ -124,7 +124,7 @@ export function Header({
           {tooltipsEnabled ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={handleToggleTheme}>
+                <Button variant="ghost" size="icon" disabled>
                   {theme === 'light' ? (
                     <Moon className="h-5 w-5" />
                   ) : (
@@ -137,7 +137,7 @@ export function Header({
               </TooltipContent>
             </Tooltip>
           ) : (
-            <Button variant="ghost" size="icon" onClick={handleToggleTheme}>
+            <Button variant="ghost" size="icon" disabled>
               {theme === 'light' ? (
                 <Moon className="h-5 w-5" />
               ) : (
@@ -168,7 +168,7 @@ export function Header({
           {tooltipsEnabled ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={onOpenOptions}>
+                <Button variant="ghost" size="icon" disabled>
                   <Settings className="h-5 w-5" />
                 </Button>
               </TooltipTrigger>
@@ -177,7 +177,7 @@ export function Header({
               </TooltipContent>
             </Tooltip>
           ) : (
-            <Button variant="ghost" size="icon" onClick={onOpenOptions}>
+            <Button variant="ghost" size="icon" disabled>
               <Settings className="h-5 w-5" />
             </Button>
           )}
