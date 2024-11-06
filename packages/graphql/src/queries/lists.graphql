@@ -1,0 +1,12 @@
+# predicateId = 4 for tags
+
+query GetListItems($predicateId: numeric, $objectId: numeric) {
+  triples(
+    where: { predicateId: { _eq: predicateId }, objectId: { _eq: $objectId } }
+    order_by: [
+      { vault: { positionCount: desc }, counterVault: { positionCount: desc } }
+    ]
+  ) {
+    ...TripleVaultDetails
+  }
+}

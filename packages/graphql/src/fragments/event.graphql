@@ -1,0 +1,11 @@
+fragment EventDetails on events {
+  blockNumber
+  blockTimestamp
+  type
+  transactionHash
+  atomId
+  tripleId
+  depositId
+  feeTransferId
+  redemptionId
+}
