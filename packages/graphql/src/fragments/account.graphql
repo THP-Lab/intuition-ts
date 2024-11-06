@@ -1,0 +1,40 @@
+fragment AccountMetadata on accounts {
+  label
+  image
+  id
+  atomId
+  type
+}
+
+fragment AccountClaims on accounts {
+  claims(order_by: { shares: desc }) {
+    triple {
+      id
+      label
+    }
+    shares
+    counterShares
+  }
+}
+
+fragment AccountPositions on accounts {
+  positions_aggregate(order_by: { shares: desc }) {
+    nodes {
+      id
+      shares
+      vault {
+        id
+        totalShares
+        currentSharePrice
+        atom {
+          id
+          label
+        }
+        triple {
+          id
+          label
+        }
+      }
+    }
+  }
+}

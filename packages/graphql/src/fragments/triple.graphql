@@ -1,0 +1,55 @@
+fragment TripleMetadata on triples {
+  id
+  label
+  subject {
+    data
+    id
+    image
+    label
+    emoji
+    type
+    creator {
+      ...AccountMetadata
+    }
+  }
+  predicate {
+    data
+    id
+    image
+    label
+    emoji
+    type
+    creator {
+      ...AccountMetadata
+    }
+  }
+  object {
+    data
+    id
+    image
+    label
+    emoji
+    type
+    creator {
+      ...AccountMetadata
+    }
+  }
+}
+
+fragment TripleTxn on triples {
+  blockNumber
+  blockTimestamp
+  transactionHash
+  creatorId
+}
+
+fragment TripleVaultDetails on triples {
+  vaultId
+  counterVaultId
+  vault {
+    ...VaultDetails
+  }
+  counterVault {
+    ...VaultDetails
+  }
+}

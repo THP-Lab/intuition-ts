@@ -1,0 +1,106 @@
+fragment AtomMetadata on atoms {
+  data
+  id
+  image
+  label
+  emoji
+  type
+}
+
+fragment AtomTxn on atoms {
+  blockNumber
+  blockTimestamp
+  transactionHash
+  creatorId
+}
+
+fragment AtomVaultDetails on atoms {
+  vaultId
+  walletId
+  vault {
+    positionCount
+    totalShares
+    currentSharePrice
+  }
+}
+
+fragment AtomTriple on atoms {
+  asSubject {
+    id
+    label
+    object {
+      data
+      id
+      image
+      label
+      emoji
+      type
+      creator {
+        ...AccountMetadata
+      }
+    }
+    predicate {
+      data
+      id
+      image
+      label
+      emoji
+      type
+      creator {
+        ...AccountMetadata
+      }
+    }
+  }
+  asPredicate {
+    id
+    label
+    subject {
+      data
+      id
+      image
+      label
+      emoji
+      type
+      creator {
+        ...AccountMetadata
+      }
+    }
+    object {
+      data
+      id
+      image
+      label
+      emoji
+      type
+      creator {
+        ...AccountMetadata
+      }
+    }
+  }
+  asObject {
+    id
+    label
+    subject {
+      data
+      id
+      image
+      label
+      emoji
+      type
+      creator {
+        ...AccountMetadata
+      }
+    }
+    predicate {
+      data
+      id
+      image
+      label
+      emoji
+      type
+      creator {
+        ...AccountMetadata
+      }
+    }
+  }
+}
