@@ -58,6 +58,7 @@ type Action =
       txHash?: string
     }
   | { type: 'SET_ERROR'; error: string }
+  | { type: 'RESET' }
 
 const initialState: State = {
   requestHash: '',
@@ -104,6 +105,10 @@ function reducer(state: State, action: Action): State {
         step: 'complete',
         txHash: action.txHash ?? '',
       }
+    case 'RESET':
+      console.log('Reducer returning to initial state')
+      console.log('Initial state:', initialState)
+      return initialState
     default:
       return state
   }
@@ -276,6 +281,7 @@ export function useBatchCreateAtom() {
     isSmartWalletUser,
     state.calls,
     sendTransaction,
+    ready,
   ])
 
   const logTxHash = useCallback(() => {
@@ -312,6 +318,25 @@ export function useBatchCreateAtom() {
     address,
     isProcessing,
   ])
+
+  const resetState = useCallback(() => {
+    console.log('initiating resetState')
+
+    // Reset fetcher states by submitting empty data
+    initiateFetcher.submit({}, { method: 'get' })
+    publishFetcher.submit({}, { method: 'get' })
+    logTxFetcher.submit({}, { method: 'get' })
+
+    setIsProcessing(false)
+
+    dispatch({ type: 'RESET' })
+  }, [initiateFetcher, publishFetcher, logTxFetcher])
+
+  const handleClose = useCallback(() => {
+    if (state.step === 'error' || state.step === 'complete') {
+      resetState()
+    }
+  }, [state.step, resetState])
 
   useEffect(() => {
     if (
@@ -382,39 +407,23 @@ export function useBatchCreateAtom() {
       state.step === 'logging'
     ) {
       console.log('Log TX fetcher data received:', logTxFetcher.data)
-
-      // Check if the operation was successful
       const data = logTxFetcher.data as LogTxActionData
 
       if (data.success) {
         console.log('logTxFetcher success')
-
-        dispatch({ type: 'SET_STEP', payload: 'complete' })
         toast.success('Atom(s) created successfully', {
           duration: 5000,
         })
-        // reset to initial state
-        dispatch({
-          type: 'SET_CALLS',
-          payload: {
-            calls: [],
-            newCIDs: [],
-            existingCIDs: [],
-            filteredData: [],
-          },
-        })
       } else {
-        // Handle the case where the operation was not successful
         console.error('Failed to create atom(s):', data.error)
         toast.error('Failed to create atom(s). Please try again.', {
           duration: 5000,
         })
-        dispatch({ type: 'SET_STEP', payload: 'idle' })
       }
-
-      setIsProcessing(false)
+      // Reset state in either case
+      resetState()
     }
-  }, [logTxFetcher.state, logTxFetcher.data, state.step])
+  }, [logTxFetcher.state, logTxFetcher.data, state.step, resetState])
 
   useEffect(() => {
     const handleAsyncOperations = async () => {
@@ -471,6 +480,8 @@ export function useBatchCreateAtom() {
 
   return {
     ...state,
+    resetState,
+    handleClose,
     initiateBatchRequest,
     publishAtoms,
     sendBatchTx,

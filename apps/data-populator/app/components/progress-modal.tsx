@@ -53,6 +53,13 @@ export function ProgressModal({
     active: isOpen,
   })
 
+  // Make sure to clean things up on close
+  useEffect(() => {
+    if (!isOpen) {
+      onClose()
+    }
+  }, [isOpen, onClose])
+
   useEffect(() => {
     if (scrollAreaRef.current) {
       const scrollContainer = scrollAreaRef.current.querySelector(
