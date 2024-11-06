@@ -40,7 +40,7 @@ const tooltipMap: Record<TooltipKey, string> = {
   [TooltipKey.SAVE_CSV]:
     'Saves the current state of the schema to disk. Useful after proofreading.',
   [TooltipKey.TAG_ATOMS]:
-    'Tags selected atoms with the specified tag arguments. Must create the tag first.',
+    'Tags selected atoms with the specified tag arguments. The atoms must be published first, and the tag must be created.',
   [TooltipKey.CREATE_TAG]:
     'Creates a tag atom using the specified arguments above. Do this before tagging atoms.',
   [TooltipKey.SEARCH]: 'Not available at this time.',

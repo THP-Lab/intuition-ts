@@ -1159,7 +1159,7 @@ export default function CSVEditor() {
                   onClick={handlePublishAtoms}
                   disabled={selectedRows.length === 0 || isLoading}
                 >
-                  {isLoading ? 'Processing...' : 'Publish Atoms'}
+                  {isLoading ? 'Processing...' : 'Publish Selected Atoms'}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -1171,7 +1171,7 @@ export default function CSVEditor() {
               onClick={handlePublishAtoms}
               disabled={selectedRows.length === 0 || isLoading}
             >
-              {isLoading ? 'Processing...' : 'Publish Atoms'}
+              {isLoading ? 'Processing...' : 'Publish Selected Atoms'}
             </Button>
           )}
 
