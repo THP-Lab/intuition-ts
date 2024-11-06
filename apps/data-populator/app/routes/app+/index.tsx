@@ -989,7 +989,9 @@ export default function CSVEditor() {
 
   // Add this function to check if tag exists
   const checkTagExists = useCallback(async () => {
-    if (!newTag.name) {
+    // Consider tag as non-existent if all fields are empty/default
+    if (!newTag.name && !newTag.description && !newTag.image && !newTag.url) {
+      setTagExists(false)
       return
     }
 
@@ -1382,7 +1384,7 @@ export default function CSVEditor() {
                     onClick={handleCreateAndTagAtoms}
                     disabled={
                       selectedRows.length === 0 ||
-                      !newTag.name ||
+                      !tagExists || // Disable if tag doesn't exist
                       isTagging ||
                       navigation.state === 'submitting'
                     }
@@ -1406,7 +1408,7 @@ export default function CSVEditor() {
                 onClick={handleCreateAndTagAtoms}
                 disabled={
                   selectedRows.length === 0 ||
-                  !newTag.name ||
+                  !tagExists || // Disable if tag doesn't exist
                   isTagging ||
                   navigation.state === 'submitting'
                 }
@@ -1425,14 +1427,24 @@ export default function CSVEditor() {
             {tooltipsEnabled ? (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button onClick={handleCreateTag}>Create Tag</Button>
+                  <Button
+                    onClick={handleCreateTag}
+                    disabled={tagExists} // Disable only if tag exists
+                  >
+                    Create Tag
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent>
                   {getTooltip(TooltipKey.CREATE_TAG)}
                 </TooltipContent>
               </Tooltip>
             ) : (
-              <Button onClick={handleCreateTag}>Create Tag</Button>
+              <Button
+                onClick={handleCreateTag}
+                disabled={tagExists} // Disable only if tag exists
+              >
+                Create Tag
+              </Button>
             )}
           </div>
         </div>
