@@ -1,0 +1,33 @@
+fragment VaultDetails on vaults {
+  id
+  atom {
+    id
+    label
+  }
+  triple {
+    id
+    subject {
+      id
+      label
+    }
+    predicate {
+      id
+      label
+    }
+    object {
+      id
+      label
+    }
+  }
+  positions_aggregate {
+    nodes {
+      account {
+        id
+        label
+      }
+      shares
+    }
+  }
+  currentSharePrice
+  totalShares
+}
