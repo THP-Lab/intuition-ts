@@ -166,6 +166,7 @@ export async function buildBatchCreateAtomChunks(
   await pushUpdate(requestHash, `Processing batch atoms with CIDs: ${cids}`)
   if (cids.length === 0) {
     await pushUpdate(requestHash, 'No new atoms to create')
+    await updateRequest(requestHash, { status: 'fulfilled' })
     console.log('No new atoms to create')
     return { chunks: [], chunkSize: 0 }
   }
@@ -628,7 +629,8 @@ export async function pinAllData(
     concurrencyLimit,
     maxRetries,
     delayBetweenBatches,
-    // requestHash, // TODO: eventually add support for requestHash to the function signature
+    0,
+    requestHash,
   )
 
   // Process duplicate atoms after unique atoms
@@ -644,7 +646,7 @@ export async function pinAllData(
     maxRetries,
     delayBetweenBatches,
     uniqueAtoms.length,
-    // requestHash, // TODO: eventually add support for requestHash to the function signature
+    requestHash,
   )
 
   // Combine results and return in original order
@@ -688,6 +690,7 @@ export async function processAtomDataBatches(
   maxRetries: number,
   delayBetweenBatches: number,
   startIndex: number = 0,
+  requestHash?: string,
 ): Promise<PinDataResult[]> {
   const pinDataBatches = chunk(
     atoms.map((atom, index) => ({ atom, index: index + startIndex })),
@@ -700,7 +703,7 @@ export async function processAtomDataBatches(
       batch.map(async ({ atom, index }, i) => {
         await delay(i * 200) // Delay between individual calls within the batch
         const result = await retryOperation(async () => {
-          const [filteredObj, cid] = await pinAtomData(atom)
+          const [filteredObj, cid] = await pinAtomData(atom, requestHash)
           return {
             filteredObj,
             cid: `ipfs://${cid}`,
