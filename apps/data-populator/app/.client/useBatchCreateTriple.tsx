@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useReducer, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react'
 
 import { toast } from '@0xintuition/1ui'
 
@@ -51,6 +57,8 @@ type Action =
   | { type: 'SET_SELECTED_ROWS'; payload: number[] }
   | { type: 'SET_TX_COMPLETE'; txHash?: string }
   | { type: 'SET_ERROR'; error: string }
+  | { type: 'RESET' }
+  | { type: 'FORCE_UPDATE' }
 
 const initialState: State = {
   requestHash: '',
@@ -94,6 +102,10 @@ function reducer(state: State, action: Action): State {
         step: 'complete',
         txHash: action.txHash ?? '',
       }
+    case 'RESET':
+      return { ...initialState }
+    case 'FORCE_UPDATE':
+      return { ...state }
     default:
       return state
   }
@@ -116,6 +128,11 @@ type PublishTriplesResponse = {
   error?: string
 }
 
+export const BatchCreateTripleContext = createContext<{
+  state: typeof initialState
+  dispatch: React.Dispatch<Action>
+}>({ state: initialState, dispatch: () => null })
+
 export function useBatchCreateTriple() {
   const [state, dispatch] = useReducer(reducer, initialState)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -127,6 +144,25 @@ export function useBatchCreateTriple() {
     useUserClient()
 
   const { sendTransaction } = useSendTransaction()
+
+  const resetState = useCallback(() => {
+    console.log('initiating resetState')
+
+    // Reset fetcher states
+    initiateFetcher.submit({}, { method: 'get' })
+    publishFetcher.submit({}, { method: 'get' })
+    logTxFetcher.submit({}, { method: 'get' })
+
+    setIsProcessing(false)
+    dispatch({ type: 'RESET' })
+    dispatch({ type: 'FORCE_UPDATE' })
+  }, [initiateFetcher, publishFetcher, logTxFetcher])
+
+  const handleClose = useCallback(() => {
+    if (state.step === 'error' || state.step === 'complete') {
+      resetState()
+    }
+  }, [state.step, resetState])
 
   const initiateTagRequest = useCallback(
     (
@@ -159,11 +195,10 @@ export function useBatchCreateTriple() {
   )
 
   const publishTriples = useCallback(() => {
-    if (!state.requestHash || isProcessing) {
+    if (!state.requestHash || isProcessing || publishFetcher.state !== 'idle') {
       return
     }
     console.log('Publishing triples')
-
     setIsProcessing(true)
 
     const formData = new FormData()
@@ -173,7 +208,13 @@ export function useBatchCreateTriple() {
     formData.append('tag', JSON.stringify(state.tag))
 
     publishFetcher.submit(formData, { method: 'post' })
-  }, [publishFetcher, state.requestHash, state.selectedAtoms, state.tag])
+  }, [
+    publishFetcher,
+    state.requestHash,
+    state.selectedAtoms,
+    state.tag,
+    isProcessing,
+  ])
 
   const sendBatchTx = useCallback(async () => {
     console.log('Sending batch transaction')
@@ -255,7 +296,6 @@ export function useBatchCreateTriple() {
         type: 'SET_ERROR',
         error: errorMessage,
       })
-      dispatch({ type: 'SET_STEP', payload: 'error' })
       toast.error(errorMessage)
     } finally {
       setIsProcessing(false)
@@ -266,6 +306,7 @@ export function useBatchCreateTriple() {
     isSmartWalletUser,
     state.calls,
     sendTransaction,
+    ready,
   ])
 
   const logTxHash = useCallback(() => {
@@ -293,6 +334,8 @@ export function useBatchCreateTriple() {
     logTxFetcher,
     state.txHash,
     state.requestHash,
+    state.newTriples,
+    state.existingTriples,
     isSmartWalletUser,
     smartWalletClient,
     address,
@@ -340,11 +383,14 @@ export function useBatchCreateTriple() {
           },
         })
         dispatch({ type: 'SET_STEP', payload: 'sending' })
-        setIsProcessing(false)
       } else {
+        console.error('Failed to publish triples:', data.error)
+        toast.error('Failed to publish triples. Please try again.', {
+          duration: 5000,
+        })
         dispatch({ type: 'SET_STEP', payload: 'idle' })
-        setIsProcessing(false)
       }
+      setIsProcessing(false)
     }
   }, [publishFetcher.state, publishFetcher.data, state.step])
 
@@ -367,30 +413,19 @@ export function useBatchCreateTriple() {
       }
 
       if (data.success) {
-        dispatch({ type: 'SET_STEP', payload: 'complete' })
-        toast.success('Atom(s) tagged successfully', {
+        toast.success('Triple(s) created successfully', {
           duration: 5000,
-        })
-        // Reset state
-        dispatch({
-          type: 'SET_CALLS',
-          payload: {
-            calls: [],
-            newTriples: [],
-            existingTriples: [],
-          },
         })
       } else {
-        console.error('Failed to tag atom(s):', data.error)
-        toast.error('Failed to tag atom(s). Please try again.', {
+        console.error('Failed to create triple(s):', data.error)
+        toast.error('Failed to create triple(s). Please try again.', {
           duration: 5000,
         })
-        dispatch({ type: 'SET_STEP', payload: 'idle' })
       }
-
-      setIsProcessing(false)
+      // Reset state in either case
+      resetState()
     }
-  }, [logTxFetcher.state, logTxFetcher.data, state.step])
+  }, [logTxFetcher.state, logTxFetcher.data, state.step, resetState])
 
   // Effect to handle async operations based on state
   useEffect(() => {
@@ -399,16 +434,36 @@ export function useBatchCreateTriple() {
         return
       }
 
-      if (state.step === 'sending' && state.calls.length > 0) {
-        try {
-          await sendBatchTx()
-        } catch (error) {
-          console.error('Error in sendBatchTx:', error)
+      try {
+        switch (state.step) {
+          case 'sending':
+            if (state.calls.length > 0) {
+              await sendBatchTx()
+            }
+            break
+
+          case 'logging':
+            if (state.txHash) {
+              logTxHash()
+            }
+            break
+
+          case 'publishing':
+            if (
+              state.requestHash &&
+              !publishFetcher.data &&
+              publishFetcher.state === 'idle'
+            ) {
+              publishTriples()
+            }
+            break
         }
-      } else if (state.step === 'logging' && state.txHash) {
-        logTxHash()
-      } else if (state.step === 'publishing' && state.requestHash) {
-        publishTriples()
+      } catch (error) {
+        console.error('Error in async operations:', error)
+        dispatch({
+          type: 'SET_ERROR',
+          error: error instanceof Error ? error.message : String(error),
+        })
       }
     }
 
@@ -422,10 +477,14 @@ export function useBatchCreateTriple() {
     sendBatchTx,
     logTxHash,
     isProcessing,
+    publishFetcher.state,
+    publishFetcher.data,
   ])
 
   return {
     ...state,
+    resetState,
+    handleClose,
     initiateTagRequest,
     publishTriples,
     sendBatchTx,
