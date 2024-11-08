@@ -9,6 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Table,
   TableBody,
   TableCell,
@@ -37,12 +42,8 @@ import {
   pinAtoms,
   PinDataResult,
 } from '@lib/services/populate'
+import { atomDataTypes, type AtomDataTypeKey } from '@lib/utils/atom-data-types'
 import { generateCsvContent, parseCsv } from '@lib/utils/csv'
-import {
-  defaultCSVData,
-  defaultCSVDescriptions,
-  defaultCSVValues,
-} from '@lib/utils/default-data'
 import { loadThumbnail, loadThumbnails } from '@lib/utils/image'
 import logger from '@lib/utils/logger'
 import {
@@ -262,13 +263,23 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 }
 
-// Revert useCSVData to its original simple form
-const useCSVData = (initialData: string[][]) => {
-  const [csvData, setCsvData] = useState<string[][]>(initialData)
+// Update useCSVData to use deep copy
+const useCSVData = (selectedType: AtomDataTypeKey) => {
+  const [csvData, setCsvData] = useState<string[][]>(() =>
+    JSON.parse(JSON.stringify(atomDataTypes[selectedType].defaultData)),
+  )
   return [csvData, setCsvData] as const
 }
 
+// Add this type for the dialog state
+type FormatChangeDialog = {
+  isOpen: boolean
+  newFormat: AtomDataTypeKey | null
+}
+
 export default function CSVEditor() {
+  const [selectedType, setSelectedType] = useState<AtomDataTypeKey>('CSV')
+
   // State variables for managing CSV data, UI interactions, and atom-related operations
 
   const actionData = useActionData<ActionData>()
@@ -277,7 +288,7 @@ export default function CSVEditor() {
   const fetcher = useFetcher()
 
   // Ensure we always have a deep copy of the CSV data
-  const [csvData, setCsvData] = useCSVData([])
+  const [csvData, setCsvData] = useCSVData(selectedType)
   const [selectedRows, setSelectedRows] = useState<number[]>([])
   // const [tags, setTags] = useState<string[][]>([])
   const [newTag, setNewTag] = useState<Record<string, string>>({
@@ -369,17 +380,21 @@ export default function CSVEditor() {
 
     // Check against both default and loaded data
     const matchesDefault =
-      JSON.stringify(csvData) === JSON.stringify(defaultCSVData)
+      JSON.stringify(csvData) ===
+      JSON.stringify(atomDataTypes[selectedType].defaultData)
     const matchesLoaded =
       JSON.stringify(csvData) === JSON.stringify(loadedCSVData)
 
     console.log('matchesDefault', matchesDefault)
-    console.log('defaultCSVData', JSON.stringify(defaultCSVData))
+    console.log(
+      'currentType default data',
+      JSON.stringify(atomDataTypes[selectedType].defaultData),
+    )
     console.log('csvData', JSON.stringify(csvData))
 
     // Data is modified if it matches neither the default nor the loaded data
     setIsCSVDataModified(!matchesDefault && !matchesLoaded)
-  }, [csvData, loadedCSVData])
+  }, [csvData, loadedCSVData, selectedType])
 
   // Function to load thumbnails for image URLs in the CSV data
   const loadThumbnailsForCSV = useCallback(async (data: string[][]) => {
@@ -626,8 +641,10 @@ export default function CSVEditor() {
   // Function to add a new empty row to the CSV data
   const addNewRow = () => {
     setCsvData((prev: string[][]) => {
+      const currentType = atomDataTypes[selectedType]
       const newRow = prev[0].map(
-        (columnHeader: string) => defaultCSVValues[columnHeader] || '',
+        (columnHeader: string) =>
+          currentType.defaultValues?.[columnHeader] || '',
       )
       return [...prev, newRow]
     })
@@ -1036,10 +1053,11 @@ export default function CSVEditor() {
   // Set default CSV data to Thing Schema
   useEffect(() => {
     if (csvData.length === 0) {
-      // Only set if no data exists
-      setCsvData(defaultCSVData)
+      setCsvData(
+        JSON.parse(JSON.stringify(atomDataTypes[selectedType].defaultData)),
+      )
     }
-  }, [csvData.length])
+  }, [csvData.length, selectedType])
 
   // Add this effect to check tag existence when tag fields change
   useEffect(() => {
@@ -1063,6 +1081,72 @@ export default function CSVEditor() {
       checkTagExists()
     }
   }, [isLoading, step, checkTagExists])
+
+  // In the CSVEditor component, add this state
+  const [formatChangeDialog, setFormatChangeDialog] =
+    useState<FormatChangeDialog>({
+      isOpen: false,
+      newFormat: null,
+    })
+
+  // Update the format change handler
+  const handleFormatChange = (newFormat: AtomDataTypeKey) => {
+    console.log(
+      'Format change requested:',
+      newFormat,
+      'isCSVDataModified:',
+      isCSVDataModified,
+    )
+
+    if (isCSVDataModified) {
+      console.log('Opening format change dialog')
+      setFormatChangeDialog({
+        isOpen: true,
+        newFormat,
+      })
+    } else {
+      console.log('Changing format directly')
+      setSelectedType(newFormat)
+      setCsvData(
+        JSON.parse(JSON.stringify(atomDataTypes[newFormat].defaultData)),
+      )
+    }
+  }
+
+  // Add the handler for dialog responses
+  const handleFormatChangeResponse = (response: 'yes' | 'no' | 'cancel') => {
+    if (!formatChangeDialog.newFormat) {
+      return
+    }
+
+    switch (response) {
+      case 'yes':
+        saveCSV()
+        setSelectedType(formatChangeDialog.newFormat)
+        setCsvData(
+          JSON.parse(
+            JSON.stringify(
+              atomDataTypes[formatChangeDialog.newFormat].defaultData,
+            ),
+          ),
+        )
+        break
+      case 'no':
+        setSelectedType(formatChangeDialog.newFormat)
+        setCsvData(
+          JSON.parse(
+            JSON.stringify(
+              atomDataTypes[formatChangeDialog.newFormat].defaultData,
+            ),
+          ),
+        )
+        break
+      case 'cancel':
+        // Do nothing, keep current selection
+        break
+    }
+    setFormatChangeDialog({ isOpen: false, newFormat: null })
+  }
 
   // The main render function, containing the UI structure
   return (
@@ -1199,6 +1283,21 @@ export default function CSVEditor() {
           <>
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Atoms View</h3>
+              <div className="flex items-center space-x-2 mb-4">
+                <span className="text-sm font-medium">Type:</span>
+                <Select value={selectedType} onValueChange={handleFormatChange}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(atomDataTypes).map(([key, type]) => (
+                      <SelectItem key={key} value={key}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -1300,8 +1399,10 @@ export default function CSVEditor() {
                                 }
                                 placeholder={
                                   !cell &&
-                                  defaultCSVDescriptions[csvData[0][cellIndex]]
-                                    ? defaultCSVDescriptions[
+                                  atomDataTypes[selectedType]
+                                    .defaultDescriptions[csvData[0][cellIndex]]
+                                    ? atomDataTypes[selectedType]
+                                        .defaultDescriptions[
                                         csvData[0][cellIndex]
                                       ]
                                     : ''
@@ -1534,6 +1635,55 @@ export default function CSVEditor() {
         issues={proofreadIssues}
         onApplyFixes={handleApplyFixes}
       />
+
+      {/* Add the format change confirmation dialog */}
+      <Dialog
+        open={formatChangeDialog.isOpen}
+        onOpenChange={(isOpen) => {
+          console.log('Dialog open state changing to:', isOpen)
+          if (!isOpen) {
+            setFormatChangeDialog({ isOpen: false, newFormat: null })
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Data Format?</DialogTitle>
+          </DialogHeader>
+          <p>
+            Switching to a different Data Format will clear the Atoms View.
+            Since you have unsaved atom data, would you like to save it first?
+          </p>
+          <DialogFooter className="flex space-x-2">
+            <Button
+              onClick={() => {
+                console.log('Yes clicked')
+                handleFormatChangeResponse('yes')
+              }}
+            >
+              Yes, Save First
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                console.log('No clicked')
+                handleFormatChangeResponse('no')
+              }}
+            >
+              No, Continue Without Saving
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                console.log('Cancel clicked')
+                handleFormatChangeResponse('cancel')
+              }}
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
