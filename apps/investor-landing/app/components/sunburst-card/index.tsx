@@ -17,18 +17,18 @@ export default function SunburstCard({
   glow = 'white',
 }: ISunburstCardProps) {
   const glowClasses = {
-    white: 'hover:drop-shadow-[0_0_50px_#7ED8FF]',
-    purple: 'hover:drop-shadow-[0_0_50px_#BF7EFF]',
-    yellow: 'hover:drop-shadow-[0_0_50px_#FFDB7E]',
-    blue: 'hover:drop-shadow-[0_0_50px_#55CCFF]',
-    pink: 'hover:drop-shadow-[0_0_50px_#FF88AA]',
+    white: 'hover:drop-shadow-[0_0_30px_#7ED8FF80]',
+    purple: 'hover:drop-shadow-[0_0_30px_#BF7EFF80]',
+    yellow: 'hover:drop-shadow-[0_0_30px_#FFDB7E80]',
+    blue: 'hover:drop-shadow-[0_0_30px_#55CCFF80]',
+    pink: 'hover:drop-shadow-[0_0_30px_#FF88AA80]',
   }
 
   const sizeClasses = {
-    default: '400',
+    default: '360',
     sm: '250',
-    md: '360',
-    'x-sm': '200',
+    md: '320',
+    'x-sm': '240',
   }
 
   const textSizeClasses = {
@@ -39,28 +39,33 @@ export default function SunburstCard({
   }
 
   return (
-    <div
-      className={clsx(
-        'relative opacity-60 transition-all duration-300 ease-in-out hover:opacity-100',
-        !disableScale && 'hover:scale-110',
-        disabled ? 'cursor-not-allowed' : 'cursor-pointer',
-        glowClasses[glow],
-      )}
-    >
-      <SunburstNoGlow
-        className={`z-30 transition-all duration-300 ease-in-out`}
-        width={sizeClasses[size]}
-        height={sizeClasses[size]}
-      />
+    <div>
       <div
         className={clsx(
-          'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
-          'text-primary uppercase tracking-[3px] font-medium text-center',
-          textSizeClasses[size],
-          disabled && 'opacity-40',
+          'relative opacity-90 transition-all duration-300 ease-in-out hover:opacity-100',
+          !disableScale && 'hover:scale-110',
+          disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+          glowClasses[glow],
         )}
       >
-        {label}
+        <div className="relative">
+          <SunburstNoGlow
+            className={`transition-all duration-300 ease-in-out backdrop-blur-md`}
+            width={sizeClasses[size]}
+            height={sizeClasses[size]}
+          />
+        </div>
+
+        <div
+          className={clsx(
+            'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
+            'text-primary uppercase tracking-[3px] font-medium text-center',
+            textSizeClasses[size],
+            disabled && 'opacity-40',
+          )}
+        >
+          {label}
+        </div>
       </div>
     </div>
   )

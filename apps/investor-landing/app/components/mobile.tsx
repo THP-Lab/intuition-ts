@@ -11,7 +11,7 @@ import {
 } from '@0xintuition/1ui'
 
 import { HeaderLogo } from '@components/header-logo'
-import MobileSectionCard from '@components/mobile-secrtion-card/mobile-section-card'
+import MobileSectionCard from '@components/mobile-section-card/mobile-section-card'
 import SunburstCard from '@components/sunburst-card'
 import { ScrollIcon } from '@components/svg/scroll-icon'
 import {
@@ -34,7 +34,7 @@ import { motion, useScroll, useSpring } from 'framer-motion'
 const IconButtonLink = ({ url, icon }: { url: string; icon: IconNameType }) => (
   <a href={url} target="_blank" rel="noreferrer">
     <Button
-      variant={ButtonVariant.ghost}
+      variant={ButtonVariant.secondary}
       size={ButtonSize.iconXl}
       className="transition-all duration-300"
     >
@@ -93,23 +93,31 @@ export default function Mobile() {
           >
             The Vision
           </Text>
-          <div className="grid grid-cols-2 gap-5">
-            <a href={ONE_PAGER} target="_blank" rel="noreferrer">
-              <SunburstCard label="1-Pager" size="x-sm" disableScale />
-            </a>
-            <a
-              href={'https://medium.com/0xintuition'}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <SunburstCard label="Medium" size="x-sm" disableScale />
-            </a>
-            <a href={APP_DEMO} target="_blank" rel="noreferrer">
-              <SunburstCard label="App Video" size="x-sm" disableScale />
-            </a>
-            <a href={SNAP_DEMO} target="_blank" rel="noreferrer">
-              <SunburstCard label="Snap Video" size="x-sm" disableScale />
-            </a>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full px-8">
+            <div className="flex justify-center">
+              <a href={ONE_PAGER} target="_blank" rel="noreferrer">
+                <SunburstCard label="1-Pager" size="x-sm" disableScale />
+              </a>
+            </div>
+            <div className="flex justify-center">
+              <a
+                href={'https://medium.com/0xintuition'}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <SunburstCard label="Medium" size="x-sm" disableScale />
+              </a>
+            </div>
+            <div className="flex justify-center">
+              <a href={APP_DEMO} target="_blank" rel="noreferrer">
+                <SunburstCard label="App Video" size="x-sm" disableScale />
+              </a>
+            </div>
+            <div className="flex justify-center">
+              <a href={SNAP_DEMO} target="_blank" rel="noreferrer">
+                <SunburstCard label="Snap Video" size="x-sm" disableScale />
+              </a>
+            </div>
           </div>
         </div>
         <div className="flex flex-col gap-5 mb-[200px]">
@@ -120,14 +128,18 @@ export default function Mobile() {
           >
             How it Works
           </Text>
-          <a
-            href={GIT_BOOK}
-            target="_blank"
-            rel="noreferrer"
-            className="mx-auto"
-          >
-            <SunburstCard label="Gitbook" size="md" disableScale />
-          </a>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full px-8">
+            <div className="flex justify-center">
+              <a href={GIT_BOOK} target="_blank" rel="noreferrer">
+                <SunburstCard label="Whitepaper" size="x-sm" disableScale />
+              </a>
+            </div>
+            <div className="flex justify-center">
+              <a href={GIT_BOOK} target="_blank" rel="noreferrer">
+                <SunburstCard label="Docs" size="x-sm" disableScale />
+              </a>
+            </div>
+          </div>
         </div>
       </div>
       <div className="mt-25">
@@ -140,19 +152,31 @@ export default function Mobile() {
           >
             Financials & Tokenomics
           </Text>
-          <div className="grid grid-cols-2 gap-5">
-            <a href={TOKENOMICS} target="_blank" rel="noreferrer">
-              <SunburstCard label="Tokenomics" size="x-sm" disableScale />
-            </a>
-            <a href={FINANCIALS} target="_blank" rel="noreferrer">
-              <SunburstCard label="Financial Model" size="x-sm" disableScale />
-            </a>
-            <a href={PRO_FORMA_CAP_TABLE} target="_blank" rel="noreferrer">
-              <SunburstCard label="Cap Table" size="x-sm" disableScale />
-            </a>
-            <a href={INCORPORATION_DOCS} target="_blank" rel="noreferrer">
-              <SunburstCard label="Formation Docs" size="x-sm" disableScale />
-            </a>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full px-8">
+            <div className="flex justify-center">
+              <a href={TOKENOMICS} target="_blank" rel="noreferrer">
+                <SunburstCard label="Tokenomics" size="x-sm" disableScale />
+              </a>
+            </div>
+            <div className="flex justify-center">
+              <a href={FINANCIALS} target="_blank" rel="noreferrer">
+                <SunburstCard
+                  label="Financial Model"
+                  size="x-sm"
+                  disableScale
+                />
+              </a>
+            </div>
+            <div className="flex justify-center">
+              <a href={PRO_FORMA_CAP_TABLE} target="_blank" rel="noreferrer">
+                <SunburstCard label="Cap Table" size="x-sm" disableScale />
+              </a>
+            </div>
+            <div className="flex justify-center">
+              <a href={INCORPORATION_DOCS} target="_blank" rel="noreferrer">
+                <SunburstCard label="Formation Docs" size="x-sm" disableScale />
+              </a>
+            </div>
           </div>
         </div>
         <div className="flex flex-col gap-5">
@@ -193,7 +217,7 @@ export default function Mobile() {
           <a href={CALENDLY} target="_blank" rel="noreferrer">
             <Button
               onClick={() => console.log('scheduled call')}
-              variant={ButtonVariant.ghost}
+              variant={ButtonVariant.primary}
               size={ButtonSize.xl}
               className="mx-auto uppercase tracking-widest transition-all duration-300"
             >
@@ -202,24 +226,18 @@ export default function Mobile() {
           </a>
         </div>
         <div className="flex justify-end items-end flex-row gap-12">
-          <div className="border border-white rounded-lg">
-            <IconButtonLink
-              url={'https://medium.com/0xintuition'}
-              icon={IconName.medium}
-            />
-          </div>
-          <div className="border border-white rounded-lg">
-            <IconButtonLink
-              url={'https://discord.gg/2vbVnX6wQp'}
-              icon={IconName.discord}
-            />
-          </div>
-          <div className="border border-white rounded-lg">
-            <IconButtonLink
-              url={'https://twitter.com/0xIntuition'}
-              icon={IconName.twitter}
-            />
-          </div>
+          <IconButtonLink
+            url={'https://medium.com/0xintuition'}
+            icon={IconName.medium}
+          />
+          <IconButtonLink
+            url={'https://discord.gg/2vbVnX6wQp'}
+            icon={IconName.discord}
+          />
+          <IconButtonLink
+            url={'https://twitter.com/0xIntuition'}
+            icon={IconName.twitter}
+          />
         </div>
       </div>
       <motion.div

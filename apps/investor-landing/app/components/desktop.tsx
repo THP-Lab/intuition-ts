@@ -13,6 +13,7 @@ import {
 } from '@0xintuition/1ui'
 
 import { HeaderLogo } from '@components/header-logo'
+import { NavigationMenu } from '@components/navigation-menu'
 import PathCard from '@components/path-card/path-card'
 import PathCardSeparator from '@components/path-card/path-card-separator'
 import SunburstCard from '@components/sunburst-card'
@@ -57,7 +58,7 @@ function Block({ id, children }: { id: string; children: React.ReactNode }) {
 const IconButtonLink = ({ url, icon }: { url: string; icon: IconNameType }) => (
   <a href={url} target="_blank" rel="noreferrer">
     <Button
-      variant={ButtonVariant.ghost}
+      variant={ButtonVariant.secondary}
       size={ButtonSize.iconXl}
       className="transition-all duration-300"
     >
@@ -116,67 +117,37 @@ export default function Desktop() {
     navigate('/')
   }
 
+  const navigationItems = [
+    {
+      section: 'PITCH_DECK' as const,
+      label: 'Pitch Deck',
+      onClick: handleScrollToPitchDecks,
+    },
+    {
+      section: 'PICK_PATH' as const,
+      label: 'Pick Your Path',
+      onClick: handleScrollToChooseYourPath,
+    },
+    {
+      section: 'PRODUCT' as const,
+      label: 'Product',
+      onClick: handleScrollToProduct,
+    },
+    {
+      section: 'BUSINESS' as const,
+      label: 'Business',
+      onClick: handleScrollToBusiness,
+    },
+    {
+      section: 'JOIN' as const,
+      label: 'Contact Us',
+      onClick: handleScrollToCallToAction,
+    },
+  ]
+
   return (
     <div className="text-primary bg-transparent">
-      <div className="fixed bottom-5 left-5 z-50 bg-primary/10 rounded-lg">
-        <div className="flex flex-col items-end z-999 p-2 font-medium m-2.5">
-          <Button
-            variant={ButtonVariant.text}
-            onClick={handleScrollToPitchDecks}
-            className={`mb-2.5 w-full justify-end uppercase tracking-widest rounded-md text-lg ${
-              activeSection === 'PITCH_DECK'
-                ? 'bg-primary/20 text-primary'
-                : 'bg-transparent hover:bg-primary/10'
-            }`}
-          >
-            Pitch Deck
-          </Button>
-          <Button
-            variant={ButtonVariant.text}
-            onClick={handleScrollToChooseYourPath}
-            className={`mb-2.5 w-full justify-end uppercase tracking-widest rounded-md text-lg ${
-              activeSection === 'PICK_PATH'
-                ? 'bg-primary/20 text-primary'
-                : 'bg-transparent hover:bg-primary/10'
-            }`}
-          >
-            Pick Your Path
-          </Button>
-          <Button
-            variant={ButtonVariant.text}
-            onClick={handleScrollToProduct}
-            className={`mb-2.5 w-full justify-end uppercase tracking-widest rounded-md text-lg ${
-              activeSection === 'PRODUCT'
-                ? 'bg-primary/20 text-primary'
-                : 'bg-transparent hover:bg-primary/10'
-            }`}
-          >
-            Product
-          </Button>
-          <Button
-            variant={ButtonVariant.text}
-            onClick={handleScrollToBusiness}
-            className={`mb-2.5 w-full justify-end uppercase tracking-widest rounded-md text-lg ${
-              activeSection === 'BUSINESS'
-                ? 'bg-primary/20 text-primary'
-                : 'bg-transparent hover:bg-primary/10'
-            }`}
-          >
-            Business
-          </Button>
-          <Button
-            variant={ButtonVariant.text}
-            onClick={handleScrollToCallToAction}
-            className={`w-full justify-end uppercase tracking-widest rounded-md text-lg ${
-              activeSection === 'JOIN'
-                ? 'bg-primary/20 text-primary'
-                : 'bg-transparent hover:bg-primary/10'
-            }`}
-          >
-            Contact Us
-          </Button>
-        </div>
-      </div>
+      <NavigationMenu activeSection={activeSection} items={navigationItems} />
       <div ref={pitchDecksRef}>
         <Block id="2">
           <>
@@ -202,7 +173,7 @@ export default function Desktop() {
               {/* <ReactSVG src="scroll-icon.svg" onClick={handleScrollToChooseYourPath} /> */}
 
               <Button
-                variant={ButtonVariant.ghost}
+                variant={ButtonVariant.secondary}
                 onClick={
                   activeSection === 'PITCH_DECK'
                     ? handleScrollToChooseYourPath
@@ -239,6 +210,7 @@ export default function Desktop() {
                     heading="The Product"
                     buttonLabel="Choose"
                     handleClick={handleScrollToProduct}
+                    type="product"
                   >
                     <Product />
                   </PathCard>
@@ -249,6 +221,7 @@ export default function Desktop() {
                     heading="The Business"
                     buttonLabel="Choose"
                     handleClick={handleScrollToBusiness}
+                    type="business"
                   >
                     <Business />
                   </PathCard>
@@ -263,7 +236,7 @@ export default function Desktop() {
           <div className="flex items-center justify-evenly gap-12 h-[100vh] relative">
             <div className="absolute top-[5vh] left-1/2 transform -translate-x-1/2 z-10">
               <Button
-                variant={ButtonVariant.ghost}
+                variant={ButtonVariant.secondary}
                 onClick={handleScrollToChooseYourPath}
                 className="w-fit mx-auto"
               >
@@ -274,13 +247,13 @@ export default function Desktop() {
               <Text
                 variant={TextVariant.headline}
                 weight={TextWeight.medium}
-                className="text-primary pb-6 tracking-widest text-center mb-12"
+                className="text-primary pb-4 tracking-widest text-center"
               >
                 The Vision
               </Text>
               <div className="grid grid-cols-2 gap-5">
                 <a href={ONE_PAGER} target="_blank" rel="noreferrer">
-                  <SunburstCard label="1-Pager" size="sm" />
+                  <SunburstCard label="Executive Summary" size="sm" />
                 </a>
                 <a
                   href={'https://medium.com/0xintuition'}
@@ -290,11 +263,11 @@ export default function Desktop() {
                   <SunburstCard label="Medium" size="sm" />
                 </a>
                 <a href={APP_DEMO} target="_blank" rel="noreferrer">
-                  <SunburstCard label="App Video" size="sm" />
+                  <SunburstCard label="Podcasts" size="sm" />
                 </a>
 
                 <a href={SNAP_DEMO} target="_blank" rel="noreferrer">
-                  <SunburstCard label="MetaMask Integration Video" size="sm" />
+                  <SunburstCard label="Demo Videos" size="sm" />
                 </a>
               </div>
             </div>
@@ -302,17 +275,20 @@ export default function Desktop() {
               <Text
                 variant={TextVariant.headline}
                 weight={TextWeight.medium}
-                className="text-primary pb-6 tracking-widest text-center mb-12"
+                className="text-primary pb-4 tracking-widest text-center"
               >
                 How it Works
               </Text>
               <a href={GIT_BOOK} target="_blank" rel="noreferrer">
-                <SunburstCard label="Gitbook" size="md" />
+                <SunburstCard label="Whitepaper" size="sm" />
+              </a>
+              <a href={GIT_BOOK} target="_blank" rel="noreferrer">
+                <SunburstCard label="Docs" size="sm" />
               </a>
             </div>
             <div className="absolute bottom-[5vh] left-1/2 transform -translate-x-1/2 z-10">
               <Button
-                variant={ButtonVariant.ghost}
+                variant={ButtonVariant.secondary}
                 onClick={handleScrollToBusiness}
                 className="w-fit mx-auto"
               >
@@ -327,7 +303,7 @@ export default function Desktop() {
           <div className="flex items-center justify-evenly gap-12 h-[100vh] relative">
             <div className="absolute top-[5vh] left-1/2 transform -translate-x-1/2 z-10">
               <Button
-                variant={ButtonVariant.ghost}
+                variant={ButtonVariant.secondary}
                 onClick={handleScrollToProduct}
                 className="w-fit mx-auto"
               >
@@ -338,7 +314,7 @@ export default function Desktop() {
               <Text
                 variant={TextVariant.headline}
                 weight={TextWeight.medium}
-                className="text-primary pb-6 tracking-widest text-center mb-12"
+                className="text-primary pb-4 tracking-widest text-center"
               >
                 Financials & Tokenomics
               </Text>
@@ -353,7 +329,7 @@ export default function Desktop() {
                   <SunburstCard label="Cap Table" size="sm" />
                 </a>
                 <a href={INCORPORATION_DOCS} target="_blank" rel="noreferrer">
-                  <SunburstCard label="Formation Docs" size="sm" />
+                  <SunburstCard label="Legal Docs" size="sm" />
                 </a>
               </div>
             </div>
@@ -361,7 +337,7 @@ export default function Desktop() {
               <Text
                 variant={TextVariant.headline}
                 weight={TextWeight.medium}
-                className="text-primary pb-6 tracking-widest text-center mb-12"
+                className="text-primary pb-4 tracking-widest text-center"
               >
                 Growth
               </Text>
@@ -374,7 +350,7 @@ export default function Desktop() {
             </div>
             <div className="absolute bottom-[5vh] left-1/2 transform -translate-x-1/2 z-10">
               <Button
-                variant={ButtonVariant.ghost}
+                variant={ButtonVariant.secondary}
                 onClick={handleScrollToCallToAction}
                 className="w-fit mx-auto"
               >
@@ -389,7 +365,7 @@ export default function Desktop() {
           <div className="flex items-center justify-evenly gap-12 h-[100vh] relative">
             <div className="absolute top-[5vh] left-1/2 transform -translate-x-1/2 z-10">
               <Button
-                variant={ButtonVariant.ghost}
+                variant={ButtonVariant.secondary}
                 onClick={handleScrollToBusiness}
                 className="w-fit mx-auto"
               >
@@ -401,14 +377,14 @@ export default function Desktop() {
                 <Text
                   variant={TextVariant.headline}
                   weight={TextWeight.medium}
-                  className="text-primary pb-6 tracking-widest text-center uppercase"
+                  className="text-primary tracking-widest text-center uppercase"
                 >
                   Get Involved
                 </Text>
                 <a href={CALENDLY} target="_blank" rel="noreferrer">
                   <Button
                     onClick={() => console.log('scheduled call')}
-                    variant={ButtonVariant.ghost}
+                    variant={ButtonVariant.primary}
                     size={ButtonSize.xl}
                     className="mx-auto uppercase tracking-widest transition-all duration-300"
                   >
@@ -417,24 +393,18 @@ export default function Desktop() {
                 </a>
               </div>
               <div className="flex justify-end items-end flex-row gap-12">
-                <div className="border border-white rounded-lg">
-                  <IconButtonLink
-                    url={'https://medium.com/0xintuition'}
-                    icon={IconName.medium}
-                  />
-                </div>
-                <div className="border border-white rounded-lg">
-                  <IconButtonLink
-                    url={'https://discord.gg/2vbVnX6wQp'}
-                    icon={IconName.discord}
-                  />
-                </div>
-                <div className="border border-white rounded-lg">
-                  <IconButtonLink
-                    url={'https://twitter.com/0xIntuition'}
-                    icon={IconName.twitter}
-                  />
-                </div>
+                <IconButtonLink
+                  url={'https://medium.com/0xintuition'}
+                  icon={IconName.medium}
+                />
+                <IconButtonLink
+                  url={'https://discord.gg/2vbVnX6wQp'}
+                  icon={IconName.discord}
+                />
+                <IconButtonLink
+                  url={'https://twitter.com/0xIntuition'}
+                  icon={IconName.twitter}
+                />
               </div>
             </div>
             {/* No bottom arrow for the last section */}

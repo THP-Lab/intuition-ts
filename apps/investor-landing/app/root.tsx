@@ -19,7 +19,7 @@ import { ErrorPage } from '@components/error-page'
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
-    { title: data ? 'Intuition Explorer' : 'Error | Intuition Explorer' },
+    { title: data ? 'Intuition Investors' : 'Error | Intuition Investors' },
     {
       name: 'description',
       content: `Intuition is an ecosystem of technologies composing a universal and permissionless knowledge graph, capable of handling both objective facts and subjective opinions - delivering superior data for intelligences across the spectrum, from human to artificial.`,
@@ -29,9 +29,9 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
       content:
         'https://res.cloudinary.com/dfpwy9nyv/image/upload/f_auto,q_auto/v1/Portal%20Assets/Site%20Metadata/site-og-image',
     },
-    { property: 'og:site_name', content: 'Intuition Explorer' },
+    { property: 'og:site_name', content: 'Intuition Investors' },
     { property: 'og:locale', content: 'en_US' },
-    { property: 'og:url', content: 'https://beta.portal.intuition.systems' },
+    { property: 'og:url', content: 'https://beta.portal.intuition.systems' }, //TODO: Update
     {
       name: 'twitter:image',
       content:
@@ -43,7 +43,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     },
     {
       name: 'twitter:title',
-      content: 'Intuition Explorer',
+      content: 'Intuition Investors',
     },
     {
       name: 'twitter:description',
@@ -83,7 +83,7 @@ export function Document({
         <Links />
       </head>
       <body>
-        <main className="relative flex min-h-screen w-full flex-col justify-between antialiased">
+        <main className="relative flex min-h-screen w-full flex-col justify-between antialiased bg-gradient-to-br from-foreground/10 to-background/50">
           <div className="z-10 flex-1">{children}</div>
         </main>
         <ScrollRestoration />

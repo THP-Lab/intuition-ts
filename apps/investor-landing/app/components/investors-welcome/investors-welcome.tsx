@@ -7,6 +7,7 @@ import {
   TextWeight,
 } from '@0xintuition/1ui'
 
+import investorWelcomeCardBg from '@assets/investor-welcome-card-bg.png'
 import { useNavigate } from '@remix-run/react'
 
 export default function InvestorsWelcome() {
@@ -17,13 +18,21 @@ export default function InvestorsWelcome() {
   }
 
   return (
-    <Card className="h-fit top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute theme-border p-12">
-      <CardContent className="pb-0">
+    <Card className="h-fit theme-border p-12 bg-transparent relative overflow-hidden backdrop-blur-sm max-sm:w-[94vw]">
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
+        <img
+          src={investorWelcomeCardBg}
+          alt=""
+          className="w-full h-auto object-cover"
+          aria-hidden="true"
+        />
+      </div>
+      <CardContent className="pb-0 relative">
         <div className="flex flex-col items-center gap-5">
           <Text
             variant={TextVariant.headline}
             weight={TextWeight.medium}
-            className="text-primary pb-6 tracking-widest"
+            className="text-primary pb-2 tracking-widest"
           >
             WELCOME, FRIENDS
           </Text>
@@ -35,7 +44,7 @@ export default function InvestorsWelcome() {
           </Text>
           <div className="flex flex-row items-start justify-center gap-6">
             <div className="flex flex-col gap-2">
-              <Button className="rounded-md border border-for/70 bg-transparent text-primary/70 tracking-widest transition-all duration-300 hover:bg-transparent hover:border-for hover:text-primary">
+              <Button className="rounded-md border border-for/50 bg-for/15 text-primary/70 tracking-widest transition-all duration-300 hover:bg-for/30 hover:border-for hover:text-primary">
                 BLUE PILL
               </Button>
               <Text
@@ -56,7 +65,7 @@ export default function InvestorsWelcome() {
             <div className="flex flex-col gap-2">
               <Button
                 onClick={handleClick}
-                className="rounded-md border border-destructive/70 bg-transparent text-primary/70 tracking-widest transition-all duration-300 hover:bg-transparent hover:border-destructive hover:text-primary"
+                className="rounded-md border border-destructive/50 bg-destructive/15 text-primary/70 tracking-widest transition-all duration-300 hover:bg-destructive/30 hover:border-destructive hover:text-primary"
               >
                 RED PILL
               </Button>
