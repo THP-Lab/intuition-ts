@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: investor-landing
+    env: docker
+    region: oregon
+    rootDir: .
+    dockerfilePath: ./apps/investor-landing/Dockerfile
+    dockerContext: .
+    buildFilter:
+      paths:
+      - apps/investor-landing/**  # Only deploy when files in this directory change
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8080
