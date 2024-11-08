@@ -31,6 +31,8 @@ import {
 import { useNavigate } from '@remix-run/react'
 import { motion, useScroll, useSpring } from 'framer-motion'
 
+import { WhitepaperPlayer } from './whitepaper-player'
+
 const IconButtonLink = ({ url, icon }: { url: string; icon: IconNameType }) => (
   <a href={url} target="_blank" rel="noreferrer">
     <Button
@@ -68,10 +70,11 @@ export default function Mobile() {
         >
           <HeaderLogo />
         </button>
-        <div className="flex items-center justify-evenly gap-12 h-[88vh]">
+        <div className="flex items-center justify-center flex-col gap-12 h-[88vh]">
           <a href={PITCH_DECK} target="_blank" rel="noreferrer">
             <SunburstCard label={'Pitch Deck'} glow="white" disableScale />
           </a>
+          <WhitepaperPlayer />
         </div>
         <div className="flex flex-col justify-center h-[10vh] mb-12 gap-2">
           <ScrollIcon className="mx-auto" />

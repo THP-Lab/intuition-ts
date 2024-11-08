@@ -36,6 +36,8 @@ import {
 import { useNavigate } from '@remix-run/react'
 import { motion, useScroll, useSpring } from 'framer-motion'
 
+import { WhitepaperPlayer } from './whitepaper-player'
+
 const scrollToRef = (ref: React.RefObject<HTMLElement>) => {
   const handleClick = () => {
     window.scrollTo({
@@ -158,10 +160,11 @@ export default function Desktop() {
             >
               <HeaderLogo />
             </button>
-            <div className="flex items-center justify-evenly gap-12 h-[88vh]">
+            <div className="flex items-center flex-col justify-center gap-12 h-[88vh]">
               <a href={PITCH_DECK} target="_blank" rel="noreferrer">
                 <SunburstCard label={'Pitch Deck'} glow="white" />
               </a>
+              <WhitepaperPlayer />
               {/* <Box>Meme Deck</Box> */}
             </div>
           </>
