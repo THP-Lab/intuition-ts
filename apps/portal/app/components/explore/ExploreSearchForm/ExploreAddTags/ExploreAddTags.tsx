@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { FormEvent } from 'react'
 
 import {
   Input,
@@ -124,9 +125,12 @@ const ExploreAddTags = ({
         >
           <IdentitySearchCombobox
             placeholder="Search for a tag..."
-            identities={identities.filter(
-              (identity) => !selectedTags.some((tag) => tag.id === identity.id),
-            )}
+            identities={
+              identities.filter(
+                (identity) =>
+                  !selectedTags.some((tag) => tag.id === identity.vault_id),
+              ) as IdentityPresenter[]
+            }
             onIdentitySelect={(selection: IdentityPresenter) => {
               if (!isTagAlreadySelected(selection, selectedTags)) {
                 setSelectedTags([
@@ -139,7 +143,9 @@ const ExploreAddTags = ({
               }
             }}
             onValueChange={setSearchQuery}
-            onInput={handleInput}
+            onInput={async (e: FormEvent<HTMLInputElement>) =>
+              handleInput(e.currentTarget.value)
+            }
             shouldFilter={false}
           />
         </PopoverContent>

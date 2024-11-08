@@ -130,7 +130,7 @@ const ProfileCard = ({
               </Text>
               <a href={externalLink} target="_blank" rel="noreferrer noopener">
                 <Trunctacular
-                  value={externalLink}
+                  value={externalLink || ''}
                   maxStringLength={48}
                   className="text-left"
                 />

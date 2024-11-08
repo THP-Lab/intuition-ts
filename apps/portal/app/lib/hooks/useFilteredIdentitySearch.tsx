@@ -10,6 +10,7 @@ function useFilteredIdentitySearch({
   selectedItems,
 }: UseFilteredIdentitySearchProps) {
   const { setSearchQuery, identities, handleInput } = useIdentityServerSearch()
+  console.log('identities', identities)
 
   const filteredIdentities = identities.filter(
     (identity) =>

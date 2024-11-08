@@ -1,68 +1,42 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-import { IdentityPresenter } from '@0xintuition/api'
+import { useGetAtomsQuery } from '@0xintuition/graphql'
 
-import logger from '@lib/utils/logger'
-import { useFetcher } from '@remix-run/react'
-import {
-  GET_IDENTITIES_BY_PARAM_RESOURCE_ROUTE,
-  GET_IDENTITIES_RESOURCE_ROUTE,
-  SEARCH_IDENTITIES_RESOURCE_ROUTE,
-} from 'app/consts'
-
-interface DefaultIdentitiesResponse {
-  identities: IdentityPresenter[]
-}
+import { MULTIVAULT_CONTRACT_ADDRESS } from '@consts/general'
+import useDebounce from '@lib/hooks/useDebounce'
 
 export function useIdentityServerSearch() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [identities, setIdentities] = useState<IdentityPresenter[]>([])
-  const identitiesFetcher = useFetcher<
-    IdentityPresenter[] | DefaultIdentitiesResponse
-  >()
+  const debouncedSearch = useDebounce(searchQuery, 300)
 
-  const handleInput = async (event: React.FormEvent<HTMLInputElement>) => {
-    event.preventDefault()
-    const value = (event.target as HTMLInputElement).value
+  const { data: atomsData } = useGetAtomsQuery(
+    {
+      where: debouncedSearch
+        ? {
+            _or: [{ label: { _ilike: `%${debouncedSearch}%` } }],
+          }
+        : undefined,
+    },
+    {
+      queryKey: ['get-atoms-query', { search: debouncedSearch }],
+    },
+  )
+
+  const identities =
+    atomsData?.atoms?.map((atom) => ({
+      vault_id: atom.vaultId?.toString(),
+      display_name: atom.label,
+      image: atom.image,
+      contract: MULTIVAULT_CONTRACT_ADDRESS,
+    })) || []
+
+  const handleInput = (value: string) => {
     setSearchQuery(value)
   }
 
-  useEffect(() => {
-    logger('identitiesFetcher.data changed:', identitiesFetcher.data)
-    if (identitiesFetcher.data) {
-      const newIdentities = Array.isArray(identitiesFetcher.data)
-        ? identitiesFetcher.data
-        : identitiesFetcher.data.identities || []
-      logger('Setting identities:', newIdentities)
-      setIdentities(newIdentities)
-    }
-  }, [identitiesFetcher.data])
-
-  useEffect(() => {
-    logger('searchQuery changed:', searchQuery)
-    if (searchQuery) {
-      const searchParam = `?search=${encodeURIComponent(searchQuery)}`
-      identitiesFetcher.load(
-        `${SEARCH_IDENTITIES_RESOURCE_ROUTE}${searchParam}`,
-      )
-    } else {
-      const defaultParams = new URLSearchParams({
-        page: '1',
-        limit: '20',
-        sortBy: 'AssetsSum',
-        direction: 'desc',
-      })
-      identitiesFetcher.load(
-        `${GET_IDENTITIES_BY_PARAM_RESOURCE_ROUTE}?${defaultParams}`,
-      )
-    }
-  }, [
-    // omits the fetcher from the exhaustive deps
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    searchQuery,
-    SEARCH_IDENTITIES_RESOURCE_ROUTE,
-    GET_IDENTITIES_RESOURCE_ROUTE,
-  ])
-
-  return { setSearchQuery, identities, handleInput }
+  return {
+    setSearchQuery,
+    identities,
+    handleInput,
+  }
 }

@@ -19,13 +19,11 @@ import {
 import { IdentityPresenter } from '@0xintuition/api'
 
 import {
-  formatBalance,
   getAtomDescription,
   getAtomId,
   getAtomImage,
   getAtomIpfsLink,
   getAtomLabel,
-  sliceString,
   truncateString,
 } from '@lib/utils/misc'
 
@@ -105,13 +103,8 @@ const IdentitySearchCombobox = ({
                       variant={variant}
                       name={truncateString(user?.display_name ?? name, 7)}
                       avatarSrc={user?.image ?? image ?? ''}
-                      value={+formatBalance(value)}
-                      walletAddress={
-                        identity.is_user === true
-                          ? identity.user?.ens_name ??
-                            sliceString(identity.user?.wallet, 6, 4)
-                          : identity.identity_id
-                      }
+                      value={+value}
+                      walletAddress={identity.vault_id}
                       socialCount={socialCount || 0}
                       tagCount={tagCount || 0}
                       onClick={() => onIdentityClick(identity)}

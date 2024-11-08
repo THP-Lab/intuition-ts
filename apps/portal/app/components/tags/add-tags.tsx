@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 
 import { Popover, PopoverContent, PopoverTrigger, Text } from '@0xintuition/1ui'
 import { IdentityPresenter } from '@0xintuition/api'
@@ -7,6 +7,7 @@ import { IdentitySearchCombobox } from '@components/identity/identity-search-com
 import { InfoTooltip } from '@components/info-tooltip'
 import { AddListExistingCta } from '@components/lists/add-list-existing-cta'
 import SaveListModal from '@components/save-list/save-list-modal'
+import { useCheckClaim } from '@lib/hooks/useCheckClaim'
 import useFilteredIdentitySearch from '@lib/hooks/useFilteredIdentitySearch'
 import useInvalidItems from '@lib/hooks/useInvalidItems'
 import {
@@ -14,9 +15,9 @@ import {
   saveListModalAtom,
 } from '@lib/state/store'
 import { getSpecialPredicate } from '@lib/utils/app'
-import { useFetcher } from '@remix-run/react'
 import { TagLoaderData } from '@routes/resources+/tag'
-import { CURRENT_ENV, TAG_RESOURCE_ROUTE } from 'app/consts'
+import { UseQueryResult } from '@tanstack/react-query'
+import { CURRENT_ENV } from 'app/consts'
 import { TransactionActionType } from 'app/types/transaction'
 import { useAtom } from 'jotai'
 
@@ -70,22 +71,21 @@ export function AddTags({
       selectedItems: selectedTags,
     })
 
-  const tagFetcher = useFetcher<TagLoaderData>()
+  const {
+    data: claimCheckData,
+    refetch: refetchClaimCheck,
+    isLoading: claimCheckLoading,
+  } = useCheckClaim({
+    subjectId: subjectVaultId,
+    predicateId:
+      getSpecialPredicate(CURRENT_ENV).tagPredicate.vaultId?.toString(),
+    objectId: identity.vault_id,
+  })
 
   const handleIdentitySelect = (identity: IdentityPresenter) => {
     onAddTag(identity)
     setSearchQuery('')
-
-    const searchParams = new URLSearchParams({
-      subjectId: subjectVaultId,
-      predicateId:
-        getSpecialPredicate(CURRENT_ENV).tagPredicate.vaultId?.toString(),
-      objectId: identity.vault_id,
-    })
-
-    const finalUrl = `${TAG_RESOURCE_ROUTE}?${searchParams.toString()}`
-
-    tagFetcher.load(finalUrl)
+    refetchClaimCheck()
     setIsPopoverOpen(false)
   }
 
@@ -96,9 +96,19 @@ export function AddTags({
       identity: invalidTag,
     })
   }
-
   useInvalidItems({
-    fetcher: tagFetcher,
+    query: {
+      data: {
+        data: claimCheckData,
+        isLoading: claimCheckLoading,
+      },
+      isPending: claimCheckLoading,
+      isError: false,
+      isSuccess: !claimCheckLoading && !!claimCheckData,
+    } as UseQueryResult<{
+      data: TagLoaderData
+      isLoading: boolean
+    }>,
     selectedItems: selectedTags,
     setInvalidItems: setInvalidTags,
     onRemoveItem: onRemoveTag,
@@ -133,10 +143,12 @@ export function AddTags({
           <PopoverContent className="bg-transparent border-none">
             <IdentitySearchCombobox
               onCreateIdentityClick={() => setCreateIdentityModalActive(true)}
-              identities={filteredIdentities}
+              identities={filteredIdentities as IdentityPresenter[]}
               onIdentitySelect={handleIdentitySelect}
               onValueChange={setSearchQuery}
-              onInput={handleInput}
+              onInput={(e: FormEvent<HTMLInputElement>) =>
+                handleInput(e.currentTarget.value)
+              }
               shouldFilter={false}
             />
           </PopoverContent>

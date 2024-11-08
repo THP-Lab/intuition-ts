@@ -1,10 +1,13 @@
 import { useEffect } from 'react'
 
-import type { useFetcher } from '@remix-run/react'
 import { TagLoaderData } from '@routes/resources+/tag'
+import type { UseQueryResult } from '@tanstack/react-query'
 
 interface UseInvalidItemsProps<T> {
-  fetcher: ReturnType<typeof useFetcher<TagLoaderData>>
+  query: UseQueryResult<{
+    data: TagLoaderData
+    isLoading: boolean
+  }>
   selectedItems: T[]
   setInvalidItems: React.Dispatch<React.SetStateAction<T[]>>
   onRemoveItem?: (id: string) => void
@@ -13,7 +16,7 @@ interface UseInvalidItemsProps<T> {
 }
 
 function useInvalidItems<T>({
-  fetcher,
+  query,
   selectedItems,
   setInvalidItems,
   onRemoveItem,
@@ -21,9 +24,9 @@ function useInvalidItems<T>({
   dataIdKey,
 }: UseInvalidItemsProps<T>) {
   useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data !== undefined) {
-      const result = fetcher.data.result
-      const itemId = fetcher.data?.[dataIdKey]
+    if (!query.isPending && query.data) {
+      const result = query.data.data.result
+      const itemId = query.data.data[dataIdKey]
 
       if (result === '0') {
         setInvalidItems((prev) => prev.filter((item) => item[idKey] !== itemId))
@@ -43,8 +46,8 @@ function useInvalidItems<T>({
       }
     }
   }, [
-    fetcher.state,
-    fetcher.data,
+    query.isPending,
+    query.data,
     setInvalidItems,
     selectedItems,
     onRemoveItem,

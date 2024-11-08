@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FormEvent } from 'react'
 
 import {
   Button,
@@ -88,10 +88,12 @@ const IdentityInputButton = ({
         </PopoverTrigger>
         <PopoverContent className="bg-transparent border-0 w-max p-0">
           <IdentitySearchCombobox
-            identities={identitiesToList}
+            identities={identitiesToList as IdentityPresenter[]}
             onIdentitySelect={onIdentitySelect}
             onValueChange={setSearchQuery}
-            onInput={handleInput}
+            onInput={async (e: FormEvent<HTMLInputElement>) =>
+              handleInput(e.currentTarget.value)
+            }
             shouldFilter={false}
           />
         </PopoverContent>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 
 import {
   Button,
@@ -195,10 +195,12 @@ export function AddIdentities({
                   onCreateIdentityClick={() =>
                     setCreateIdentityModalActive(true)
                   }
-                  identities={filteredIdentities}
+                  identities={filteredIdentities as IdentityPresenter[]}
                   onIdentitySelect={handleIdentitySelect}
                   onValueChange={setSearchQuery}
-                  onInput={handleInput}
+                  onInput={async (e: FormEvent<HTMLInputElement>) =>
+                    handleInput(e.currentTarget.value)
+                  }
                   shouldFilter={false}
                 />
               </PopoverContent>

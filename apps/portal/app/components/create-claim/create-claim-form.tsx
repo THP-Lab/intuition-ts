@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { FormEvent, useEffect, useState } from 'react'
 
 import {
   Badge,
@@ -386,13 +386,15 @@ function CreateClaimForm({
                     isObjectPopoverOpen={isSubjectPopoverOpen}
                     setIsObjectPopoverOpen={setIsSubjectPopoverOpen}
                     selectedIdentity={selectedIdentities.subject}
-                    identities={identities}
+                    identities={identities as IdentityPresenter[]}
                     handleIdentitySelection={(
                       identityType: ClaimElementType,
                       identity: IdentityPresenter,
                     ) => handleIdentitySelection(identityType, identity)}
                     setSearchQuery={setSearchQuery}
-                    handleInput={handleInput}
+                    handleInput={async (e: FormEvent<HTMLInputElement>) =>
+                      handleInput(e.currentTarget.value)
+                    }
                   />
                   <Divider />
                   <IdentityPopover
@@ -400,13 +402,15 @@ function CreateClaimForm({
                     isObjectPopoverOpen={isPredicatePopoverOpen}
                     setIsObjectPopoverOpen={setIsPredicatePopoverOpen}
                     selectedIdentity={selectedIdentities.predicate}
-                    identities={identities}
+                    identities={identities as IdentityPresenter[]}
                     handleIdentitySelection={(
                       identityType: ClaimElementType,
                       identity: IdentityPresenter,
                     ) => handleIdentitySelection(identityType, identity)}
                     setSearchQuery={setSearchQuery}
-                    handleInput={handleInput}
+                    handleInput={async (e: FormEvent<HTMLInputElement>) =>
+                      handleInput(e.currentTarget.value)
+                    }
                   />
                   <Divider />
                   <IdentityPopover
@@ -414,13 +418,15 @@ function CreateClaimForm({
                     isObjectPopoverOpen={isObjectPopoverOpen}
                     setIsObjectPopoverOpen={setIsObjectPopoverOpen}
                     selectedIdentity={selectedIdentities.object}
-                    identities={identities}
+                    identities={identities as IdentityPresenter[]}
                     handleIdentitySelection={(
                       identityType: ClaimElementType,
                       identity: IdentityPresenter,
                     ) => handleIdentitySelection(identityType, identity)}
                     setSearchQuery={setSearchQuery}
-                    handleInput={handleInput}
+                    handleInput={async (e: FormEvent<HTMLInputElement>) =>
+                      handleInput(e.currentTarget.value)
+                    }
                   />
                 </div>
                 <div className="flex flex-row items-center justify-center">
