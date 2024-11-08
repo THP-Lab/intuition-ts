@@ -1284,19 +1284,54 @@ export default function CSVEditor() {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Atoms View</h3>
               <div className="flex items-center space-x-2 mb-4">
-                <span className="text-sm font-medium">Type:</span>
-                <Select value={selectedType} onValueChange={handleFormatChange}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(atomDataTypes).map(([key, type]) => (
-                      <SelectItem key={key} value={key}>
-                        {type.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {tooltipsEnabled ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm font-medium">Type:</span>
+                        <Select
+                          value={selectedType}
+                          onValueChange={handleFormatChange}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(atomDataTypes).map(
+                              ([key, type]) => (
+                                <SelectItem key={key} value={key}>
+                                  {type.name}
+                                </SelectItem>
+                              ),
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {getTooltip(TooltipKey.ATOM_TYPE)}
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium">Type:</span>
+                    <Select
+                      value={selectedType}
+                      onValueChange={handleFormatChange}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(atomDataTypes).map(([key, type]) => (
+                          <SelectItem key={key} value={key}>
+                            {type.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
               <div className="overflow-x-auto">
                 <Table>

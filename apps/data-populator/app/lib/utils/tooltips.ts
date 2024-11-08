@@ -17,6 +17,7 @@ export enum TooltipKey {
   CREATE_TAG = 'CREATE_TAG',
   SEARCH = 'SEARCH',
   SEND_TO_LLM = 'SEND_TO_LLM',
+  ATOM_TYPE = 'ATOM_TYPE',
 }
 
 const tooltipMap: Record<TooltipKey, string> = {
@@ -45,6 +46,8 @@ const tooltipMap: Record<TooltipKey, string> = {
     'Creates a tag atom using the specified arguments above. Do this before tagging atoms.',
   [TooltipKey.SEARCH]: 'Not available at this time.',
   [TooltipKey.SEND_TO_LLM]: 'Not available at this time.',
+  [TooltipKey.ATOM_TYPE]:
+    'The type of atom data you are uploading. Use <Thing> for atom with metadata, or CAIP-10 for a smart contract, or URI for a raw URI (advanced).',
 }
 
 export function getTooltip(key: TooltipKey): string {
