@@ -1166,28 +1166,65 @@ export default function CSVEditor() {
       {/* Animated Tabs */}
       <div className="bg-gray-800 p-4 mb-4">
         <div className="flex space-x-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`${
-                activeTab === tab.id ? '' : 'hover:text-white/60'
-              } relative rounded-full px-3 py-1.5 text-sm font-medium text-white outline-sky-400 transition focus-visible:outline-2 w-24 text-center`}
-              style={{
-                WebkitTapHighlightColor: 'transparent',
-              }}
-            >
-              {activeTab === tab.id && (
-                <motion.span
-                  layoutId="bubble"
-                  className="absolute inset-0 z-10 bg-white mix-blend-difference"
-                  style={{ borderRadius: 9999 }}
-                  transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-              {tab.label}
-            </button>
-          ))}
+          {tabs.map((tab) =>
+            (tooltipsEnabled ? (
+              <Tooltip key={tab.id}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`${
+                      activeTab === tab.id ? '' : 'hover:text-white/60'
+                    } relative rounded-full px-3 py-1.5 text-sm font-medium text-white outline-sky-400 transition focus-visible:outline-2 w-24 text-center`}
+                    style={{
+                      WebkitTapHighlightColor: 'transparent',
+                    }}
+                  >
+                    {activeTab === tab.id && (
+                      <motion.span
+                        layoutId="bubble"
+                        className="absolute inset-0 z-10 bg-white mix-blend-difference"
+                        style={{ borderRadius: 9999 }}
+                        transition={{
+                          type: 'spring',
+                          bounce: 0.2,
+                          duration: 0.6,
+                        }}
+                      />
+                    )}
+                    {tab.label}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {getTooltip(
+                    tab.id === 'atoms'
+                      ? TooltipKey.ATOMS_TAB
+                      : TooltipKey.TAGGING_TAB,
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`${
+                  activeTab === tab.id ? '' : 'hover:text-white/60'
+                } relative rounded-full px-3 py-1.5 text-sm font-medium text-white outline-sky-400 transition focus-visible:outline-2 w-24 text-center`}
+                style={{
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                {activeTab === tab.id && (
+                  <motion.span
+                    layoutId="bubble"
+                    className="absolute inset-0 z-10 bg-white mix-blend-difference"
+                    style={{ borderRadius: 9999 }}
+                    transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+                {tab.label}
+              </button>
+            )),
+          )}
         </div>
       </div>
 
@@ -1647,66 +1684,11 @@ export default function CSVEditor() {
             </div>
           </>
         )}
-
-        {/* Common elements that should always show */}
-        <hr className="my-6 border-gray-200" />
-
-        {/* Search section (disabled) */}
-        <div className="space-y-4 opacity-50 pointer-events-none">
-          <h3 className="text-lg font-semibold">Search for Atom</h3>
-          <div className="flex space-x-4">
-            {tooltipsEnabled ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button onClick={() => searchAtoms('query')}>
-                    <Search className="mr-2 h-4 w-4" /> Search
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{getTooltip(TooltipKey.SEARCH)}</TooltipContent>
-              </Tooltip>
-            ) : (
-              <Button onClick={() => searchAtoms('query')}>
-                <Search className="mr-2 h-4 w-4" /> Search
-              </Button>
-            )}
-          </div>
-          <p className="text-red-500 font-bold">Under Construction</p>
-          {/* ... existing search results table ... */}
-        </div>
-
-        <hr className="my-6 border-gray-200" />
-
-        {/* LLM section (disabled) */}
-        <div className="space-y-2 opacity-50 pointer-events-none">
-          <h3 className="text-lg font-semibold">LLM Interaction</h3>
-          <Textarea
-            value={llmInput}
-            onChange={(e) => setLlmInput(e.target.value)}
-            placeholder="Enter your message for the LLM"
-            rows={4}
-          />
-          {tooltipsEnabled ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button onClick={handleLLMInteraction}>Send to LLM</Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {getTooltip(TooltipKey.SEND_TO_LLM)}
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Button onClick={handleLLMInteraction}>Send to LLM</Button>
-          )}
-          <p className="text-red-500 font-bold">Under Construction</p>
-        </div>
-
-        {/* All your modals... */}
       </div>
 
       <ProgressModal
         isOpen={isLoading || isTagLoading}
         onClose={() => {
-          // Only log when actually closing from an open state
           if (isLoading || isTagLoading) {
             console.log('Progress modal closed')
           }
@@ -1722,7 +1704,7 @@ export default function CSVEditor() {
         onApplyFixes={handleApplyFixes}
       />
 
-      {/* Add the format change confirmation dialog */}
+      {/* Format change confirmation dialog */}
       <Dialog
         open={formatChangeDialog.isOpen}
         onOpenChange={(isOpen) => {
