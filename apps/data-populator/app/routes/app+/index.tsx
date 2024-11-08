@@ -1164,7 +1164,7 @@ export default function CSVEditor() {
   return (
     <>
       {/* Animated Tabs */}
-      <div className="bg-gray-800 p-4 mb-6">
+      <div className="bg-gray-800 p-4 mb-4">
         <div className="flex space-x-1">
           {tabs.map((tab) => (
             <button
@@ -1172,7 +1172,7 @@ export default function CSVEditor() {
               onClick={() => setActiveTab(tab.id)}
               className={`${
                 activeTab === tab.id ? '' : 'hover:text-white/60'
-              } relative rounded-full px-3 py-1.5 text-sm font-medium text-white outline-sky-400 transition focus-visible:outline-2`}
+              } relative rounded-full px-3 py-1.5 text-sm font-medium text-white outline-sky-400 transition focus-visible:outline-2 w-24 text-center`}
               style={{
                 WebkitTapHighlightColor: 'transparent',
               }}
@@ -1206,7 +1206,7 @@ export default function CSVEditor() {
             />
 
             {/* Atoms View Buttons */}
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 h-8 mt-2">
               {tooltipsEnabled ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -1330,209 +1330,204 @@ export default function CSVEditor() {
 
             {/* CSV data table */}
             {csvData.length > 0 && (
-              <>
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Atoms View</h3>
-                  <div className="flex items-center space-x-2 mb-4">
-                    {tooltipsEnabled ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm font-medium">Type:</span>
-                            <Select
-                              value={selectedType}
-                              onValueChange={handleFormatChange}
-                            >
-                              <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Select type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.entries(atomDataTypes).map(
-                                  ([key, type]) => (
-                                    <SelectItem key={key} value={key}>
-                                      {type.name}
-                                    </SelectItem>
-                                  ),
-                                )}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {getTooltip(TooltipKey.ATOM_TYPE)}
-                        </TooltipContent>
-                      </Tooltip>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium">Type:</span>
-                        <Select
-                          value={selectedType}
-                          onValueChange={handleFormatChange}
-                        >
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Select type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Object.entries(atomDataTypes).map(
-                              ([key, type]) => (
-                                <SelectItem key={key} value={key}>
-                                  {type.name}
-                                </SelectItem>
-                              ),
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-                  </div>
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-8"></TableHead>{' '}
-                          {/* New column for checkmark */}
-                          {csvData[0].map((header, index) => (
-                            <TableHead
-                              key={index}
-                              className={`cursor-pointer hover:bg-gray-100 ${
-                                header === '@context'
-                                  ? 'w-40'
-                                  : header === '@type'
-                                    ? 'w-24'
-                                    : header === 'name'
-                                      ? 'w-48'
-                                      : header === 'image'
-                                        ? 'w-64'
-                                        : ''
-                              }`}
-                              onClick={() => handleSort(index)}
-                            >
-                              <div className="flex items-center space-x-2">
-                                <span>{header}</span>
-                                {sortState.column === index && (
-                                  <span>
-                                    {sortState.direction === 'asc' ? '▲' : '▼'}
-                                  </span>
-                                )}
-                              </div>
-                            </TableHead>
+              <div className="mt-4">
+                <div className="flex items-center space-x-2 mb-4">
+                  {tooltipsEnabled ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-medium">Type:</span>
+                          <Select
+                            value={selectedType}
+                            onValueChange={handleFormatChange}
+                          >
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(atomDataTypes).map(
+                                ([key, type]) => (
+                                  <SelectItem key={key} value={key}>
+                                    {type.name}
+                                  </SelectItem>
+                                ),
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {getTooltip(TooltipKey.ATOM_TYPE)}
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium">Type:</span>
+                      <Select
+                        value={selectedType}
+                        onValueChange={handleFormatChange}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(atomDataTypes).map(([key, type]) => (
+                            <SelectItem key={key} value={key}>
+                              {type.name}
+                            </SelectItem>
                           ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-8"></TableHead>{' '}
+                        {/* New column for checkmark */}
+                        {csvData[0].map((header, index) => (
                           <TableHead
-                            className="cursor-pointer hover:bg-gray-100 w-16"
-                            onClick={toggleAllRows}
+                            key={index}
+                            className={`cursor-pointer hover:bg-gray-100 ${
+                              header === '@context'
+                                ? 'w-40'
+                                : header === '@type'
+                                  ? 'w-24'
+                                  : header === 'name'
+                                    ? 'w-48'
+                                    : header === 'image'
+                                      ? 'w-64'
+                                      : ''
+                            }`}
+                            onClick={() => handleSort(index)}
                           >
                             <div className="flex items-center space-x-2">
-                              <Checkbox
-                                checked={
-                                  selectedRows.length === csvData.length - 1
-                                }
-                                onCheckedChange={toggleAllRows}
-                                className="w-4 h-4"
-                              />
+                              <span>{header}</span>
+                              {sortState.column === index && (
+                                <span>
+                                  {sortState.direction === 'asc' ? '▲' : '▼'}
+                                </span>
+                              )}
                             </div>
                           </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {(sortedIndices.length > 0
-                          ? sortedIndices
-                          : csvData.slice(1).map((_, i) => i + 1)
-                        ).map((rowIndex, displayIndex) => (
-                          <TableRow key={rowIndex}>
-                            <TableCell className="w-8 p-0">
-                              {loadingRows.has(rowIndex - 1) ? (
-                                <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
-                              ) : existingAtoms.has(rowIndex - 1) ? (
-                                <CheckCircle2 className="text-green-500 w-5 h-5" />
-                              ) : null}
-                            </TableCell>
-                            {csvData[rowIndex].map((cell, cellIndex) => (
-                              <TableCell
-                                key={cellIndex}
-                                className={`p-0 ${
-                                  csvData[0][cellIndex] === '@context'
-                                    ? 'w-40'
-                                    : csvData[0][cellIndex] === '@type'
-                                      ? 'w-24'
-                                      : csvData[0][cellIndex] === 'name'
-                                        ? 'w-48'
-                                        : csvData[0][cellIndex] === 'image'
-                                          ? 'w-64'
-                                          : ''
-                                } ${
-                                  cellHighlights.some(
-                                    (highlight) =>
-                                      highlight.rowIndex === displayIndex &&
-                                      highlight.cellIndex === cellIndex,
-                                  )
-                                    ? 'border-yellow-400 border-2'
-                                    : ''
-                                }`}
-                              >
-                                <div className="flex items-center">
-                                  <Textarea
-                                    value={cell}
-                                    onChange={(e) =>
-                                      handleCellEdit(
-                                        rowIndex,
-                                        cellIndex,
-                                        e.target.value,
-                                      )
-                                    }
-                                    onFocus={handleFocus}
-                                    onBlur={(e) =>
-                                      handleCellBlur(e, rowIndex, cellIndex)
-                                    }
-                                    onPaste={(e) =>
-                                      handleCellPaste(e, rowIndex, cellIndex)
-                                    }
-                                    placeholder={
-                                      !cell &&
-                                      atomDataTypes[selectedType]
-                                        .defaultDescriptions[
-                                        csvData[0][cellIndex]
-                                      ]
-                                        ? atomDataTypes[selectedType]
-                                            .defaultDescriptions[
-                                            csvData[0][cellIndex]
-                                          ]
-                                        : ''
-                                    }
-                                    className={`w-full border-none focus:outline-none focus:ring-0 resize-none overflow-hidden h-8 ${
-                                      !cell ? 'text-gray-400 italic' : ''
-                                    }`}
-                                    readOnly={
-                                      csvData[0][cellIndex] === '@context' ||
-                                      csvData[0][cellIndex] === '@type'
-                                    }
-                                  />
-                                  {csvData[0][cellIndex] === 'image' &&
-                                    thumbnails[rowIndex] && (
-                                      <img
-                                        src={thumbnails[rowIndex]}
-                                        alt="Thumbnail"
-                                        className="w-8 h-8 object-cover ml-2 flex-shrink-0"
-                                      />
-                                    )}
-                                </div>
-                              </TableCell>
-                            ))}
-                            <TableCell className="w-16">
-                              <Checkbox
-                                checked={selectedRows.includes(rowIndex - 1)}
-                                onCheckedChange={() =>
-                                  toggleRowSelection(rowIndex - 1)
-                                }
-                                className="w-4 h-4"
-                              />
-                            </TableCell>
-                          </TableRow>
                         ))}
-                      </TableBody>
-                    </Table>
-                  </div>
+                        <TableHead
+                          className="cursor-pointer hover:bg-gray-100 w-16"
+                          onClick={toggleAllRows}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              checked={
+                                selectedRows.length === csvData.length - 1
+                              }
+                              onCheckedChange={toggleAllRows}
+                              className="w-4 h-4"
+                            />
+                          </div>
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(sortedIndices.length > 0
+                        ? sortedIndices
+                        : csvData.slice(1).map((_, i) => i + 1)
+                      ).map((rowIndex, displayIndex) => (
+                        <TableRow key={rowIndex}>
+                          <TableCell className="w-8 p-0">
+                            {loadingRows.has(rowIndex - 1) ? (
+                              <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
+                            ) : existingAtoms.has(rowIndex - 1) ? (
+                              <CheckCircle2 className="text-green-500 w-5 h-5" />
+                            ) : null}
+                          </TableCell>
+                          {csvData[rowIndex].map((cell, cellIndex) => (
+                            <TableCell
+                              key={cellIndex}
+                              className={`p-0 ${
+                                csvData[0][cellIndex] === '@context'
+                                  ? 'w-40'
+                                  : csvData[0][cellIndex] === '@type'
+                                    ? 'w-24'
+                                    : csvData[0][cellIndex] === 'name'
+                                      ? 'w-48'
+                                      : csvData[0][cellIndex] === 'image'
+                                        ? 'w-64'
+                                        : ''
+                              } ${
+                                cellHighlights.some(
+                                  (highlight) =>
+                                    highlight.rowIndex === displayIndex &&
+                                    highlight.cellIndex === cellIndex,
+                                )
+                                  ? 'border-yellow-400 border-2'
+                                  : ''
+                              }`}
+                            >
+                              <div className="flex items-center">
+                                <Textarea
+                                  value={cell}
+                                  onChange={(e) =>
+                                    handleCellEdit(
+                                      rowIndex,
+                                      cellIndex,
+                                      e.target.value,
+                                    )
+                                  }
+                                  onFocus={handleFocus}
+                                  onBlur={(e) =>
+                                    handleCellBlur(e, rowIndex, cellIndex)
+                                  }
+                                  onPaste={(e) =>
+                                    handleCellPaste(e, rowIndex, cellIndex)
+                                  }
+                                  placeholder={
+                                    !cell &&
+                                    atomDataTypes[selectedType]
+                                      .defaultDescriptions[
+                                      csvData[0][cellIndex]
+                                    ]
+                                      ? atomDataTypes[selectedType]
+                                          .defaultDescriptions[
+                                          csvData[0][cellIndex]
+                                        ]
+                                      : ''
+                                  }
+                                  className={`w-full border-none focus:outline-none focus:ring-0 resize-none overflow-hidden h-8 ${
+                                    !cell ? 'text-gray-400 italic' : ''
+                                  }`}
+                                  readOnly={
+                                    csvData[0][cellIndex] === '@context' ||
+                                    csvData[0][cellIndex] === '@type'
+                                  }
+                                />
+                                {csvData[0][cellIndex] === 'image' &&
+                                  thumbnails[rowIndex] && (
+                                    <img
+                                      src={thumbnails[rowIndex]}
+                                      alt="Thumbnail"
+                                      className="w-8 h-8 object-cover ml-2 flex-shrink-0"
+                                    />
+                                  )}
+                              </div>
+                            </TableCell>
+                          ))}
+                          <TableCell className="w-16">
+                            <Checkbox
+                              checked={selectedRows.includes(rowIndex - 1)}
+                              onCheckedChange={() =>
+                                toggleRowSelection(rowIndex - 1)
+                              }
+                              className="w-4 h-4"
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
-              </>
+              </div>
             )}
           </>
         )}
@@ -1540,110 +1535,115 @@ export default function CSVEditor() {
         {/* Tagging View Content */}
         {activeTab === 'tagging' && (
           <>
-            {/* Tag creation section */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <h3 className="text-lg font-semibold">Tag View</h3>
-                {isCheckingTag ? (
-                  <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
-                ) : tagExists ? (
-                  <CheckCircle2 className="text-green-500 w-5 h-5" />
-                ) : null}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                {Object.keys(newTag).map((key) => (
-                  <div key={key}>
-                    <label
-                      htmlFor={key}
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      {key}
-                    </label>
-                    <Input
-                      id={key}
-                      value={newTag[key]}
-                      onChange={(e) =>
-                        setNewTag((prev) => ({
-                          ...prev,
-                          [key]: e.target.value,
-                        }))
+            {/* Move buttons to top */}
+            <div className="flex space-x-4 h-8 mt-2">
+              {tooltipsEnabled ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      className="h-8"
+                      onClick={handleCreateAndTagAtoms}
+                      disabled={
+                        selectedRows.length === 0 ||
+                        !tagExists ||
+                        isTagging ||
+                        navigation.state === 'submitting'
                       }
-                      disabled={key === '@context' || key === '@type'}
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className="flex space-x-4">
-                {tooltipsEnabled ? (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        onClick={handleCreateAndTagAtoms}
-                        disabled={
-                          selectedRows.length === 0 ||
-                          !tagExists || // Disable if tag doesn't exist
-                          isTagging ||
-                          navigation.state === 'submitting'
-                        }
-                      >
-                        {isTagging || navigation.state === 'submitting' ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Tagging...
-                          </>
-                        ) : (
-                          getCreateTagButtonText()
-                        )}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {getTooltip(TooltipKey.TAG_ATOMS)}
-                    </TooltipContent>
-                  </Tooltip>
-                ) : (
-                  <Button
-                    onClick={handleCreateAndTagAtoms}
-                    disabled={
-                      selectedRows.length === 0 ||
-                      !tagExists || // Disable if tag doesn't exist
-                      isTagging ||
-                      navigation.state === 'submitting'
-                    }
-                  >
-                    {isTagging || navigation.state === 'submitting' ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Tagging...
-                      </>
-                    ) : (
-                      getCreateTagButtonText()
-                    )}
-                  </Button>
-                )}
+                    >
+                      {isTagging || navigation.state === 'submitting' ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Tagging...
+                        </>
+                      ) : (
+                        getCreateTagButtonText()
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {getTooltip(TooltipKey.TAG_ATOMS)}
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Button
+                  className="h-8"
+                  onClick={handleCreateAndTagAtoms}
+                  disabled={
+                    selectedRows.length === 0 ||
+                    !tagExists ||
+                    isTagging ||
+                    navigation.state === 'submitting'
+                  }
+                >
+                  {isTagging || navigation.state === 'submitting' ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Tagging...
+                    </>
+                  ) : (
+                    getCreateTagButtonText()
+                  )}
+                </Button>
+              )}
 
-                {tooltipsEnabled ? (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        onClick={handleCreateTag}
-                        disabled={tagExists} // Disable only if tag exists
-                      >
-                        Create Tag
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {getTooltip(TooltipKey.CREATE_TAG)}
-                    </TooltipContent>
-                  </Tooltip>
-                ) : (
-                  <Button
-                    onClick={handleCreateTag}
-                    disabled={tagExists} // Disable only if tag exists
+              {tooltipsEnabled ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      className="h-8"
+                      onClick={handleCreateTag}
+                      disabled={tagExists}
+                    >
+                      Create Tag
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {getTooltip(TooltipKey.CREATE_TAG)}
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Button
+                  className="h-8"
+                  onClick={handleCreateTag}
+                  disabled={tagExists}
+                >
+                  Create Tag
+                </Button>
+              )}
+            </div>
+
+            {/* Tag status indicator */}
+            <div className="flex items-center space-x-2 mt-4">
+              {isCheckingTag ? (
+                <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
+              ) : tagExists ? (
+                <CheckCircle2 className="text-green-500 w-5 h-5" />
+              ) : null}
+            </div>
+
+            {/* Tag input fields */}
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              {Object.keys(newTag).map((key) => (
+                <div key={key}>
+                  <label
+                    htmlFor={key}
+                    className="block text-sm font-medium text-gray-700"
                   >
-                    Create Tag
-                  </Button>
-                )}
-              </div>
+                    {key}
+                  </label>
+                  <Input
+                    id={key}
+                    value={newTag[key]}
+                    onChange={(e) =>
+                      setNewTag((prev) => ({
+                        ...prev,
+                        [key]: e.target.value,
+                      }))
+                    }
+                    disabled={key === '@context' || key === '@type'}
+                  />
+                </div>
+              ))}
             </div>
           </>
         )}
