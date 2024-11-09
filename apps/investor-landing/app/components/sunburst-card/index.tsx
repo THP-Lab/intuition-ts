@@ -42,7 +42,7 @@ export default function SunburstCard({
     <div>
       <div
         className={clsx(
-          'relative opacity-90 transition-all duration-300 ease-in-out hover:opacity-100',
+          'relative opacity-90 transition-all duration-300 ease-in-out hover:opacity-100 rounded-full',
           !disableScale && 'hover:scale-110',
           disabled ? 'cursor-not-allowed' : 'cursor-pointer',
           glowClasses[glow],
@@ -50,7 +50,7 @@ export default function SunburstCard({
       >
         <div className="relative">
           <SunburstNoGlow
-            className={`transition-all duration-300 ease-in-out backdrop-blur-md`}
+            className={`transition-all duration-300 ease-in-out backdrop-blur-md rounded-full`}
             width={sizeClasses[size]}
             height={sizeClasses[size]}
           />

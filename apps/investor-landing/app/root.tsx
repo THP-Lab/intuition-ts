@@ -82,7 +82,7 @@ export function Document({
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="bg-background">
         <main className="relative flex min-h-screen w-full flex-col justify-between antialiased bg-gradient-to-br from-foreground/10 to-background/50">
           <div className="z-10 flex-1">{children}</div>
         </main>

@@ -7,7 +7,6 @@ import {
   MediaPlayer,
   MediaProvider,
   Poster,
-  Track,
 } from '@vidstack/react'
 import {
   DefaultAudioLayout,
@@ -29,7 +28,11 @@ export function WhitepaperPlayer() {
         <MediaProvider>
           <Poster className="vds-poster" />
         </MediaProvider>
-        <DefaultAudioLayout className="px-6" icons={defaultLayoutIcons} />
+        <DefaultAudioLayout
+          className="px-6"
+          icons={defaultLayoutIcons}
+          colorScheme="dark"
+        />
         <MediaAnnouncer />
       </MediaPlayer>
     </div>
