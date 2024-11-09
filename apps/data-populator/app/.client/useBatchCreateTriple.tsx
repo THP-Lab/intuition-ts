@@ -146,8 +146,6 @@ export function useBatchCreateTriple() {
   const { sendTransaction } = useSendTransaction()
 
   const resetState = useCallback(() => {
-    console.log('initiating resetState')
-
     // Reset fetcher states
     initiateFetcher.submit({}, { method: 'get' })
     publishFetcher.submit({}, { method: 'get' })
@@ -178,7 +176,6 @@ export function useBatchCreateTriple() {
         return
       }
 
-      console.log('Initiating tag request')
       setIsProcessing(true)
       dispatch({ type: 'SET_STEP', payload: 'initiating' })
       dispatch({ type: 'SET_TAG', payload: tag })
@@ -198,7 +195,6 @@ export function useBatchCreateTriple() {
     if (!state.requestHash || isProcessing || publishFetcher.state !== 'idle') {
       return
     }
-    console.log('Publishing triples')
     setIsProcessing(true)
 
     const formData = new FormData()
@@ -217,7 +213,6 @@ export function useBatchCreateTriple() {
   ])
 
   const sendBatchTx = useCallback(async () => {
-    console.log('Sending batch transaction')
     dispatch({ type: 'SET_STEP', payload: 'sending' })
     setIsProcessing(true)
 
@@ -313,7 +308,6 @@ export function useBatchCreateTriple() {
     if (!state.txHash || !state.requestHash || isProcessing) {
       return
     }
-    console.log('Logging transaction hash')
 
     setIsProcessing(true)
     dispatch({ type: 'SET_STEP', payload: 'logging' })

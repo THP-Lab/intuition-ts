@@ -156,8 +156,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           formData.get('tag') as string,
         ) as WithContext<Thing>
 
-        console.log('Initiating tag request from app+/index.tsx')
-
         const requestHash = await createTagAtomsRequest(
           selectedAtoms,
           tag,
@@ -178,17 +176,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         const requestHash = formData.get('requestHash') as string
         const selectedType = formData.get('selectedType') as AtomDataTypeKey
 
-        console.log(
-          '000001001010101010101010101010101 Entering publishAtoms with selectedType:',
-          selectedType,
-        )
-
         if (selectedType === 'CSV') {
           const selectedAtoms = JSON.parse(
             formData.get('selectedAtoms') as string,
           ) as WithContext<Thing>[]
-          console.log('Pinning atoms from app+/index.tsx')
-
           const { existingCIDs, newCIDs, filteredData, existingData } =
             await pinAtoms(selectedAtoms, requestHash)
 
@@ -209,9 +200,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         }
 
         // Raw URI case:
-        console.log('URIs before parsing: ', formData.get('csvData') as string)
-        const URIs = JSON.parse(formData.get('csvData') as string) as string[]
-        console.log('URIs after parsing: ', URIs)
+        const formDataString = formData.get('selectedAtoms') as string
+        // URI and CAIP10 are objects which just have a single string, URI or CAIP10
+        const intermediaryObjects = JSON.parse(formDataString) as Array<{
+          URI?: string
+          CAIP10?: string
+        }>
+        const URIs = intermediaryObjects.map((obj) => obj.URI || obj.CAIP10!)
         const { existingURIs, newURIs } = await checkAndFilterURIs(
           URIs,
           requestHash,
@@ -431,13 +426,6 @@ export default function CSVEditor() {
     const matchesLoaded =
       JSON.stringify(csvData) === JSON.stringify(loadedCSVData)
 
-    console.log('matchesDefault', matchesDefault)
-    console.log(
-      'currentType default data',
-      JSON.stringify(atomDataTypes[selectedType].defaultData),
-    )
-    console.log('csvData', JSON.stringify(csvData))
-
     // Data is modified if it matches neither the default nor the loaded data
     setIsCSVDataModified(!matchesDefault && !matchesLoaded)
   }, [csvData, loadedCSVData, selectedType])
@@ -505,7 +493,6 @@ export default function CSVEditor() {
               .filter((result: AtomExistsResult) => result.alreadyExists)
               .map((result: AtomExistsResult) => result.originalIndex),
           )
-          console.log('Existing atom indexes:', existingIndexes)
           setExistingAtoms(
             new Set(
               Array.from(existingIndexes).filter(
@@ -529,16 +516,13 @@ export default function CSVEditor() {
     const file = event.target.files?.[0]
     if (file) {
       const rows = await parseCsv(file)
-      console.log('Parsed CSV rows:', rows.length)
       setCsvData(rows)
       setLoadedCSVData(rows)
 
       const proofreadResult = proofreadAll(rows)
-      console.log('Proofread result:', proofreadResult)
 
       if (proofreadResult.unusualCharacters.hasUnusualCharacters) {
         const adjustedIssues = proofreadResult.unusualCharacters.cellIssues
-        console.log('Adjusted issues:', adjustedIssues)
         setProofreadIssues(adjustedIssues)
         setShowProofreadModal(true)
       }
@@ -569,7 +553,6 @@ export default function CSVEditor() {
   const handleApplyFixes = useCallback(
     (updatedIssues: UnusualCharacterIssue[]) => {
       setCsvData((prevData) => {
-        console.log('Current CSV data length:', prevData.length)
         if (prevData.length === 0) {
           console.error('CSV data is empty. Cannot apply fixes.')
           return prevData
@@ -577,21 +560,11 @@ export default function CSVEditor() {
 
         const newData = [...prevData]
         updatedIssues.forEach((issue) => {
-          console.log(
-            `Processing issue: Row ${issue.rowIndex}, Column ${issue.cellIndex}`,
-          )
           if (issue.rowIndex >= 0 && issue.rowIndex < newData.length) {
             if (
               issue.cellIndex >= 0 &&
               issue.cellIndex < newData[issue.rowIndex].length
             ) {
-              console.log(
-                `Updating value at [${issue.rowIndex}][${issue.cellIndex}]`,
-              )
-              console.log(
-                `Old value: "${newData[issue.rowIndex][issue.cellIndex]}"`,
-              )
-              console.log(`New value: "${issue.suggestedValue}"`)
               newData[issue.rowIndex][issue.cellIndex] = issue.suggestedValue
             } else {
               console.error(
@@ -1143,21 +1116,12 @@ export default function CSVEditor() {
 
   // Update the format change handler
   const handleFormatChange = (newFormat: AtomDataTypeKey) => {
-    console.log(
-      'Format change requested:',
-      newFormat,
-      'isCSVDataModified:',
-      isCSVDataModified,
-    )
-
     if (isCSVDataModified) {
-      console.log('Opening format change dialog')
       setFormatChangeDialog({
         isOpen: true,
         newFormat,
       })
     } else {
-      console.log('Changing format directly')
       setSelectedType(newFormat)
       setBatchCreateAtomSelectedType(newFormat)
       setCsvData(
@@ -1758,7 +1722,7 @@ export default function CSVEditor() {
         isOpen={isLoading || isTagLoading}
         onClose={() => {
           if (isLoading || isTagLoading) {
-            console.log('Progress modal closed')
+            console.log('Progress modal closed') // Leaving this here because this gets triggered when the modal loses focus
           }
         }}
         step={isTagLoading ? tagStep : step}
@@ -1776,7 +1740,6 @@ export default function CSVEditor() {
       <Dialog
         open={formatChangeDialog.isOpen}
         onOpenChange={(isOpen) => {
-          console.log('Dialog open state changing to:', isOpen)
           if (!isOpen) {
             setFormatChangeDialog({ isOpen: false, newFormat: null })
           }
@@ -1793,7 +1756,6 @@ export default function CSVEditor() {
           <DialogFooter className="flex space-x-2">
             <Button
               onClick={() => {
-                console.log('Yes clicked')
                 handleFormatChangeResponse('yes')
               }}
             >
@@ -1802,7 +1764,6 @@ export default function CSVEditor() {
             <Button
               variant="outline"
               onClick={() => {
-                console.log('No clicked')
                 handleFormatChangeResponse('no')
               }}
             >
@@ -1811,7 +1772,6 @@ export default function CSVEditor() {
             <Button
               variant="ghost"
               onClick={() => {
-                console.log('Cancel clicked')
                 handleFormatChangeResponse('cancel')
               }}
             >

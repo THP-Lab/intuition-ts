@@ -117,8 +117,6 @@ function reducer(state: State, action: Action): State {
         txHash: action.txHash ?? '',
       }
     case 'RESET':
-      console.log('Reducer returning to initial state')
-      console.log('Initial state:', initialState)
       return { ...initialState }
     case 'FORCE_UPDATE':
       return { ...state }
@@ -182,10 +180,6 @@ export function useBatchCreateAtom() {
         return
       }
 
-      console.log('Initiating batch request')
-      console.log('Selected Rows:', selectedRows)
-      console.log('CSV Data:', csvData)
-      console.log('Selected Type:', selectedType)
       setIsProcessing(true)
       dispatch({ type: 'SET_STEP', payload: 'initiating' })
 
@@ -205,7 +199,6 @@ export function useBatchCreateAtom() {
       return
     }
 
-    console.log('Publishing atoms')
     setIsProcessing(true)
 
     const formData = new FormData()
@@ -224,7 +217,6 @@ export function useBatchCreateAtom() {
   ])
 
   const sendBatchTx = useCallback(async () => {
-    console.log('Sending batch transaction')
     dispatch({ type: 'SET_STEP', payload: 'sending' })
     setIsProcessing(true)
 
@@ -321,7 +313,6 @@ export function useBatchCreateAtom() {
     if (!state.txHash || !state.requestHash || isProcessing) {
       return
     }
-    console.log('Logging transaction hash')
 
     setIsProcessing(true)
     dispatch({ type: 'SET_STEP', payload: 'logging' })
@@ -353,8 +344,6 @@ export function useBatchCreateAtom() {
   ])
 
   const resetState = useCallback(() => {
-    console.log('initiating resetState')
-
     // Reset fetcher states
     initiateFetcher.submit({}, { method: 'get' })
     publishFetcher.submit({}, { method: 'get' })
@@ -382,7 +371,6 @@ export function useBatchCreateAtom() {
       state.step === 'initiating'
     ) {
       const data = initiateFetcher.data as InitiateActionResponse
-      console.log('Initiate fetcher data received:', data)
       if (data.success && data.requestHash) {
         dispatch({ type: 'SET_REQUEST_HASH', payload: data.requestHash })
         dispatch({ type: 'SET_SELECTED_ATOMS', payload: data.selectedAtoms })
@@ -407,7 +395,6 @@ export function useBatchCreateAtom() {
       state.step === 'publishing'
     ) {
       const data = publishFetcher.data as PublishAtomsResponse
-      console.log('Publish fetcher data received:', data)
       if (data.success && data.calls) {
         dispatch({
           type: 'SET_CALLS',
@@ -443,11 +430,9 @@ export function useBatchCreateAtom() {
       logTxFetcher.data &&
       state.step === 'logging'
     ) {
-      console.log('Log TX fetcher data received:', logTxFetcher.data)
       const data = logTxFetcher.data as LogTxActionData
 
       if (data.success) {
-        console.log('logTxFetcher success')
         toast.success('Atom(s) created successfully', {
           duration: 5000,
         })
