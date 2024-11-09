@@ -9,6 +9,7 @@ import {
 import { toast } from '@0xintuition/1ui'
 
 import type { BatchAtomsRequest, PinDataResult } from '@lib/services/populate'
+import { AtomDataTypeKey } from '@lib/utils/atom-data-types'
 import logger from '@lib/utils/logger'
 import { useFetcher } from '@remix-run/react'
 import {
@@ -32,6 +33,7 @@ type State = {
   filteredData: PinDataResult[]
   txHash: string
   setNewAtoms: WithContext<Thing>[]
+  selectedType: AtomDataTypeKey
   error?: string
   step:
     | 'idle'
@@ -66,6 +68,7 @@ type Action =
   | { type: 'SET_ERROR'; error: string }
   | { type: 'RESET' }
   | { type: 'FORCE_UPDATE' }
+  | { type: 'SET_SELECTED_TYPE'; payload: AtomDataTypeKey }
 
 const initialState: State = {
   requestHash: '',
@@ -80,6 +83,7 @@ const initialState: State = {
   newCIDs: [],
   existingCIDs: [],
   filteredData: [],
+  selectedType: 'CSV',
 }
 
 function reducer(state: State, action: Action): State {
@@ -118,6 +122,8 @@ function reducer(state: State, action: Action): State {
       return { ...initialState }
     case 'FORCE_UPDATE':
       return { ...state }
+    case 'SET_SELECTED_TYPE':
+      return { ...state, selectedType: action.payload }
     default:
       return state
   }
@@ -159,7 +165,11 @@ export function useBatchCreateAtom() {
   const { sendTransaction } = useSendTransaction()
 
   const initiateBatchRequest = useCallback(
-    (selectedRows: number[], csvData: string[][]) => {
+    (
+      selectedRows: number[],
+      csvData: string[][],
+      selectedType: AtomDataTypeKey,
+    ) => {
       if (isProcessing) {
         return
       }
@@ -175,6 +185,7 @@ export function useBatchCreateAtom() {
       console.log('Initiating batch request')
       console.log('Selected Rows:', selectedRows)
       console.log('CSV Data:', csvData)
+      console.log('Selected Type:', selectedType)
       setIsProcessing(true)
       dispatch({ type: 'SET_STEP', payload: 'initiating' })
 
@@ -182,6 +193,7 @@ export function useBatchCreateAtom() {
       formData.append('action', 'initiateBatchAtomRequest')
       formData.append('selectedRows', JSON.stringify(selectedRows))
       formData.append('csvData', JSON.stringify(csvData))
+      formData.append('selectedType', selectedType)
 
       initiateFetcher.submit(formData, { method: 'post' })
     },
@@ -200,9 +212,16 @@ export function useBatchCreateAtom() {
     formData.append('action', 'publishAtoms')
     formData.append('requestHash', state.requestHash)
     formData.append('selectedAtoms', JSON.stringify(state.selectedAtoms))
+    formData.append('selectedType', state.selectedType)
 
     publishFetcher.submit(formData, { method: 'post' })
-  }, [publishFetcher, state.requestHash, state.selectedAtoms, isProcessing])
+  }, [
+    publishFetcher,
+    state.requestHash,
+    state.selectedAtoms,
+    state.selectedType,
+    isProcessing,
+  ])
 
   const sendBatchTx = useCallback(async () => {
     console.log('Sending batch transaction')
@@ -496,8 +515,13 @@ export function useBatchCreateAtom() {
     publishFetcher.data,
   ])
 
+  const setSelectedType = useCallback((type: AtomDataTypeKey) => {
+    dispatch({ type: 'SET_SELECTED_TYPE', payload: type })
+  }, [])
+
   return {
     ...state,
+    setSelectedType,
     resetState,
     handleClose,
     initiateBatchRequest,

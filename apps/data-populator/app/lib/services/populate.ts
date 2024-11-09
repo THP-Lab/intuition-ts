@@ -130,6 +130,37 @@ export async function createTagAtomsRequest(
   return requestHash
 }
 
+// Pre-step for submitting raw URIs, also can be used to check if they exist yet
+export async function checkAndFilterURIs(
+  URIs: string[],
+  requestHash?: string,
+): Promise<{ existingURIs: string[]; newURIs: string[] }> {
+  console.log('Updating requestHash for checkAndFilterURIs:', requestHash)
+  console.log('URIs passed in: ', URIs)
+  requestHash
+    ? await pushUpdate(requestHash, `Checking ${URIs.length} URIs...`)
+    : null
+  console.log('Processing checkURIsExist...')
+  const uriCheckResults = await processCheckURIsExist(URIs)
+  console.log('uriCheckResults:', uriCheckResults)
+  const existingURIs = uriCheckResults
+    .filter((result) => result.alreadyExists)
+    .map((result) => result.uri)
+  const newURIs = uriCheckResults
+    .filter((result) => !result.alreadyExists)
+    .map((result) => result.uri)
+  console.log('existingURIs:', existingURIs)
+  console.log('newURIs:', newURIs)
+  console.log('Updating requestHash again...')
+  requestHash
+    ? await pushUpdate(
+      requestHash,
+      `Checked ${URIs.length} URIs, found ${existingURIs.length} existing URIs and ${newURIs.length} new URIs`,
+    )
+    : null
+  return { existingURIs, newURIs }
+}
+
 export async function pinAtoms(
   atoms: any[],
   requestHash?: string,
@@ -657,6 +688,48 @@ export async function pinAllData(
   pinnedData.sort((a, b) => a.originalIndex - b.originalIndex)
 
   return pinnedData
+}
+
+interface URIExistsResult {
+  uri: string
+  originalIndex: number
+  alreadyExists: boolean
+  atomId?: string
+}
+
+async function processCheckURIsExist(
+  URIs: string[],
+  concurrencyLimit: number = 100,
+  maxRetries: number = 3,
+  delayBetweenBatches: number = 1000,
+  startIndex: number = 0,
+): Promise<URIExistsResult[]> {
+  const uriBatches = chunk(
+    URIs.map((uri, index) => ({ uri, index: index + startIndex })),
+    concurrencyLimit,
+  )
+  const results: URIExistsResult[] = []
+
+  for (const batch of uriBatches) {
+    const batchResults = await Promise.all(
+      batch.map(({ uri, index }) =>
+        retryOperation(async () => {
+          const atomId = await getAtomID(uri)
+          return {
+            uri,
+            originalIndex: index,
+            atomId,
+            alreadyExists: atomId !== '0',
+          }
+        }, maxRetries),
+      ),
+    )
+
+    results.push(...batchResults)
+    await delay(delayBetweenBatches)
+  }
+
+  return results.sort((a, b) => a.originalIndex - b.originalIndex)
 }
 
 // Splits atoms into two arrays: unique and duplicate based on the 'image' field

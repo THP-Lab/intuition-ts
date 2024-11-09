@@ -33,6 +33,7 @@ import { ProofreadModal } from '@components/proofread-modal'
 import { Progress } from '@components/ui/progress'
 import {
   BatchAtomsRequest,
+  checkAndFilterURIs,
   createPopulateAtomsRequest,
   createTagAtomsRequest,
   generateBatchAtomsCalldata,
@@ -66,7 +67,7 @@ import {
   useSubmit,
 } from '@remix-run/react'
 import { motion } from 'framer-motion'
-import { CheckCircle2, Loader2, Minus, Plus, Save, Search } from 'lucide-react'
+import { CheckCircle2, Loader2, Minus, Plus, Save } from 'lucide-react'
 import { Thing, WithContext } from 'schema-dts'
 
 // Add this new interface
@@ -129,7 +130,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         ) as string[][]
         const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
         const selectedAtoms = selectedRows.map((index) => schemaObjects[index])
-
         const requestHash = await createPopulateAtomsRequest(
           selectedAtoms,
           request,
@@ -176,14 +176,48 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
       case 'publishAtoms': {
         const requestHash = formData.get('requestHash') as string
-        const selectedAtoms = JSON.parse(
-          formData.get('selectedAtoms') as string,
-        ) as WithContext<Thing>[]
-        console.log('Pinning atoms from app+/index.tsx')
-        const { existingCIDs, newCIDs, filteredData, existingData } =
-          await pinAtoms(selectedAtoms, requestHash)
+        const selectedType = formData.get('selectedType') as AtomDataTypeKey
+
+        console.log(
+          '000001001010101010101010101010101 Entering publishAtoms with selectedType:',
+          selectedType,
+        )
+
+        if (selectedType === 'CSV') {
+          const selectedAtoms = JSON.parse(
+            formData.get('selectedAtoms') as string,
+          ) as WithContext<Thing>[]
+          console.log('Pinning atoms from app+/index.tsx')
+
+          const { existingCIDs, newCIDs, filteredData, existingData } =
+            await pinAtoms(selectedAtoms, requestHash)
+
+          const { chunks, chunkSize, calls } = await generateBatchAtomsCalldata(
+            newCIDs,
+            requestHash,
+          )
+          return json({
+            success: true,
+            calls,
+            chunks,
+            chunkSize,
+            newCIDs,
+            existingCIDs,
+            filteredData,
+            existingData,
+          })
+        }
+
+        // Raw URI case:
+        console.log('URIs before parsing: ', formData.get('csvData') as string)
+        const URIs = JSON.parse(formData.get('csvData') as string) as string[]
+        console.log('URIs after parsing: ', URIs)
+        const { existingURIs, newURIs } = await checkAndFilterURIs(
+          URIs,
+          requestHash,
+        )
         const { chunks, chunkSize, calls } = await generateBatchAtomsCalldata(
-          newCIDs,
+          newURIs,
           requestHash,
         )
         return json({
@@ -191,10 +225,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           calls,
           chunks,
           chunkSize,
-          newCIDs,
-          existingCIDs,
-          filteredData,
-          existingData,
+          newURIs,
+          existingURIs,
         })
       }
 
@@ -344,8 +376,13 @@ export default function CSVEditor() {
   // Ref for file input to trigger file selection programmatically
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const { step, requestHash, isLoading, initiateBatchRequest } =
-    useBatchCreateAtom()
+  const {
+    step,
+    requestHash,
+    isLoading,
+    initiateBatchRequest,
+    setSelectedType: setBatchCreateAtomSelectedType,
+  } = useBatchCreateAtom()
 
   const {
     step: tagStep,
@@ -718,11 +755,17 @@ export default function CSVEditor() {
       'Publish selected atoms? This will take about a minute.',
       (confirm) => {
         if (confirm) {
-          initiateBatchRequest(selectedRows, csvData)
+          initiateBatchRequest(selectedRows, csvData, selectedType)
         }
       },
     )
-  }, [showConfirmModal, initiateBatchRequest, selectedRows, csvData])
+  }, [
+    showConfirmModal,
+    initiateBatchRequest,
+    selectedRows,
+    csvData,
+    selectedType,
+  ])
 
   // Function to determine the text for the create/tag atoms button
   const getCreateTagButtonText = useCallback(() => {
@@ -993,7 +1036,6 @@ export default function CSVEditor() {
       'Create tag as atom? This will take about a minute.',
       (confirm) => {
         if (confirm) {
-          // Use the existing batch create flow with just one atom
           initiateBatchRequest(
             [0],
             [
@@ -1007,6 +1049,7 @@ export default function CSVEditor() {
                 tagAtom.url,
               ],
             ],
+            'CSV', // Right now we only support Schema Thing Tags
           )
         }
       },
@@ -1116,6 +1159,7 @@ export default function CSVEditor() {
     } else {
       console.log('Changing format directly')
       setSelectedType(newFormat)
+      setBatchCreateAtomSelectedType(newFormat)
       setCsvData(
         JSON.parse(JSON.stringify(atomDataTypes[newFormat].defaultData)),
       )
@@ -1132,6 +1176,7 @@ export default function CSVEditor() {
       case 'yes':
         saveCSV()
         setSelectedType(formatChangeDialog.newFormat)
+        setBatchCreateAtomSelectedType(formatChangeDialog.newFormat)
         setCsvData(
           JSON.parse(
             JSON.stringify(
@@ -1142,6 +1187,7 @@ export default function CSVEditor() {
         break
       case 'no':
         setSelectedType(formatChangeDialog.newFormat)
+        setBatchCreateAtomSelectedType(formatChangeDialog.newFormat)
         setCsvData(
           JSON.parse(
             JSON.stringify(
@@ -1685,6 +1731,28 @@ export default function CSVEditor() {
           </>
         )}
       </div>
+
+      {/* Add this confirmation modal dialog */}
+      <Dialog
+        open={showModal}
+        onOpenChange={(open) => !open && setShowModal(false)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Action</DialogTitle>
+          </DialogHeader>
+          <p>{modalMessage}</p>
+          <DialogFooter>
+            <Button onClick={() => handleModalResponse(true)}>Confirm</Button>
+            <Button
+              variant="outline"
+              onClick={() => handleModalResponse(false)}
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <ProgressModal
         isOpen={isLoading || isTagLoading}
