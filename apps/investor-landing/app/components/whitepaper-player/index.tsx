@@ -16,7 +16,7 @@ import {
 
 export function WhitepaperPlayer() {
   return (
-    <div className="sm:w-[50vw] w-[90vw]">
+    <div className="sm:w-[50vw] w-[90vw] max-w-[600px]">
       <MediaPlayer
         src="assets/whitepaper-podcast.wav"
         viewType="audio"
