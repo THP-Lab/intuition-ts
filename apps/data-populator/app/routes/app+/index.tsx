@@ -134,6 +134,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         const csvData = JSON.parse(
           formData.get('csvData') as string,
         ) as string[][]
+        const selectedType = formData.get('selectedType') as AtomDataTypeKey
         const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
         const selectedAtoms = selectedRows.map((index) => schemaObjects[index])
         const requestHash = await createPopulateAtomsRequest(
@@ -148,6 +149,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           selectedRows,
           selectedAtoms,
           csvData,
+          selectedType,
         })
       }
 
@@ -181,6 +183,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       case 'publishAtoms': {
         const requestHash = formData.get('requestHash') as string
         const selectedType = formData.get('selectedType') as AtomDataTypeKey
+
+        console.log('selectedType:', selectedType)
 
         if (selectedType === 'CSV') {
           const selectedAtoms = JSON.parse(
@@ -380,6 +384,7 @@ export default function CSVEditor() {
 
   const recheckAtomExistence = useCallback(() => {
     checkExistingAtoms(csvData, selectedType)
+    checkTagExists()
   }, [csvData, selectedType])
 
   const {
@@ -538,22 +543,6 @@ export default function CSVEditor() {
       isOpen: false,
       newFormat: null,
     })
-
-  const handleTypeChange = (
-    newType: AtomDataTypeKey,
-    skipSaveCheck = false,
-  ) => {
-    if (isCSVDataModified && !skipSaveCheck) {
-      setFormatChangeDialog({
-        isOpen: true,
-        newFormat: newType,
-      })
-    } else {
-      setSelectedType(newType)
-      setBatchCreateAtomSelectedType(newType)
-      setCsvData(JSON.parse(JSON.stringify(atomDataTypes[newType].defaultData)))
-    }
-  }
 
   // Update loadCSV to use the format change dialog
   const loadCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -1006,20 +995,6 @@ export default function CSVEditor() {
     adjustInputHeight(e.target)
   }
 
-  // const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-  //   e.target.style.height = '2rem' // Reset to default height
-  // }
-
-  // Function to search for atoms (currently not implemented)
-  const searchAtoms = (searchQuery: string) => {
-    fetcher.load(`/api/csv-editor?action=searchAtoms&query=${searchQuery}`)
-  }
-
-  // // Function to add an atom to the CSV table
-  // const addAtomToTable = (atom: string[]) => {
-  //   setCsvData((prev) => [...prev, atom])
-  // }
-
   // Function to save the current CSV data to a file
   const saveCSV = () => {
     const csvContent = generateCsvContent(csvData)
@@ -1035,11 +1010,6 @@ export default function CSVEditor() {
       document.body.removeChild(link)
       setLoadedCSVData(csvData)
     }
-  }
-
-  // Function to handle LLM interaction (currently not implemented)
-  const handleLLMInteraction = () => {
-    submit({ action: 'llmInteraction', llmInput }, { method: 'post' })
   }
 
   // Function to handle sorting of CSV data
@@ -1110,7 +1080,7 @@ export default function CSVEditor() {
                 tagAtom.url,
               ],
             ],
-            'CSV', // Right now we only support Schema Thing Tags
+            'CSV',
           )
         }
       },

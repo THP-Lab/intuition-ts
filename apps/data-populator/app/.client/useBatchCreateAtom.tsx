@@ -133,6 +133,7 @@ type InitiateActionResponse = {
   selectedRows: number[]
   selectedAtoms: WithContext<Thing>[]
   csvData: string[][]
+  selectedType: AtomDataTypeKey
   error?: string
 }
 
@@ -376,6 +377,7 @@ export function useBatchCreateAtom(onSuccess?: () => void) {
         dispatch({ type: 'SET_SELECTED_ATOMS', payload: data.selectedAtoms })
         dispatch({ type: 'SET_SELECTED_ROWS', payload: data.selectedRows })
         dispatch({ type: 'SET_CSV_DATA', payload: data.csvData })
+        dispatch({ type: 'SET_SELECTED_TYPE', payload: data.selectedType })
         dispatch({ type: 'SET_STEP', payload: 'publishing' })
       } else {
         console.error('Failed to initiate batch request:', data.error)
