@@ -150,7 +150,7 @@ export const BatchCreateContext = createContext<{
   dispatch: React.Dispatch<any>
 }>({ state: initialState, dispatch: () => null })
 
-export function useBatchCreateAtom() {
+export function useBatchCreateAtom(onSuccess?: () => void) {
   const [state, dispatch] = useReducer(reducer, initialState)
   const [isProcessing, setIsProcessing] = useState(false)
   const initiateFetcher = useFetcher({ key: 'initiate-batch' })
@@ -436,6 +436,7 @@ export function useBatchCreateAtom() {
         toast.success('Atom(s) created successfully', {
           duration: 5000,
         })
+        onSuccess?.()
       } else {
         console.error('Failed to create atom(s):', data.error)
         toast.error('Failed to create atom(s). Please try again.', {
@@ -445,7 +446,7 @@ export function useBatchCreateAtom() {
       // Reset state in either case
       resetState()
     }
-  }, [logTxFetcher.state, logTxFetcher.data, state.step, resetState])
+  }, [logTxFetcher.state, logTxFetcher.data, state.step, resetState, onSuccess])
 
   useEffect(() => {
     const handleAsyncOperations = async () => {

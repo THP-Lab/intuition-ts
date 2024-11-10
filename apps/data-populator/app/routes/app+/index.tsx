@@ -378,13 +378,17 @@ export default function CSVEditor() {
   // Ref for file input to trigger file selection programmatically
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const recheckAtomExistence = useCallback(() => {
+    checkExistingAtoms(csvData, selectedType)
+  }, [csvData, selectedType])
+
   const {
     step,
     requestHash,
     isLoading,
     initiateBatchRequest,
     setSelectedType: setBatchCreateAtomSelectedType,
-  } = useBatchCreateAtom()
+  } = useBatchCreateAtom(recheckAtomExistence)
 
   const {
     step: tagStep,
