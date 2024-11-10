@@ -45,7 +45,11 @@ import {
   PinDataResult,
   URIExistsResult,
 } from '@lib/services/populate'
-import { atomDataTypes, type AtomDataTypeKey } from '@lib/utils/atom-data-types'
+import {
+  atomDataTypes,
+  detectAtomDataType,
+  type AtomDataTypeKey,
+} from '@lib/utils/atom-data-types'
 import { generateCsvContent, parseCsv } from '@lib/utils/csv'
 import { loadThumbnail, loadThumbnails } from '@lib/utils/image'
 import logger from '@lib/utils/logger'
@@ -520,11 +524,29 @@ export default function CSVEditor() {
     }
   }
 
-  // Function to load and process a CSV file
+  // In the CSVEditor component, add this state
+  const [formatChangeDialog, setFormatChangeDialog] =
+    useState<FormatChangeDialog>({
+      isOpen: false,
+      newFormat: null,
+    })
+
+  // Update loadCSV to use the new function
   const loadCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      const rows = await parseCsv(file, selectedType)
+      const text = await file.text()
+      const headers = text.split('\n')[0].split(',')
+      const detectedType = detectAtomDataType(headers)
+
+      // Update state (async)
+      if (detectedType !== selectedType) {
+        setSelectedType(detectedType)
+        setBatchCreateAtomSelectedType(detectedType)
+      }
+
+      // Use detected type directly for parsing
+      const rows = await parseCsv(new File([text], file.name), detectedType)
       setCsvData(rows)
       setLoadedCSVData(rows)
 
@@ -1116,13 +1138,6 @@ export default function CSVEditor() {
       checkTagExists()
     }
   }, [isLoading, step, checkTagExists])
-
-  // In the CSVEditor component, add this state
-  const [formatChangeDialog, setFormatChangeDialog] =
-    useState<FormatChangeDialog>({
-      isOpen: false,
-      newFormat: null,
-    })
 
   // Update the format change handler
   const handleFormatChange = (newFormat: AtomDataTypeKey) => {
