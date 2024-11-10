@@ -34,6 +34,7 @@ import { Progress } from '@components/ui/progress'
 import {
   BatchAtomsRequest,
   checkAndFilterURIs,
+  checkAtomsExistWithRawURIs,
   createPopulateAtomsRequest,
   createTagAtomsRequest,
   generateBatchAtomsCalldata,
@@ -42,6 +43,7 @@ import {
   logTransactionHashAndVerifyTriples,
   pinAtoms,
   PinDataResult,
+  URIExistsResult,
 } from '@lib/services/populate'
 import { atomDataTypes, type AtomDataTypeKey } from '@lib/utils/atom-data-types'
 import { generateCsvContent, parseCsv } from '@lib/utils/csv'
@@ -476,6 +478,7 @@ export default function CSVEditor() {
     const formData = new FormData()
     formData.append('action', 'checkAtomsExist')
     formData.append('csvData', JSON.stringify(data))
+    formData.append('selectedType', selectedType)
 
     try {
       setLoadingRows(new Set(data.slice(1).map((_, index) => index)))
@@ -490,8 +493,14 @@ export default function CSVEditor() {
         if (result.success && result.atomExistsResults) {
           const existingIndexes = new Set(
             result.atomExistsResults
-              .filter((result: AtomExistsResult) => result.alreadyExists)
-              .map((result: AtomExistsResult) => result.originalIndex),
+              .filter(
+                (result: AtomExistsResult | URIExistsResult) =>
+                  result.alreadyExists,
+              )
+              .map(
+                (result: AtomExistsResult | URIExistsResult) =>
+                  result.originalIndex,
+              ),
           )
           setExistingAtoms(
             new Set(
@@ -1055,6 +1064,7 @@ export default function CSVEditor() {
       ]),
     )
     formData.append('index', '0')
+    formData.append('selectedType', 'CSV') // Tags are always CSV/Schema format
 
     try {
       const response = await fetch('/api/csv-editor', {

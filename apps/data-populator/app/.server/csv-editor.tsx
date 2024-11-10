@@ -10,11 +10,14 @@ import { Thing, WithContext } from 'schema-dts'
 
 import {
   checkAtomsExist,
+  checkAtomsExistWithRawURIs,
   generateTagAtomsCallData,
   getAtomDataFromID,
   logTransactionHashAndVerifyTriples,
   Triple,
+  URIExistsResult,
 } from '../lib/services/populate'
+import { AtomDataTypeKey } from '../lib/utils/atom-data-types'
 
 // TODO: Implement real functions for CSV editor operations
 // Ensure proper input and return type declarations for better understanding
@@ -90,7 +93,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 // Action function to handle POST requests
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData()
-  // console.log('Form data:', formData)
   const action = formData.get('action')
 
   switch (action) {
@@ -100,10 +102,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const csvData = JSON.parse(
         formData.get('csvData') as string,
       ) as string[][]
-      console.log('Checking atoms exist from csv-editor.tsx')
-      const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
-      const atomExistsResults = await checkAtomsExist(schemaObjects)
-      // console.log('Atom exists results:', atomExistsResults)
+      const selectedType = formData.get('selectedType') as AtomDataTypeKey
+
+      if (selectedType === 'CSV') {
+        const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
+        const atomExistsResults = await checkAtomsExist(schemaObjects)
+        return json({ success: true, atomExistsResults })
+      }
+      // For URI and CAIP10 types, extract the URIs from the data
+      // Skip header row and extract URIs
+      const URIs = csvData.slice(1).map((row) => row[0]) // First column contains the URI/CAIP10
+      const atomExistsResults = await checkAtomsExistWithRawURIs(URIs)
       return json({ success: true, atomExistsResults })
     }
 
@@ -112,10 +121,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const csvData = JSON.parse(
         formData.get('csvData') as string,
       ) as string[][]
-      console.log('Checking atom exists from csv-editor.tsx')
-      const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
+      const selectedType = formData.get('selectedType') as AtomDataTypeKey
       const index = parseInt(formData.get('index') as string)
-      const atomExistsResults = await checkAtomsExist([schemaObjects[index]])
+
+      if (selectedType === 'CSV') {
+        const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
+        const atomExistsResults = await checkAtomsExist([schemaObjects[index]])
+        return json({ success: true, atomExistsResults })
+      }
+      const URI = csvData[index + 1][0] // +1 to skip header row, [0] for first column
+      const atomExistsResults = await checkAtomsExistWithRawURIs([URI])
       return json({ success: true, atomExistsResults })
     }
 
