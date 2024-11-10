@@ -94,71 +94,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const action = formData.get('action')
 
   switch (action) {
-    // case 'publishAtoms': {
-    //   // Handle publishing of selected atoms
-    //   const selectedRows = JSON.parse(
-    //     formData.get('selectedRows') as string,
-    //   ) as number[]
-    //   const csvData = JSON.parse(
-    //     formData.get('csvData') as string,
-    //   ) as string[][]
-    //   const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
-    //   const selectedAtoms = selectedRows.map((index) => schemaObjects[index])
-    //   const requestHash = await createPopulateAtomsRequest(selectedAtoms)
-    //   console.log('Pinning atoms from csv-editor.tsx')
-    //   const { newCIDs } = await pinAtoms(selectedAtoms, requestHash)
-    //   const { chunks, chunkSize, calls } = await generateBatchAtomsCalldata(
-    //     newCIDs,
-    //     requestHash,
-    //   )
-
-    //   console.log('Publish atoms request hash:', requestHash)
-    //   return json({
-    //     success: true,
-    //     requestHash,
-    //     chunks,
-    //     chunkSize,
-    //     calls,
-    //     action,
-    //   })
-    // }
-
-    // case 'createAndTagAtoms': {
-    //   // Handle creation and tagging of atoms
-    //   const selectedRows = JSON.parse(
-    //     formData.get('selectedRows') as string,
-    //   ) as number[]
-    //   const csvData = JSON.parse(
-    //     formData.get('csvData') as string,
-    //   ) as string[][]
-    //   const tag = JSON.parse(
-    //     formData.get('tag') as string,
-    //   ) as WithContext<Thing>
-    //   const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
-    //   const selectedAtoms = selectedRows.map((index) => schemaObjects[index])
-    //   // console.log('Selected atoms:', selectedAtoms)
-    //   // console.log('Tag:', tag)
-    //   const publishAndTagAtomsRequestHash = await requestPopulateAndTagAtoms(
-    //     selectedAtoms,
-    //     tag,
-    //   )
-    //   console.log(
-    //     'Publish and tag atoms request hash:',
-    //     publishAndTagAtomsRequestHash,
-    //   )
-    //   return json({ success: true, requestHash: publishAndTagAtomsRequestHash })
-    // }
-
-    case 'llmInteraction':
-      // TODO: Implement actual LLM interaction logic
-      // const llmInput = formData.get('llmInput') as string
-      // const llmResponse = await someExternalLLMService(llmInput)
-      // return json({ success: true, llmResponse })
-      return json({
-        success: true,
-        result: '[PLACEHOLDER] LLM Interaction Submitted',
-      })
-
     case 'checkAtomsExist': {
       // Check if multiple atoms exist
       console.log('Checking atoms exist')
@@ -183,34 +118,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const atomExistsResults = await checkAtomsExist([schemaObjects[index]])
       return json({ success: true, atomExistsResults })
     }
-
-    // case 'initiateTagRequest': {
-    //   const selectedRows = JSON.parse(
-    //     formData.get('selectedRows') as string,
-    //   ) as number[]
-    //   const selectedAtoms = JSON.parse(
-    //     formData.get('selectedAtoms') as string,
-    //   ) as WithContext<Thing>[]
-    //   const tag = JSON.parse(
-    //     formData.get('tag') as string,
-    //   ) as WithContext<Thing>
-
-    //   console.log('Initiating tag request from csv-editor.tsx')
-
-    //   const requestHash = await createTagAtomsRequest(
-    //     selectedAtoms,
-    //     tag,
-    //     request,
-    //   )
-
-    //   return json({
-    //     success: true,
-    //     requestHash,
-    //     selectedRows,
-    //     selectedAtoms,
-    //     tag,
-    //   })
-    // }
 
     case 'publishTriples': {
       const requestHash = formData.get('requestHash') as string

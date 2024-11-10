@@ -580,6 +580,13 @@ export async function checkAtomsExist(
   return atomExistsResults
 }
 
+export async function checkAtomsExistWithRawURIs(
+  URIs: string[],
+): Promise<URIExistsResult[]> {
+  const uriExistsResults = await processCheckURIsExist(URIs, 100, 3, 1000)
+  return uriExistsResults
+}
+
 // This function takes an array and a size, and splits the array into chunks of the given size
 export function chunk<T>(array: T[], size: number): T[][] {
   const chunked: T[][] = []
@@ -620,6 +627,13 @@ export interface AtomURIResult {
   atomId: string
   uri: string
   originalIndex: number
+}
+
+export interface URIExistsResult {
+  uri: string
+  originalIndex: number
+  alreadyExists: boolean
+  atomId?: string
 }
 
 export async function retryOperation<T>(
@@ -688,13 +702,6 @@ export async function pinAllData(
   pinnedData.sort((a, b) => a.originalIndex - b.originalIndex)
 
   return pinnedData
-}
-
-interface URIExistsResult {
-  uri: string
-  originalIndex: number
-  alreadyExists: boolean
-  atomId?: string
 }
 
 async function processCheckURIsExist(
