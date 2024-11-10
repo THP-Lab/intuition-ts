@@ -524,7 +524,7 @@ export default function CSVEditor() {
   const loadCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      const rows = await parseCsv(file)
+      const rows = await parseCsv(file, selectedType)
       setCsvData(rows)
       setLoadedCSVData(rows)
 
