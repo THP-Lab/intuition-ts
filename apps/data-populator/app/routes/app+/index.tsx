@@ -309,6 +309,7 @@ const useCSVData = (selectedType: AtomDataTypeKey) => {
 type FormatChangeDialog = {
   isOpen: boolean
   newFormat: AtomDataTypeKey | null
+  onResponse?: (response: 'yes' | 'no' | 'cancel') => void
 }
 
 // Add this type and constant before the CSVEditor component
@@ -534,52 +535,90 @@ export default function CSVEditor() {
       newFormat: null,
     })
 
-  // Update loadCSV to use the new function
+  const handleTypeChange = (
+    newType: AtomDataTypeKey,
+    skipSaveCheck = false,
+  ) => {
+    if (isCSVDataModified && !skipSaveCheck) {
+      setFormatChangeDialog({
+        isOpen: true,
+        newFormat: newType,
+      })
+    } else {
+      setSelectedType(newType)
+      setBatchCreateAtomSelectedType(newType)
+      setCsvData(JSON.parse(JSON.stringify(atomDataTypes[newType].defaultData)))
+    }
+  }
+
+  // Update loadCSV to use the format change dialog
   const loadCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (file) {
-      const text = await file.text()
-      const headers = text.split('\n')[0].split(',')
-      const detectedType = detectAtomDataType(headers)
+    if (!file) {
+      return
+    }
 
-      // Update state (async)
+    const text = await file.text()
+    const headers = text.split('\n')[0].split(',')
+    const detectedType = detectAtomDataType(headers)
+    const rows = await parseCsv(new File([text], file.name), detectedType)
+
+    if (detectedType !== selectedType && isCSVDataModified) {
+      setFormatChangeDialog({
+        isOpen: true,
+        newFormat: detectedType,
+        onResponse: (response) => {
+          if (response === 'cancel') {
+            return
+          }
+          if (response === 'yes') {
+            saveCSV()
+          }
+          setSelectedType(detectedType)
+          setBatchCreateAtomSelectedType(detectedType)
+          processLoadedData(rows, detectedType)
+        },
+      })
+    } else {
       if (detectedType !== selectedType) {
         setSelectedType(detectedType)
         setBatchCreateAtomSelectedType(detectedType)
       }
+      processLoadedData(rows, detectedType)
+    }
+  }
 
-      // Use detected type directly for parsing
-      const rows = await parseCsv(new File([text], file.name), detectedType)
-      setCsvData(rows)
-      setLoadedCSVData(rows)
+  // Separate function to handle the data processing
+  const processLoadedData = (rows: string[][], type: AtomDataTypeKey) => {
+    setCsvData(rows)
+    setLoadedCSVData(rows)
 
-      const proofreadResult = proofreadAll(rows)
+    const proofreadResult = proofreadAll(rows)
 
-      if (proofreadResult.unusualCharacters.hasUnusualCharacters) {
-        const adjustedIssues = proofreadResult.unusualCharacters.cellIssues
-        setProofreadIssues(adjustedIssues)
-        setShowProofreadModal(true)
-      }
+    if (proofreadResult.unusualCharacters.hasUnusualCharacters) {
+      const adjustedIssues = proofreadResult.unusualCharacters.cellIssues
+      setProofreadIssues(adjustedIssues)
+      setShowProofreadModal(true)
+    }
 
-      if (proofreadResult.duplicates.hasDuplicates) {
-        showConfirmModal(
-          `Duplicative data found. ${proofreadResult.duplicates.duplicateIndices.length} duplicate row(s) will be removed. You can save over the old data using the Save CSV button.`,
-          (confirm) => {
-            if (confirm) {
-              const finalRows = rows.filter(
-                (_, index) =>
-                  !proofreadResult.duplicates.duplicateIndices.includes(index),
-              )
-              setCsvData(finalRows)
-              checkExistingAtoms(finalRows, detectedType)
-            } else {
-              checkExistingAtoms(rows, detectedType)
-            }
-          },
-        )
-      } else {
-        checkExistingAtoms(rows, detectedType)
-      }
+    if (proofreadResult.duplicates.hasDuplicates) {
+      showConfirmModal(
+        `Duplicative data found. ${proofreadResult.duplicates.duplicateIndices.length} duplicate row(s) will be removed. You can save over the old data using the Save CSV button.`,
+        (confirm) => {
+          if (confirm) {
+            const finalRows = rows.filter(
+              (_, index) =>
+                !proofreadResult.duplicates.duplicateIndices.includes(index),
+            )
+            setCsvData(finalRows)
+            checkExistingAtoms(finalRows, type)
+          } else {
+            checkExistingAtoms(rows, type)
+          }
+        },
+      )
+    } else {
+      checkExistingAtoms(rows, type)
     }
   }
 
@@ -1142,7 +1181,7 @@ export default function CSVEditor() {
     }
   }, [isLoading, step, checkTagExists])
 
-  // Update the format change handler
+  // Keep the format change dialog for manual type changes
   const handleFormatChange = (newFormat: AtomDataTypeKey) => {
     if (isCSVDataModified) {
       setFormatChangeDialog({
@@ -1158,40 +1197,33 @@ export default function CSVEditor() {
     }
   }
 
-  // Add the handler for dialog responses
+  // Simplify the format change response handler
   const handleFormatChangeResponse = (response: 'yes' | 'no' | 'cancel') => {
-    if (!formatChangeDialog.newFormat) {
+    if (!formatChangeDialog.newFormat || response === 'cancel') {
+      setFormatChangeDialog({ isOpen: false, newFormat: null })
       return
     }
 
-    switch (response) {
-      case 'yes':
-        saveCSV()
-        setSelectedType(formatChangeDialog.newFormat)
-        setBatchCreateAtomSelectedType(formatChangeDialog.newFormat)
-        setCsvData(
-          JSON.parse(
-            JSON.stringify(
-              atomDataTypes[formatChangeDialog.newFormat].defaultData,
-            ),
-          ),
-        )
-        break
-      case 'no':
-        setSelectedType(formatChangeDialog.newFormat)
-        setBatchCreateAtomSelectedType(formatChangeDialog.newFormat)
-        setCsvData(
-          JSON.parse(
-            JSON.stringify(
-              atomDataTypes[formatChangeDialog.newFormat].defaultData,
-            ),
-          ),
-        )
-        break
-      case 'cancel':
-        // Do nothing, keep current selection
-        break
+    if (response === 'yes') {
+      saveCSV()
     }
+
+    // If we have an onResponse callback (from loading CSV), use that
+    if (formatChangeDialog.onResponse) {
+      formatChangeDialog.onResponse(response)
+    } else {
+      // Otherwise this is from manual type change, set to default data
+      setSelectedType(formatChangeDialog.newFormat)
+      setBatchCreateAtomSelectedType(formatChangeDialog.newFormat)
+      setCsvData(
+        JSON.parse(
+          JSON.stringify(
+            atomDataTypes[formatChangeDialog.newFormat].defaultData,
+          ),
+        ),
+      )
+    }
+
     setFormatChangeDialog({ isOpen: false, newFormat: null })
   }
 
