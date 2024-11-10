@@ -478,11 +478,14 @@ export default function CSVEditor() {
   }
 
   // Move checkExistingAtoms before loadCSV and handleApplyFixes
-  const checkExistingAtoms = async (data: string[][]) => {
+  const checkExistingAtoms = async (
+    data: string[][],
+    type: AtomDataTypeKey,
+  ) => {
     const formData = new FormData()
     formData.append('action', 'checkAtomsExist')
     formData.append('csvData', JSON.stringify(data))
-    formData.append('selectedType', selectedType)
+    formData.append('selectedType', type)
 
     try {
       setLoadingRows(new Set(data.slice(1).map((_, index) => index)))
@@ -568,14 +571,14 @@ export default function CSVEditor() {
                   !proofreadResult.duplicates.duplicateIndices.includes(index),
               )
               setCsvData(finalRows)
-              checkExistingAtoms(finalRows)
+              checkExistingAtoms(finalRows, detectedType)
             } else {
-              checkExistingAtoms(rows)
+              checkExistingAtoms(rows, detectedType)
             }
           },
         )
       } else {
-        checkExistingAtoms(rows)
+        checkExistingAtoms(rows, detectedType)
       }
     }
   }
@@ -609,7 +612,7 @@ export default function CSVEditor() {
           }
         })
 
-        checkExistingAtoms(newData)
+        checkExistingAtoms(newData, selectedType)
         return newData
       })
       setShowProofreadModal(false)
@@ -1128,7 +1131,7 @@ export default function CSVEditor() {
   // Add effect to recheck atoms when progress modal closes
   useEffect(() => {
     if (!isLoading && step === 'complete' && csvData.length > 0) {
-      checkExistingAtoms(csvData)
+      checkExistingAtoms(csvData, selectedType)
     }
   }, [isLoading, step, csvData])
 
