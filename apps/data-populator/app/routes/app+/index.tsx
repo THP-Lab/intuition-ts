@@ -797,20 +797,31 @@ export default function CSVEditor() {
   }
 
   const handlePublishAtoms = useCallback(() => {
-    showConfirmModal(
-      'Publish selected atoms? This will take about a minute.',
-      (confirm) => {
-        if (confirm) {
-          initiateBatchRequest(selectedRows, csvData, selectedType)
-        }
-      },
-    )
+    // Count existing and new atoms from selected rows
+    const existingCount = selectedRows.filter((rowIndex) =>
+      existingAtoms.has(rowIndex),
+    ).length
+    const totalSelected = selectedRows.length
+    const newCount = totalSelected - existingCount
+
+    const message = `${existingCount} out of the ${totalSelected} atom${
+      totalSelected !== 1 ? 's' : ''
+    } you selected already exist${existingCount !== 1 ? '' : 's'}, and ${newCount} new atom${
+      newCount !== 1 ? 's' : ''
+    } will be published. This will take about a minute.`
+
+    showConfirmModal(message, (confirm) => {
+      if (confirm) {
+        initiateBatchRequest(selectedRows, csvData, selectedType)
+      }
+    })
   }, [
     showConfirmModal,
     initiateBatchRequest,
     selectedRows,
     csvData,
     selectedType,
+    existingAtoms,
   ])
 
   // Function to determine the text for the create/tag atoms button
