@@ -7,6 +7,7 @@ import {
   TextWeight,
 } from '@0xintuition/1ui'
 
+import intuitionLogo from '@assets/intuition-logo.svg'
 import investorWelcomeCardBg from '@assets/investor-welcome-card-bg.png'
 import { useNavigate } from '@remix-run/react'
 
@@ -18,7 +19,7 @@ export default function InvestorsWelcome() {
   }
 
   return (
-    <Card className="h-fit theme-border p-12 bg-transparent relative overflow-hidden backdrop-blur-sm max-sm:w-[94vw]">
+    <Card className="h-fit theme-border p-10 bg-transparent relative overflow-hidden backdrop-blur-sm max-sm:w-[94vw]">
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
         <img
           src={investorWelcomeCardBg}
@@ -29,19 +30,22 @@ export default function InvestorsWelcome() {
       </div>
       <CardContent className="pb-0 relative">
         <div className="flex flex-col items-center gap-5">
-          <Text
-            variant={TextVariant.headline}
-            weight={TextWeight.medium}
-            className="text-primary pb-2 tracking-widest"
-          >
-            WELCOME, FRIENDS
-          </Text>
-          <Text
+          <div className="flex flex-col items-center pb-5 gap-2.5">
+            <img src={intuitionLogo} alt="" className="h-9" />
+            <Text
+              variant={TextVariant.bodyLarge}
+              weight={TextWeight.medium}
+              className="text-primary tracking-widest uppercase"
+            >
+              Believe In Something
+            </Text>
+          </div>
+          {/* <Text
             variant={TextVariant.body}
-            className="text-primary/70 tracking-widest"
+            className="text-primary/50 tracking-widest"
           >
             CHOOSE YOUR PATH...
-          </Text>
+          </Text> */}
           <div className="flex flex-row items-start justify-center gap-6">
             <div className="flex flex-col gap-2">
               <Button className="rounded-md border border-for/50 bg-for/15 text-primary/70 tracking-widest transition-all duration-300 hover:bg-for/30 hover:border-for hover:text-primary">
@@ -49,15 +53,15 @@ export default function InvestorsWelcome() {
               </Button>
               <Text
                 variant={TextVariant.caption}
-                className="tracking-widest text-primary/70"
+                className="tracking-widest text-primary/50 uppercase text-center"
               >
-                STANDARD DOCSEND
+                standard docsend
               </Text>
             </div>
 
             <Text
               variant={TextVariant.bodyLarge}
-              className="tracking-widest text-primary/70"
+              className="tracking-widest text-primary/50"
             >
               OR
             </Text>
@@ -71,9 +75,9 @@ export default function InvestorsWelcome() {
               </Button>
               <Text
                 variant={TextVariant.caption}
-                className="tracking-widest text-primary/70"
+                className="tracking-widest text-primary/50 uppercase text-center"
               >
-                INTUITIVE EXPERIENCE
+                intuitive experience
               </Text>
             </div>
           </div>

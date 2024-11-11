@@ -22,7 +22,6 @@ export default function App() {
           aria-hidden="true"
         />
       </div>
-
       <div className="absolute top-8 left-8 flex flex-col items-start">
         <img src={intuitionLogo} alt="Intuition Logo" className="h-8 w-auto" />
       </div>
