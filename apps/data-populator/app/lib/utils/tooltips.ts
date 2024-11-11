@@ -57,10 +57,10 @@ const tooltipMap: Record<TooltipKey, string> = {
   [TooltipKey.ATOMS_TAB]: 'View and manage atoms. Begin your journey here.',
   [TooltipKey.TAGGING_TAB]:
     'View and manage tags. Select some Atoms you want to tag and go here to tag them.',
-  [TooltipKey.ATOM_LIVE]: 'This atom is already live on the Intuition System',
-  [TooltipKey.ATOM_NOT_PUBLISHED]: 'Atom not published yet',
-  [TooltipKey.TAG_LIVE]: 'This tag is already live on the Intuition System',
-  [TooltipKey.TAG_NOT_PUBLISHED]: 'Tag not published yet',
+  [TooltipKey.ATOM_LIVE]: 'This atom is live on the Intuition System',
+  [TooltipKey.ATOM_NOT_PUBLISHED]: 'Atom ready to publish',
+  [TooltipKey.TAG_LIVE]: 'This tag is live on the Intuition System',
+  [TooltipKey.TAG_NOT_PUBLISHED]: 'Tag ready to publish',
 }
 
 export function getTooltip(key: TooltipKey): string {

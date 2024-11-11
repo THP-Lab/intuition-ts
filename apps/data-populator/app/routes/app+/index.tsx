@@ -34,7 +34,6 @@ import { Progress } from '@components/ui/progress'
 import {
   BatchAtomsRequest,
   checkAndFilterURIs,
-  checkAtomsExistWithRawURIs,
   createPopulateAtomsRequest,
   createTagAtomsRequest,
   generateBatchAtomsCalldata,
@@ -73,7 +72,14 @@ import {
   useSubmit,
 } from '@remix-run/react'
 import { motion } from 'framer-motion'
-import { CheckCircle2, Circle, Loader2, Minus, Plus, Save } from 'lucide-react'
+import {
+  CircleEllipsis,
+  CloudCog,
+  Loader2,
+  Minus,
+  Plus,
+  Save,
+} from 'lucide-react'
 import { Thing, WithContext } from 'schema-dts'
 
 // Add this new interface
@@ -874,27 +880,81 @@ export default function CSVEditor() {
     element.style.height = `${element.scrollHeight}px`
   }
 
-  // Function to handle cell edits
+  // Add useRef for debouncing at the top of the component with other hooks
+  const existenceCheckTimeout = useRef<NodeJS.Timeout>()
+
+  // Update handleCellEdit to include debouncing
   const handleCellEdit = useCallback(
-    (rowIndex: number, cellIndex: number, value: string) => {
+    async (rowIndex: number, cellIndex: number, value: string) => {
       setCsvData((prev: string[][]) => {
         const newData = [...prev]
         newData[rowIndex][cellIndex] = value
         return newData
       })
 
+      // Handle image thumbnail updates
       if (csvData[0][cellIndex] === 'image') {
         loadThumbnail(value).then((thumbnail) => {
           setThumbnails((prev) => ({ ...prev, [rowIndex]: thumbnail }))
         })
       }
+
+      // Clear any existing timeout
+      if (existenceCheckTimeout.current) {
+        clearTimeout(existenceCheckTimeout.current)
+      }
+
+      // Set the row as loading
+      setLoadingRows((prev) => new Set(prev).add(rowIndex - 1))
+
+      // Debounce the existence check (500ms)
+      existenceCheckTimeout.current = setTimeout(async () => {
+        // Check if the atom exists after editing
+        const formData = new FormData()
+        formData.append('action', 'checkAtomExists')
+        formData.append('csvData', JSON.stringify(csvData))
+        formData.append('index', (rowIndex - 1).toString())
+
+        try {
+          const response = await fetch('/api/csv-editor', {
+            method: 'POST',
+            body: formData,
+          })
+
+          if (response.ok) {
+            const result = await response.json()
+            if (result.success && result.atomExistsResults) {
+              setExistingAtoms((prev) => {
+                const newSet = new Set(prev)
+                if (result.atomExistsResults[0].alreadyExists) {
+                  newSet.add(rowIndex - 1)
+                } else {
+                  newSet.delete(rowIndex - 1)
+                }
+                return newSet
+              })
+            }
+          } else {
+            console.error('Failed to check atom existence')
+          }
+        } catch (error) {
+          console.error('Error checking atom existence:', error)
+        } finally {
+          // Remove the row from loading state
+          setLoadingRows((prev) => {
+            const newSet = new Set(prev)
+            newSet.delete(rowIndex - 1)
+            return newSet
+          })
+        }
+      }, 500)
     },
     [csvData],
   )
 
-  // Function to handle cell blur events, including duplicate checking and atom existence verification
+  // Simplify handleCellBlur to only handle height reset and highlights
   const handleCellBlur = useCallback(
-    async (
+    (
       e: React.FocusEvent<HTMLTextAreaElement>,
       rowIndex: number,
       cellIndex: number,
@@ -916,62 +976,11 @@ export default function CSVEditor() {
             }
           },
         )
-        return
-      }
-
-      // Set the row as loading
-      setLoadingRows((prev) => new Set(prev).add(rowIndex - 1))
-
-      // Check if the atom exists after editing any cell in the row
-      const formData = new FormData()
-      formData.append('action', 'checkAtomExists')
-      formData.append('csvData', JSON.stringify(csvData))
-      formData.append('index', (rowIndex - 1).toString())
-
-      try {
-        const response = await fetch('/api/csv-editor', {
-          method: 'POST',
-          body: formData,
-        })
-
-        if (response.ok) {
-          const result = await response.json()
-          if (result.success && result.atomExistsResults) {
-            const atomExistsResult = result.atomExistsResults[0]
-            setExistingAtoms((prev) => {
-              const newSet = new Set(prev)
-              if (atomExistsResult.alreadyExists) {
-                newSet.add(rowIndex - 1)
-              } else {
-                newSet.delete(rowIndex - 1)
-              }
-              return newSet
-            })
-          }
-        } else {
-          console.error('Failed to check atom existence')
-        }
-      } catch (error) {
-        console.error('Error checking atom existence:', error)
-      } finally {
-        // Remove the row from loading state
-        setLoadingRows((prev) => {
-          const newSet = new Set(prev)
-          newSet.delete(rowIndex - 1)
-          return newSet
-        })
-      }
-
-      // Handle image thumbnail update
-      if (csvData[0][cellIndex] === 'image') {
-        const value = e.target.value
-        const thumbnail = await loadThumbnail(value)
-        setThumbnails((prev) => ({ ...prev, [rowIndex]: thumbnail }))
       }
 
       updateCellHighlights(rowIndex, cellIndex)
     },
-    [csvData, updateCellHighlights],
+    [csvData, showConfirmModal, updateCellHighlights],
   )
 
   // Function to handle cell pasting content into cells
@@ -1529,32 +1538,32 @@ export default function CSVEditor() {
                         <TableRow key={rowIndex}>
                           <TableCell className="w-8 p-0">
                             {loadingRows.has(rowIndex - 1) ? (
-                              <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
+                              <Loader2 className="animate-spin text-blue-500 w-6 h-6" />
                             ) : existingAtoms.has(rowIndex - 1) ? (
                               tooltipsEnabled ? (
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <CheckCircle2 className="text-green-500 w-5 h-5" />
+                                    <CloudCog className="text-blue-500 w-6 h-6" />
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     {getTooltip(TooltipKey.ATOM_LIVE)}
                                   </TooltipContent>
                                 </Tooltip>
                               ) : (
-                                <CheckCircle2 className="text-green-500 w-5 h-5" />
+                                <CloudCog className="text-blue-500 w-6 h-6" />
                               )
                             ) : loadingRows.has(rowIndex - 1) === false ? (
                               tooltipsEnabled ? (
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Circle className="text-blue-500 w-5 h-5" />
+                                    <CircleEllipsis className="text-green-500 w-6 h-6" />
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     {getTooltip(TooltipKey.ATOM_NOT_PUBLISHED)}
                                   </TooltipContent>
                                 </Tooltip>
                               ) : (
-                                <Circle className="text-blue-500 w-5 h-5" />
+                                <CircleEllipsis className="text-green-500 w-6 h-6" />
                               )
                             ) : null}
                           </TableCell>
@@ -1731,32 +1740,32 @@ export default function CSVEditor() {
             {/* Tag status indicator */}
             <div className="flex items-center space-x-2 mt-4">
               {isCheckingTag ? (
-                <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
+                <Loader2 className="animate-spin text-blue-500 w-6 h-6" />
               ) : tagExists ? (
                 tooltipsEnabled ? (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <CheckCircle2 className="text-green-500 w-5 h-5" />
+                      <CloudCog className="text-blue-500 w-6 h-6" />
                     </TooltipTrigger>
                     <TooltipContent>
                       {getTooltip(TooltipKey.TAG_LIVE)}
                     </TooltipContent>
                   </Tooltip>
                 ) : (
-                  <CheckCircle2 className="text-green-500 w-5 h-5" />
+                  <CloudCog className="text-blue-500 w-6 h-6" />
                 )
               ) : isCheckingTag === false ? (
                 tooltipsEnabled ? (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Circle className="text-blue-500 w-5 h-5" />
+                      <CircleEllipsis className="text-green-500 w-6 h-6" />
                     </TooltipTrigger>
                     <TooltipContent>
                       {getTooltip(TooltipKey.TAG_NOT_PUBLISHED)}
                     </TooltipContent>
                   </Tooltip>
                 ) : (
-                  <Circle className="text-blue-500 w-5 h-5" />
+                  <CircleEllipsis className="text-green-500 w-6 h-6" />
                 )
               ) : null}
             </div>
