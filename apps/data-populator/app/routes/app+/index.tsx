@@ -336,9 +336,7 @@ export default function CSVEditor() {
   // State variables for managing CSV data, UI interactions, and atom-related operations
 
   const actionData = useActionData<ActionData>()
-  const submit = useSubmit()
   const navigation = useNavigation()
-  const fetcher = useFetcher()
 
   // Ensure we always have a deep copy of the CSV data
   const [csvData, setCsvData] = useCSVData(selectedType)
@@ -352,14 +350,12 @@ export default function CSVEditor() {
     image: '',
     url: '',
   })
-  const [llmInput, setLlmInput] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [modalMessage, setModalMessage] = useState('')
   const [modalCallback, setModalCallback] = useState<
     (confirm: boolean) => void
   >(() => {})
   const [thumbnails, setThumbnails] = useState<Record<number, string>>({})
-  // const [imageCache, setImageCache] = useState<Record<string, string>>({})
   const [existingAtoms, setExistingAtoms] = useState<Set<number>>(new Set())
   const [loadingRows, setLoadingRows] = useState<Set<number>>(new Set())
   const [isTagging, setIsTagging] = useState(false)
@@ -372,19 +368,11 @@ export default function CSVEditor() {
   })
   const [sortedIndices, setSortedIndices] = useState<number[]>([])
   const [cellHighlights, setCellHighlights] = useState<CellHighlight[]>([])
-  // const [setShowOptions] = useState(false)
-  // const [options] = useState({
-  //   rpc: '',
-  //   multivault: '',
-  //   privateKey: '',
-  // })
-  // const [showHistory, setShowHistory] = useState(false)
   const [, setShowProgressModal] = useState(false)
   const [proofreadIssues, setProofreadIssues] = useState<
     UnusualCharacterIssue[]
   >([])
   const [showProofreadModal, setShowProofreadModal] = useState(false)
-  // const [calls, setCalls] = useState<BatchAtomsRequest[]>([])
   // Ref for file input to trigger file selection programmatically
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -658,29 +646,6 @@ export default function CSVEditor() {
     [checkExistingAtoms],
   )
 
-  // // Function to update all cell highlights based on adjacent duplicates
-  // const updateAllHighlights = useCallback(() => {
-  //   setCsvData((currentCsvData) => {
-  //     setSortedIndices((currentSortedIndices) => {
-  //       if (currentCsvData.length > 1) {
-  //         const dataIndices =
-  //           currentSortedIndices.length > 0
-  //             ? currentSortedIndices
-  //             : currentCsvData.slice(1).map((_, i) => i + 1)
-  //         const highlights = detectAllAdjacentDuplicates(
-  //           currentCsvData,
-  //           dataIndices,
-  //         )
-  //         setCellHighlights(highlights)
-  //       } else {
-  //         setCellHighlights([])
-  //       }
-  //       return currentSortedIndices
-  //     })
-  //     return currentCsvData
-  //   })
-  // }, [])
-
   // Function to update cell highlights for a specific cell
   const updateCellHighlights = useCallback(
     (rowIndex: number, cellIndex: number) => {
@@ -710,24 +675,6 @@ export default function CSVEditor() {
     },
     [csvData, sortedIndices],
   )
-
-  // // Function to process loaded CSV data, including duplicate detection and highlighting
-  // const processLoadedCSV = (rows: string[][]) => {
-  //   setCsvData(rows)
-  //   setLoadingRows(new Set(rows.slice(1).map((_, index) => index)))
-  //   checkExistingAtoms(rows)
-
-  //   // Initialize sortedIndices for the newly loaded data
-  //   const initialSortedIndices = rows.slice(1).map((_, index) => index + 1)
-  //   setSortedIndices(initialSortedIndices)
-
-  //   // Perform initial highlighting
-  //   const initialHighlights = detectAllAdjacentDuplicates(
-  //     rows,
-  //     initialSortedIndices,
-  //   )
-  //   setCellHighlights(initialHighlights)
-  // }
 
   // Function to add a new empty row to the CSV data
   const addNewRow = () => {
