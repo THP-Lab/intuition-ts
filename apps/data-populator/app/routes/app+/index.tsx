@@ -73,7 +73,7 @@ import {
   useSubmit,
 } from '@remix-run/react'
 import { motion } from 'framer-motion'
-import { CheckCircle2, Loader2, Minus, Plus, Save } from 'lucide-react'
+import { CheckCircle2, Circle, Loader2, Minus, Plus, Save } from 'lucide-react'
 import { Thing, WithContext } from 'schema-dts'
 
 // Add this new interface
@@ -1531,7 +1531,31 @@ export default function CSVEditor() {
                             {loadingRows.has(rowIndex - 1) ? (
                               <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
                             ) : existingAtoms.has(rowIndex - 1) ? (
-                              <CheckCircle2 className="text-green-500 w-5 h-5" />
+                              tooltipsEnabled ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <CheckCircle2 className="text-green-500 w-5 h-5" />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    {getTooltip(TooltipKey.ATOM_LIVE)}
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                <CheckCircle2 className="text-green-500 w-5 h-5" />
+                              )
+                            ) : loadingRows.has(rowIndex - 1) === false ? (
+                              tooltipsEnabled ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Circle className="text-blue-500 w-5 h-5" />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    {getTooltip(TooltipKey.ATOM_NOT_PUBLISHED)}
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                <Circle className="text-blue-500 w-5 h-5" />
+                              )
                             ) : null}
                           </TableCell>
                           {csvData[rowIndex].map((cell, cellIndex) => (
@@ -1709,7 +1733,31 @@ export default function CSVEditor() {
               {isCheckingTag ? (
                 <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
               ) : tagExists ? (
-                <CheckCircle2 className="text-green-500 w-5 h-5" />
+                tooltipsEnabled ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <CheckCircle2 className="text-green-500 w-5 h-5" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {getTooltip(TooltipKey.TAG_LIVE)}
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <CheckCircle2 className="text-green-500 w-5 h-5" />
+                )
+              ) : isCheckingTag === false ? (
+                tooltipsEnabled ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Circle className="text-blue-500 w-5 h-5" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {getTooltip(TooltipKey.TAG_NOT_PUBLISHED)}
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <Circle className="text-blue-500 w-5 h-5" />
+                )
               ) : null}
             </div>
 

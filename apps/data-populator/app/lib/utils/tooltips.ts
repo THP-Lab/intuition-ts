@@ -20,6 +20,10 @@ export enum TooltipKey {
   ATOM_TYPE = 'ATOM_TYPE',
   ATOMS_TAB = 'ATOMS_TAB',
   TAGGING_TAB = 'TAGGING_TAB',
+  ATOM_LIVE = 'ATOM_LIVE',
+  ATOM_NOT_PUBLISHED = 'ATOM_NOT_PUBLISHED',
+  TAG_LIVE = 'TAG_LIVE',
+  TAG_NOT_PUBLISHED = 'TAG_NOT_PUBLISHED',
 }
 
 const tooltipMap: Record<TooltipKey, string> = {
@@ -53,6 +57,10 @@ const tooltipMap: Record<TooltipKey, string> = {
   [TooltipKey.ATOMS_TAB]: 'View and manage atoms. Begin your journey here.',
   [TooltipKey.TAGGING_TAB]:
     'View and manage tags. Select some Atoms you want to tag and go here to tag them.',
+  [TooltipKey.ATOM_LIVE]: 'This atom is already live on the Intuition System',
+  [TooltipKey.ATOM_NOT_PUBLISHED]: 'Atom not published yet',
+  [TooltipKey.TAG_LIVE]: 'This tag is already live on the Intuition System',
+  [TooltipKey.TAG_NOT_PUBLISHED]: 'Tag not published yet',
 }
 
 export function getTooltip(key: TooltipKey): string {
