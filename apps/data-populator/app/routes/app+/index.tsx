@@ -76,20 +76,17 @@ import {
   BookCheck,
   CirclePlus,
   Download,
-  File,
   FileSpreadsheet,
-  BookCheck,
   FileType,
   Loader2,
-  Minus,
   Plus,
   Save,
   Send,
   Shapes,
   Tag,
+  TagIcon,
   Trash,
   Upload,
-  TagIcon,
 } from 'lucide-react'
 import { Thing, WithContext } from 'schema-dts'
 
@@ -285,8 +282,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           URI?: string
           CAIP10?: string
         }>
-        const tag = JSON.parse(formData.get('tag') as string) as WithContext<Thing>
-        
+        const tag = JSON.parse(
+          formData.get('tag') as string,
+        ) as WithContext<Thing>
+
         const { calls, chunks, chunkSize } = await generateTagAtomsCallData(
           intermediaryObjects, // Pass URIs directly
           tag,
@@ -365,7 +364,12 @@ type FormatChangeDialog = {
 type ViewTab = 'select' | 'upload' | 'publish' | 'tag'
 
 const tabs = [
-  { id: 'select', label: 'Select Atom Type', icon: Shapes, cta: 'Select Atom Type' },
+  {
+    id: 'select',
+    label: 'Select Atom Type',
+    icon: Shapes,
+    cta: 'Select Atom Type',
+  },
   { id: 'upload', label: 'Load CSV', icon: Upload, cta: 'Load CSV File' },
   { id: 'publish', label: 'Publish Atoms', icon: Send, cta: 'Go Live' },
   { id: 'tag', label: 'Tag Atoms', icon: Tag, cta: 'Add Atom Tags' },
@@ -792,10 +796,11 @@ export default function CSVEditor() {
 
   // Add this helper function to identify empty rows
   const getEmptySelectedRows = useCallback(() => {
-    return selectedRows.filter(rowIndex => {
+    return selectedRows.filter((rowIndex) => {
       return !csvData[rowIndex + 1].some((cell, cellIndex) => {
         const header = csvData[0][cellIndex]
-        const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
+        const defaultValue =
+          atomDataTypes[selectedType].defaultValues?.[header] || ''
         return cell.trim() !== defaultValue.trim()
       })
     })
@@ -804,7 +809,7 @@ export default function CSVEditor() {
   // Update handlePublishAtoms
   const handlePublishAtoms = useCallback(() => {
     const emptyRows = getEmptySelectedRows()
-    
+
     if (emptyRows.length > 0) {
       const message = `${emptyRows.length} empty row${
         emptyRows.length === 1 ? '' : 's'
@@ -814,27 +819,28 @@ export default function CSVEditor() {
         if (confirm) {
           // Remove empty rows and get the new data
           let updatedCsvData: string[][]
-          setCsvData(prev => {
+          setCsvData((prev) => {
             const newData = [...prev]
             // Sort in descending order to avoid index shifting
             const sortedEmptyRows = [...emptyRows].sort((a, b) => b - a)
-            sortedEmptyRows.forEach(rowIndex => {
+            sortedEmptyRows.forEach((rowIndex) => {
               newData.splice(rowIndex + 1, 1)
             })
             updatedCsvData = newData
             return newData
           })
-          
+
           // Update selected rows
           const emptyRowSet = new Set(emptyRows)
           const updatedSelectedRows = selectedRows
-            .filter(rowIndex => !emptyRowSet.has(rowIndex))
-            .map(rowIndex => {
+            .filter((rowIndex) => !emptyRowSet.has(rowIndex))
+            .map((rowIndex) => {
               // Adjust indices for rows after deletions
-              const adjustedIndex = rowIndex - emptyRows.filter(e => e < rowIndex).length
+              const adjustedIndex =
+                rowIndex - emptyRows.filter((e) => e < rowIndex).length
               return adjustedIndex
             })
-          
+
           setSelectedRows(updatedSelectedRows)
 
           // Now show the regular publish confirmation
@@ -853,7 +859,11 @@ export default function CSVEditor() {
           showConfirmModal(publishMessage, (confirmPublish) => {
             if (confirmPublish) {
               // Use the updated CSV data and selected rows for the batch request
-              initiateBatchRequest(updatedSelectedRows, updatedCsvData, selectedType)
+              initiateBatchRequest(
+                updatedSelectedRows,
+                updatedCsvData,
+                selectedType,
+              )
             }
           })
         }
@@ -896,8 +906,10 @@ export default function CSVEditor() {
   // Function to handle creating and tagging atoms
   const handleCreateAndTagAtoms = useCallback(() => {
     // First check for unpublished atoms
-    const unpublishedCount = selectedRows.filter(rowIndex => !existingAtoms.has(rowIndex)).length
-    
+    const unpublishedCount = selectedRows.filter(
+      (rowIndex) => !existingAtoms.has(rowIndex),
+    ).length
+
     if (unpublishedCount > 0) {
       const message = `${unpublishedCount} of the ${selectedRows.length} atom${
         selectedRows.length !== 1 ? 's' : ''
@@ -914,14 +926,14 @@ export default function CSVEditor() {
     }
 
     // Continue with normal tagging flow if all atoms are published
-    let selectedData;
+    let selectedData
     if (selectedType === 'CSV') {
       // Convert selected rows to schema objects for CSV type
       const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
       selectedData = selectedRows.map((index) => schemaObjects[index])
     } else {
       // For URI/CAIP10 types, extract URIs directly
-      selectedData = selectedRows.map(index => {
+      selectedData = selectedRows.map((index) => {
         const row = csvData[index + 1]
         return row[0] // Assuming URI/CAIP10 is always in first column
       })
@@ -935,12 +947,20 @@ export default function CSVEditor() {
             selectedRows,
             selectedData,
             newTag as unknown as WithContext<Thing>,
-            selectedType
+            selectedType,
           )
         }
       },
     )
-  }, [selectedRows, csvData, newTag, initiateTagRequest, showConfirmModal, selectedType, existingAtoms])
+  }, [
+    selectedRows,
+    csvData,
+    newTag,
+    initiateTagRequest,
+    showConfirmModal,
+    selectedType,
+    existingAtoms,
+  ])
 
   // Effect to reset tagging state when the action is complete
   useEffect(() => {
@@ -1316,35 +1336,41 @@ export default function CSVEditor() {
   }
 
   // Add these helper functions near the top of the CSVEditor component
-  const getLoadedAtomsCount = () => csvData.length - 1  // Just total rows minus header
+  const getLoadedAtomsCount = () => csvData.length - 1 // Just total rows minus header
 
-  const getSelectedAtomsCount = () => selectedRows.length  // Just selected rows count
+  const getSelectedAtomsCount = () => selectedRows.length // Just selected rows count
 
   const getAtomsToPublishCount = () => {
     // Count selected rows that have content and don't exist yet
-    return selectedRows.filter(rowIndex => {
+    return selectedRows.filter((rowIndex) => {
       const row = csvData[rowIndex + 1]
       if (!row) return false // Safety check
-      return !existingAtoms.has(rowIndex) && 
+      return (
+        !existingAtoms.has(rowIndex) &&
         row.some((cell, cellIndex) => {
           const header = csvData[0][cellIndex]
-          const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
+          const defaultValue =
+            atomDataTypes[selectedType].defaultValues?.[header] || ''
           return cell.trim() !== defaultValue.trim()
         })
+      )
     }).length
   }
 
   const getAtomsReadyForTaggingCount = () => {
     // Count selected rows that have content and already exist
-    return selectedRows.filter(rowIndex => {
+    return selectedRows.filter((rowIndex) => {
       const row = csvData[rowIndex + 1]
       if (!row) return false // Safety check
-      return existingAtoms.has(rowIndex) && 
+      return (
+        existingAtoms.has(rowIndex) &&
         row.some((cell, cellIndex) => {
           const header = csvData[0][cellIndex]
-          const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
+          const defaultValue =
+            atomDataTypes[selectedType].defaultValues?.[header] || ''
           return cell.trim() !== defaultValue.trim()
         })
+      )
     }).length
   }
 
@@ -1361,11 +1387,12 @@ export default function CSVEditor() {
 
   // Add this helper function near your other helper functions
   const hasSelectedRowContent = useCallback(() => {
-    return selectedRows.some(rowIndex => {
+    return selectedRows.some((rowIndex) => {
       // Check each cell in the row against default values
       return csvData[rowIndex + 1].some((cell, cellIndex) => {
         const header = csvData[0][cellIndex]
-        const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
+        const defaultValue =
+          atomDataTypes[selectedType].defaultValues?.[header] || ''
         return cell.trim() !== defaultValue.trim()
       })
     })
@@ -1506,7 +1533,10 @@ export default function CSVEditor() {
               <div className="space-y-2 border border-dashed border-primary/30 rounded-lg p-6 text-primary bg-primary/5">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <Text variant={TextVariant.caption} className="text-primary/70">
+                    <Text
+                      variant={TextVariant.caption}
+                      className="text-primary/70"
+                    >
                       Atoms Loaded
                     </Text>
                     <Text variant={TextVariant.body} className="font-mono">
@@ -1514,7 +1544,10 @@ export default function CSVEditor() {
                     </Text>
                   </div>
                   <div className="space-y-1">
-                    <Text variant={TextVariant.caption} className="text-primary/70">
+                    <Text
+                      variant={TextVariant.caption}
+                      className="text-primary/70"
+                    >
                       Atoms Selected
                     </Text>
                     <Text variant={TextVariant.body} className="font-mono">
@@ -1522,7 +1555,10 @@ export default function CSVEditor() {
                     </Text>
                   </div>
                   <div className="space-y-1">
-                    <Text variant={TextVariant.caption} className="text-primary/70">
+                    <Text
+                      variant={TextVariant.caption}
+                      className="text-primary/70"
+                    >
                       Atoms To Be Published
                     </Text>
                     <Text variant={TextVariant.body} className="font-mono">
@@ -1530,7 +1566,10 @@ export default function CSVEditor() {
                     </Text>
                   </div>
                   <div className="space-y-1">
-                    <Text variant={TextVariant.caption} className="text-primary/70">
+                    <Text
+                      variant={TextVariant.caption}
+                      className="text-primary/70"
+                    >
                       Atoms Ready for Tagging
                     </Text>
                     <Text variant={TextVariant.body} className="font-mono">
@@ -1546,8 +1585,8 @@ export default function CSVEditor() {
                       <Button
                         onClick={handlePublishAtoms}
                         disabled={
-                          selectedRows.length === 0 || 
-                          isLoading || 
+                          selectedRows.length === 0 ||
+                          isLoading ||
                           !hasSelectedRowContent()
                         }
                       >
@@ -1562,8 +1601,8 @@ export default function CSVEditor() {
                   <Button
                     onClick={handlePublishAtoms}
                     disabled={
-                      selectedRows.length === 0 || 
-                      isLoading || 
+                      selectedRows.length === 0 ||
+                      isLoading ||
                       !hasSelectedRowContent()
                     }
                   >
@@ -1608,43 +1647,41 @@ export default function CSVEditor() {
                       // Skip @context and @type as they're always set
                       if (key === '@context' || key === '@type') return false
                       // Get default value from CSV type (tags are always CSV/Schema format)
-                      const defaultValue = atomDataTypes['CSV'].defaultValues?.[key] || ''
+                      const defaultValue =
+                        atomDataTypes['CSV'].defaultValues?.[key] || ''
                       return value.trim() !== defaultValue.trim()
-                    }) && (
-                      tagExists ? (
-                        tooltipsEnabled ? (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <BookCheck className="text-success w-5 h-5" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              {getTooltip(TooltipKey.TAG_LIVE)}
-                            </TooltipContent>
-                          </Tooltip>
-                        ) : (
-                          <BookCheck className="text-success w-5 h-5" />
-                        )
+                    }) &&
+                    (tagExists ? (
+                      tooltipsEnabled ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <BookCheck className="text-success w-5 h-5" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {getTooltip(TooltipKey.TAG_LIVE)}
+                          </TooltipContent>
+                        </Tooltip>
                       ) : (
-                        tooltipsEnabled ? (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <CirclePlus
-                                className="text-accent w-5 h-5"
-                                strokeWidth={1.5}
-                              />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              {getTooltip(TooltipKey.TAG_NOT_PUBLISHED)}
-                            </TooltipContent>
-                          </Tooltip>
-                        ) : (
+                        <BookCheck className="text-success w-5 h-5" />
+                      )
+                    ) : tooltipsEnabled ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
                           <CirclePlus
                             className="text-accent w-5 h-5"
                             strokeWidth={1.5}
                           />
-                        )
-                      )
-                    )
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {getTooltip(TooltipKey.TAG_NOT_PUBLISHED)}
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <CirclePlus
+                        className="text-accent w-5 h-5"
+                        strokeWidth={1.5}
+                      />
+                    ))
                   )}
                 </div>
 
@@ -2024,49 +2061,49 @@ export default function CSVEditor() {
                             // Only show status icons if the row has any non-default content
                             csvData[rowIndex].some((cell, cellIndex) => {
                               const header = csvData[0][cellIndex]
-                              const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
+                              const defaultValue =
+                                atomDataTypes[selectedType].defaultValues?.[
+                                  header
+                                ] || ''
                               return cell.trim() !== defaultValue.trim()
-                            }) && (
-                              existingAtoms.has(rowIndex - 1) ? (
-                                tooltipsEnabled ? (
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <BookCheck
-                                        className="text-success w-5 h-5"
-                                        strokeWidth={1.5}
-                                      />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      {getTooltip(TooltipKey.ATOM_LIVE)}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                ) : (
-                                  <BookCheck
-                                    className="text-success w-5 h-5"
-                                    strokeWidth={1.5}
-                                  />
-                                )
+                            }) &&
+                            (existingAtoms.has(rowIndex - 1) ? (
+                              tooltipsEnabled ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <BookCheck
+                                      className="text-success w-5 h-5"
+                                      strokeWidth={1.5}
+                                    />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    {getTooltip(TooltipKey.ATOM_LIVE)}
+                                  </TooltipContent>
+                                </Tooltip>
                               ) : (
-                                tooltipsEnabled ? (
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <CirclePlus
-                                        className="text-accent w-5 h-5"
-                                        strokeWidth={1.5}
-                                      />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      {getTooltip(TooltipKey.ATOM_NOT_PUBLISHED)}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                ) : (
+                                <BookCheck
+                                  className="text-success w-5 h-5"
+                                  strokeWidth={1.5}
+                                />
+                              )
+                            ) : tooltipsEnabled ? (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
                                   <CirclePlus
                                     className="text-accent w-5 h-5"
                                     strokeWidth={1.5}
                                   />
-                                )
-                              )
-                            )
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {getTooltip(TooltipKey.ATOM_NOT_PUBLISHED)}
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              <CirclePlus
+                                className="text-accent w-5 h-5"
+                                strokeWidth={1.5}
+                              />
+                            ))
                           )}
                         </div>
                       </TableCell>
