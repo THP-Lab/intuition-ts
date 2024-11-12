@@ -1239,12 +1239,23 @@ export default function CSVEditor() {
     return selectedRows.filter(rowIndex => existingAtoms.has(rowIndex)).length
   }
 
+  // Add this helper function near your other helper functions
+  const hasTagContent = useCallback(() => {
+    return Object.entries(newTag).some(([key, value]) => {
+      // Skip @context and @type as they're always set
+      if (key === '@context' || key === '@type') return false
+      // Get default value from CSV type (tags are always CSV/Schema format)
+      const defaultValue = atomDataTypes['CSV'].defaultValues?.[key] || ''
+      return value.trim() !== defaultValue.trim()
+    })
+  }, [newTag])
+
   return (
     <>
       <div className="container mx-auto p-0 border border-primary/30 rounded-lg my-4">
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as ViewTab)}
+          onValueChange={(value: ViewTab) => setActiveTab(value)}
           className="w-full"
         >
           <TabsList className="grid w-full grid-cols-4 rounded-b-none border-b border-primary/10">
@@ -1462,39 +1473,50 @@ export default function CSVEditor() {
                 <div className="flex items-center space-x-2 mt-4">
                   {isCheckingTag ? (
                     <Loader2 className="animate-spin text-blue-500 w-5 h-5" />
-                  ) : tagExists ? (
-                    tooltipsEnabled ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
+                  ) : (
+                    // Only show status icons if any tag field has non-default content
+                    Object.entries(newTag).some(([key, value]) => {
+                      // Skip @context and @type as they're always set
+                      if (key === '@context' || key === '@type') return false
+                      // Get default value from CSV type (tags are always CSV/Schema format)
+                      const defaultValue = atomDataTypes['CSV'].defaultValues?.[key] || ''
+                      return value.trim() !== defaultValue.trim()
+                    }) && (
+                      tagExists ? (
+                        tooltipsEnabled ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <BookCheck className="text-success w-5 h-5" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {getTooltip(TooltipKey.TAG_LIVE)}
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : (
                           <BookCheck className="text-success w-5 h-5" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {getTooltip(TooltipKey.TAG_LIVE)}
-                        </TooltipContent>
-                      </Tooltip>
-                    ) : (
-                      <BookCheck className="text-success w-5 h-5" />
-                    )
-                  ) : isCheckingTag === false ? (
-                    tooltipsEnabled ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
+                        )
+                      ) : (
+                        tooltipsEnabled ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <CirclePlus
+                                className="text-accent w-5 h-5"
+                                strokeWidth={1.5}
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {getTooltip(TooltipKey.TAG_NOT_PUBLISHED)}
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : (
                           <CirclePlus
                             className="text-accent w-5 h-5"
                             strokeWidth={1.5}
                           />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {getTooltip(TooltipKey.TAG_NOT_PUBLISHED)}
-                        </TooltipContent>
-                      </Tooltip>
-                    ) : (
-                      <CirclePlus
-                        className="text-accent w-5 h-5"
-                        strokeWidth={1.5}
-                      />
+                        )
+                      )
                     )
-                  ) : null}
+                  )}
                 </div>
 
                 {/* Tag input fields */}
@@ -1530,7 +1552,7 @@ export default function CSVEditor() {
                         <Button
                           className="h-8"
                           onClick={handleCreateTag}
-                          disabled={tagExists}
+                          disabled={tagExists || !hasTagContent()}
                         >
                           Create Tag
                         </Button>
@@ -1543,7 +1565,7 @@ export default function CSVEditor() {
                     <Button
                       className="h-8"
                       onClick={handleCreateTag}
-                      disabled={tagExists}
+                      disabled={tagExists || !hasTagContent()}
                     >
                       Create Tag
                     </Button>
@@ -1869,45 +1891,54 @@ export default function CSVEditor() {
                         <div className="flex items-center justify-center h-full">
                           {loadingRows.has(rowIndex - 1) ? (
                             <Loader2 className="animate-spin text-accent w-5 h-5" />
-                          ) : existingAtoms.has(rowIndex - 1) ? (
-                            tooltipsEnabled ? (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
+                          ) : (
+                            // Only show status icons if the row has any non-default content
+                            csvData[rowIndex].some((cell, cellIndex) => {
+                              const header = csvData[0][cellIndex]
+                              const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
+                              return cell.trim() !== defaultValue.trim()
+                            }) && (
+                              existingAtoms.has(rowIndex - 1) ? (
+                                tooltipsEnabled ? (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <BookCheck
+                                        className="text-success w-5 h-5"
+                                        strokeWidth={1.5}
+                                      />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      {getTooltip(TooltipKey.ATOM_LIVE)}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                ) : (
                                   <BookCheck
                                     className="text-success w-5 h-5"
                                     strokeWidth={1.5}
                                   />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  {getTooltip(TooltipKey.ATOM_LIVE)}
-                                </TooltipContent>
-                              </Tooltip>
-                            ) : (
-                              <BookCheck
-                                className="text-success w-5 h-5"
-                                strokeWidth={1.5}
-                              />
-                            )
-                          ) : loadingRows.has(rowIndex - 1) === false ? (
-                            tooltipsEnabled ? (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
+                                )
+                              ) : (
+                                tooltipsEnabled ? (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <CirclePlus
+                                        className="text-accent w-5 h-5"
+                                        strokeWidth={1.5}
+                                      />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      {getTooltip(TooltipKey.ATOM_NOT_PUBLISHED)}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                ) : (
                                   <CirclePlus
                                     className="text-accent w-5 h-5"
                                     strokeWidth={1.5}
                                   />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  {getTooltip(TooltipKey.ATOM_NOT_PUBLISHED)}
-                                </TooltipContent>
-                              </Tooltip>
-                            ) : (
-                              <CirclePlus
-                                className="text-accent w-5 h-5"
-                                strokeWidth={1.5}
-                              />
+                                )
+                              )
                             )
-                          ) : null}
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -1922,7 +1953,7 @@ export default function CSVEditor() {
       {/* Add this confirmation modal dialog */}
       <Dialog
         open={showModal}
-        onOpenChange={(open) => !open && setShowModal(false)}
+        onOpenChange={(open: boolean) => !open && setShowModal(false)}
       >
         <DialogContent>
           <DialogHeader>
@@ -1962,7 +1993,7 @@ export default function CSVEditor() {
       {/* Format change confirmation dialog */}
       <Dialog
         open={formatChangeDialog.isOpen}
-        onOpenChange={(isOpen) => {
+        onOpenChange={(isOpen: boolean) => {
           if (!isOpen) {
             setFormatChangeDialog({ isOpen: false, newFormat: null })
           }
