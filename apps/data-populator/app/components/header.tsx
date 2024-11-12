@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 
 import {
   Button,
+  ButtonSize,
+  ButtonVariant,
+  cn,
   Text,
   Tooltip,
   TooltipContent,
@@ -12,17 +15,11 @@ import PrivyLogoutButton from '@client/privy-logout-button'
 import { getTooltip, TooltipKey } from '@lib/utils/tooltips'
 import { Link } from '@remix-run/react'
 import { CURRENT_ENV } from 'app/consts'
-import { HelpCircle, History, Moon, Settings, Sun } from 'lucide-react'
+import { HelpCircle, History } from 'lucide-react'
 import { ClientOnly } from 'remix-utils/client-only'
 
-export function Header({
-  onOpenOptions,
-  onOpenHistory,
-}: {
-  onOpenOptions: () => void
-  onOpenHistory: () => void
-}) {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+export function Header({ onOpenHistory }: { onOpenHistory: () => void }) {
+  const [, setTheme] = useState<'light' | 'dark'>('light')
   const [tooltipsEnabled, setTooltipsEnabled] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('tooltipsEnabled')
@@ -40,10 +37,6 @@ export function Header({
     }
   }, [])
 
-  const handleToggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light'
-    setTheme(newTheme)
-  }
   const toggleTooltips = () => {
     setTooltipsEnabled((prev: boolean) => {
       const newValue = !prev
@@ -53,7 +46,7 @@ export function Header({
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background">
+    <header className="sticky top-0 z-40 w-full border-b border-primary/30 bg-background">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center space-x-2">
@@ -67,10 +60,10 @@ export function Header({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Text
-                  className={`px-2 py-1 rounded-md ${
+                  className={`px-2 py-1 rounded-lg text-sm tracking-widest font-medium ${
                     CURRENT_ENV === 'production'
-                      ? 'text-green-500 bg-green-500/10'
-                      : 'text-cyan-500 bg-cyan-500/10'
+                      ? 'text-accent bg-accent/15 border border-accent/20'
+                      : 'text-warning bg-warning/15 border border-warning/20'
                   }`}
                 >
                   {CURRENT_ENV === 'production' ? 'MAINNET' : 'TESTNET'}
@@ -86,10 +79,10 @@ export function Header({
             </Tooltip>
           ) : (
             <Text
-              className={`px-2 py-1 rounded-md ${
+              className={`px-2 py-1 rounded-lg text-sm tracking-widest font-medium ${
                 CURRENT_ENV === 'production'
-                  ? 'text-green-500 bg-green-500/10'
-                  : 'text-cyan-500 bg-cyan-500/10'
+                  ? 'text-accent bg-accent/15 border border-accent/20'
+                  : 'text-warning bg-warning/15 border border-warning/20'
               }`}
             >
               {CURRENT_ENV === 'production' ? 'MAINNET' : 'TESTNET'}
@@ -102,10 +95,12 @@ export function Header({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="ghost"
-                  size="icon"
+                  variant={ButtonVariant.secondary}
+                  size={ButtonSize.iconLg}
                   onClick={toggleTooltips}
-                  className="text-blue-500"
+                  className={cn(
+                    'transition text-accent !bg-accent/10 border-accent/60 hover:text-accent hover:bg-accent/5 hover:border-accent/80',
+                  )}
                 >
                   <HelpCircle className="h-5 w-5" />
                 </Button>
@@ -115,34 +110,12 @@ export function Header({
               </TooltipContent>
             </Tooltip>
           ) : (
-            <Button variant="ghost" size="icon" onClick={toggleTooltips}>
+            <Button
+              variant={ButtonVariant.secondary}
+              size={ButtonSize.iconLg}
+              onClick={toggleTooltips}
+            >
               <HelpCircle className="h-5 w-5" />
-            </Button>
-          )}
-
-          {/* Theme Toggle Button */}
-          {tooltipsEnabled ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" disabled>
-                  {theme === 'light' ? (
-                    <Moon className="h-5 w-5" />
-                  ) : (
-                    <Sun className="h-5 w-5" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {getTooltip(TooltipKey.THEME_TOGGLE)}
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Button variant="ghost" size="icon" disabled>
-              {theme === 'light' ? (
-                <Moon className="h-5 w-5" />
-              ) : (
-                <Sun className="h-5 w-5" />
-              )}
             </Button>
           )}
 
@@ -150,7 +123,11 @@ export function Header({
           {tooltipsEnabled ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={onOpenHistory}>
+                <Button
+                  variant={ButtonVariant.secondary}
+                  size={ButtonSize.iconLg}
+                  onClick={onOpenHistory}
+                >
                   <History className="h-5 w-5" />
                 </Button>
               </TooltipTrigger>
@@ -159,26 +136,12 @@ export function Header({
               </TooltipContent>
             </Tooltip>
           ) : (
-            <Button variant="ghost" size="icon" onClick={onOpenHistory}>
+            <Button
+              variant={ButtonVariant.secondary}
+              size={ButtonSize.iconLg}
+              onClick={onOpenHistory}
+            >
               <History className="h-5 w-5" />
-            </Button>
-          )}
-
-          {/* Settings Button */}
-          {tooltipsEnabled ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" disabled>
-                  <Settings className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {getTooltip(TooltipKey.OPTIONS_MENU)}
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Button variant="ghost" size="icon" disabled>
-              <Settings className="h-5 w-5" />
             </Button>
           )}
 
