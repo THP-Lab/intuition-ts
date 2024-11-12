@@ -1227,16 +1227,32 @@ export default function CSVEditor() {
   }
 
   // Add these helper functions near the top of the CSVEditor component
-  const getLoadedAtomsCount = () => csvData.length - 1 // -1 for header row
+  const getLoadedAtomsCount = () => csvData.length - 1  // Just total rows minus header
 
-  const getSelectedAtomsCount = () => selectedRows.length
+  const getSelectedAtomsCount = () => selectedRows.length  // Just selected rows count
 
   const getAtomsToPublishCount = () => {
-    return selectedRows.filter(rowIndex => !existingAtoms.has(rowIndex)).length
+    // Count selected rows that have content and don't exist yet
+    return selectedRows.filter(rowIndex => 
+      !existingAtoms.has(rowIndex) && 
+      csvData[rowIndex + 1].some((cell, cellIndex) => {
+        const header = csvData[0][cellIndex]
+        const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
+        return cell.trim() !== defaultValue.trim()
+      })
+    ).length
   }
 
   const getAtomsReadyForTaggingCount = () => {
-    return selectedRows.filter(rowIndex => existingAtoms.has(rowIndex)).length
+    // Count selected rows that have content and already exist
+    return selectedRows.filter(rowIndex => 
+      existingAtoms.has(rowIndex) && 
+      csvData[rowIndex + 1].some((cell, cellIndex) => {
+        const header = csvData[0][cellIndex]
+        const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
+        return cell.trim() !== defaultValue.trim()
+      })
+    ).length
   }
 
   // Add this helper function near your other helper functions
@@ -1249,6 +1265,18 @@ export default function CSVEditor() {
       return value.trim() !== defaultValue.trim()
     })
   }, [newTag])
+
+  // Add this helper function near your other helper functions
+  const hasSelectedRowContent = useCallback(() => {
+    return selectedRows.some(rowIndex => {
+      // Check each cell in the row against default values
+      return csvData[rowIndex + 1].some((cell, cellIndex) => {
+        const header = csvData[0][cellIndex]
+        const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
+        return cell.trim() !== defaultValue.trim()
+      })
+    })
+  }, [selectedRows, csvData, selectedType])
 
   return (
     <>
@@ -1424,7 +1452,11 @@ export default function CSVEditor() {
                     <TooltipTrigger asChild>
                       <Button
                         onClick={handlePublishAtoms}
-                        disabled={selectedRows.length === 0 || isLoading}
+                        disabled={
+                          selectedRows.length === 0 || 
+                          isLoading || 
+                          !hasSelectedRowContent()
+                        }
                       >
                         {isLoading ? 'Processing...' : 'Publish Selected Atoms'}
                       </Button>
@@ -1436,7 +1468,11 @@ export default function CSVEditor() {
                 ) : (
                   <Button
                     onClick={handlePublishAtoms}
-                    disabled={selectedRows.length === 0 || isLoading}
+                    disabled={
+                      selectedRows.length === 0 || 
+                      isLoading || 
+                      !hasSelectedRowContent()
+                    }
                   >
                     {isLoading ? 'Processing...' : 'Publish Selected Atoms'}
                   </Button>
