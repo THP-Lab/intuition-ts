@@ -895,6 +895,25 @@ export default function CSVEditor() {
 
   // Function to handle creating and tagging atoms
   const handleCreateAndTagAtoms = useCallback(() => {
+    // First check for unpublished atoms
+    const unpublishedCount = selectedRows.filter(rowIndex => !existingAtoms.has(rowIndex)).length
+    
+    if (unpublishedCount > 0) {
+      const message = `${unpublishedCount} of the ${selectedRows.length} atom${
+        selectedRows.length !== 1 ? 's' : ''
+      } you selected to tag ${
+        unpublishedCount === 1 ? 'has' : 'have'
+      } not been published yet. Please go back and publish ${
+        unpublishedCount === 1 ? 'it' : 'them'
+      } before tagging.`
+
+      showConfirmModal(message, () => {
+        // Just close the dialog, don't proceed with tagging
+      })
+      return
+    }
+
+    // Continue with normal tagging flow if all atoms are published
     let selectedData;
     if (selectedType === 'CSV') {
       // Convert selected rows to schema objects for CSV type
@@ -921,7 +940,7 @@ export default function CSVEditor() {
         }
       },
     )
-  }, [selectedRows, csvData, newTag, initiateTagRequest, showConfirmModal, selectedType])
+  }, [selectedRows, csvData, newTag, initiateTagRequest, showConfirmModal, selectedType, existingAtoms])
 
   // Effect to reset tagging state when the action is complete
   useEffect(() => {
