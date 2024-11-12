@@ -1226,6 +1226,19 @@ export default function CSVEditor() {
     setFormatChangeDialog({ isOpen: false, newFormat: null })
   }
 
+  // Add these helper functions near the top of the CSVEditor component
+  const getLoadedAtomsCount = () => csvData.length - 1 // -1 for header row
+
+  const getSelectedAtomsCount = () => selectedRows.length
+
+  const getAtomsToPublishCount = () => {
+    return selectedRows.filter(rowIndex => !existingAtoms.has(rowIndex)).length
+  }
+
+  const getAtomsReadyForTaggingCount = () => {
+    return selectedRows.filter(rowIndex => existingAtoms.has(rowIndex)).length
+  }
+
   return (
     <>
       <div className="container mx-auto p-0 border border-primary/30 rounded-lg my-4">
@@ -1358,8 +1371,41 @@ export default function CSVEditor() {
                   for more details.
                 </Text>
               </div>
-              <div className="border border-dashed border-warning/30 rounded-lg p-6 text-center text-warning bg-warning/15">
-                Placeholder for validation
+              <div className="space-y-2 border border-dashed border-primary/30 rounded-lg p-6 text-primary bg-primary/5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Text variant={TextVariant.caption} className="text-primary/70">
+                      Atoms Loaded
+                    </Text>
+                    <Text variant={TextVariant.body} className="font-mono">
+                      {getLoadedAtomsCount()}
+                    </Text>
+                  </div>
+                  <div className="space-y-1">
+                    <Text variant={TextVariant.caption} className="text-primary/70">
+                      Atoms Selected
+                    </Text>
+                    <Text variant={TextVariant.body} className="font-mono">
+                      {getSelectedAtomsCount()}
+                    </Text>
+                  </div>
+                  <div className="space-y-1">
+                    <Text variant={TextVariant.caption} className="text-primary/70">
+                      Atoms To Be Published
+                    </Text>
+                    <Text variant={TextVariant.body} className="font-mono">
+                      {getAtomsToPublishCount()}
+                    </Text>
+                  </div>
+                  <div className="space-y-1">
+                    <Text variant={TextVariant.caption} className="text-primary/70">
+                      Atoms Ready for Tagging
+                    </Text>
+                    <Text variant={TextVariant.body} className="font-mono">
+                      {getAtomsReadyForTaggingCount()}
+                    </Text>
+                  </div>
+                </div>
               </div>
               <div className="flex justify-end">
                 {tooltipsEnabled ? (
