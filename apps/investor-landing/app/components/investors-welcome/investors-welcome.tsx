@@ -19,7 +19,7 @@ export default function InvestorsWelcome() {
   }
 
   return (
-    <Card className="h-fit theme-border p-10 bg-transparent relative overflow-hidden backdrop-blur-sm max-sm:w-[94vw]">
+    <Card className="h-fit theme-border sm:p-10 p-5 bg-transparent relative overflow-hidden backdrop-blur-sm max-sm:w-[94vw]">
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
         <img
           src={investorWelcomeCardBg}
@@ -37,7 +37,7 @@ export default function InvestorsWelcome() {
               weight={TextWeight.medium}
               className="text-primary tracking-widest uppercase"
             >
-              Believe In Something
+              Believe In Something.
             </Text>
           </div>
           {/* <Text
