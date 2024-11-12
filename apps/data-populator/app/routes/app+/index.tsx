@@ -365,10 +365,10 @@ type FormatChangeDialog = {
 type ViewTab = 'select' | 'upload' | 'publish' | 'tag'
 
 const tabs = [
-  { id: 'select', label: 'Select Type', icon: Shapes, cta: 'Select Type' },
-  { id: 'upload', label: 'Upload', icon: Upload, cta: 'Select Files' },
-  { id: 'publish', label: 'Publish', icon: Send, cta: 'Go Live' },
-  { id: 'tag', label: 'Tag', icon: Tag, cta: 'Add Tags' },
+  { id: 'select', label: 'Select Atom Type', icon: Shapes, cta: 'Select Atom Type' },
+  { id: 'upload', label: 'Load CSV', icon: Upload, cta: 'Load CSV File' },
+  { id: 'publish', label: 'Publish Atoms', icon: Send, cta: 'Go Live' },
+  { id: 'tag', label: 'Tag Atoms', icon: Tag, cta: 'Add Atom Tags' },
 ]
 
 export default function CSVEditor() {
