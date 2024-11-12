@@ -59,6 +59,7 @@ export interface TagAtomsResponse {
 export async function generateTagAtomsCallData(
   atoms: any[],
   tag: WithContext<Thing>,
+  rawURIs?: boolean,
   requestHash?: string,
 ): Promise<{
   chunks: Triple[][]
@@ -67,8 +68,17 @@ export async function generateTagAtomsCallData(
   filteredTriples: Triple[]
   existingTriples: Triple[]
 }> {
-  const atomExistsResults = await checkAtomsExist(atoms)
-  const subjectIds = atomExistsResults.map((result) => result.atomId)
+  let subjectIds: string[] = []
+
+  if (!rawURIs) {
+    const atomExistsResults = await checkAtomsExist(atoms)
+    subjectIds = atomExistsResults.map((result) => result.atomId) as string[]
+  } else {
+    console.log('Generating tag atoms call data with raw URIs...')
+    console.log('URIs passed in: ', atoms)
+    const rawURIAtomExistsResults = await checkAtomsExistWithRawURIs(atoms)
+    subjectIds = rawURIAtomExistsResults.map((result) => result.atomId) as string[]
+  }
 
   // If keyword tag doesn't exist, we can create it with our own signer
   // It should always exist though

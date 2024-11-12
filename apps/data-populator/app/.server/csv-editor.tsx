@@ -134,29 +134,33 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return json({ success: true, atomExistsResults })
     }
 
-    case 'publishTriples': {
-      const requestHash = formData.get('requestHash') as string
-      const selectedAtoms = JSON.parse(
-        formData.get('selectedAtoms') as string,
-      ) as WithContext<Thing>[]
-      const tag = JSON.parse(
-        formData.get('tag') as string,
-      ) as WithContext<Thing>
+    // case 'publishTriples': {
+    //   // Does this ever get called?
+    //   console.log(
+    //     'PUBLISH TRIPLES CALLED IN CSV-EDITOR WHEN IT EXISTS IN INDEX.TSX',
+    //   )
+    //   const requestHash = formData.get('requestHash') as string
+    //   const selectedAtoms = JSON.parse(
+    //     formData.get('selectedAtoms') as string,
+    //   ) as WithContext<Thing>[]
+    //   const tag = JSON.parse(
+    //     formData.get('tag') as string,
+    //   ) as WithContext<Thing>
 
-      console.log('Publishing triples from csv-editor.tsx')
+    //   console.log('Publishing triples from csv-editor.tsx')
 
-      const { calls, chunks, chunkSize, filteredTriples, existingTriples } =
-        await generateTagAtomsCallData(selectedAtoms, tag, requestHash)
+    //   const { calls, chunks, chunkSize, filteredTriples, existingTriples } =
+    //     await generateTagAtomsCallData(selectedAtoms, tag, false, requestHash)
 
-      return json({
-        success: true,
-        calls,
-        chunks,
-        chunkSize,
-        filteredTriples,
-        existingTriples,
-      })
-    }
+    //   return json({
+    //     success: true,
+    //     calls,
+    //     chunks,
+    //     chunkSize,
+    //     filteredTriples,
+    //     existingTriples,
+    //   })
+    // }
 
     case 'logTxHashAndVerifyTriples': {
       const txHash = formData.get('txHash') as string

@@ -13,6 +13,7 @@ import type {
   LogAndVerifyTriplesResponse,
   Triple,
 } from '@lib/services/populate'
+import { AtomDataTypeKey } from '@lib/utils/atom-data-types'
 import logger from '@lib/utils/logger'
 import { useFetcher } from '@remix-run/react'
 import { Thing, WithContext } from 'schema-dts'
@@ -29,6 +30,7 @@ type State = {
   newTriples: Triple[]
   existingTriples: Triple[]
   txHash: string
+  selectedType: AtomDataTypeKey
   error?: string
   step:
     | 'idle'
@@ -59,7 +61,7 @@ type Action =
   | { type: 'SET_ERROR'; error: string }
   | { type: 'RESET' }
   | { type: 'FORCE_UPDATE' }
-
+  | { type: 'SET_SELECTED_TYPE'; payload: AtomDataTypeKey }
 const initialState: State = {
   requestHash: '',
   selectedAtoms: [],
@@ -70,6 +72,7 @@ const initialState: State = {
   existingTriples: [],
   txHash: '',
   step: 'idle',
+  selectedType: 'CSV',
   error: '',
 }
 
@@ -102,6 +105,8 @@ function reducer(state: State, action: Action): State {
         step: 'complete',
         txHash: action.txHash ?? '',
       }
+    case 'SET_SELECTED_TYPE':
+      return { ...state, selectedType: action.payload }
     case 'RESET':
       return { ...initialState }
     case 'FORCE_UPDATE':
@@ -165,8 +170,9 @@ export function useBatchCreateTriple() {
   const initiateTagRequest = useCallback(
     (
       selectedRows: number[],
-      selectedAtoms: WithContext<Thing>[],
+      selectedAtoms: WithContext<Thing>[] | string[],
       tag: WithContext<Thing>,
+      selectedType: AtomDataTypeKey,
     ) => {
       if (isProcessing) {
         return
@@ -179,12 +185,14 @@ export function useBatchCreateTriple() {
       setIsProcessing(true)
       dispatch({ type: 'SET_STEP', payload: 'initiating' })
       dispatch({ type: 'SET_TAG', payload: tag })
+      dispatch({ type: 'SET_SELECTED_TYPE', payload: selectedType })
 
       const formData = new FormData()
       formData.append('action', 'initiateBatchTripleRequest')
       formData.append('selectedRows', JSON.stringify(selectedRows))
       formData.append('selectedAtoms', JSON.stringify(selectedAtoms))
       formData.append('tag', JSON.stringify(tag))
+      formData.append('selectedType', selectedType)
 
       initiateFetcher.submit(formData, { method: 'post' })
     },
@@ -202,6 +210,7 @@ export function useBatchCreateTriple() {
     formData.append('requestHash', state.requestHash)
     formData.append('selectedAtoms', JSON.stringify(state.selectedAtoms))
     formData.append('tag', JSON.stringify(state.tag))
+    formData.append('selectedType', state.selectedType)
 
     publishFetcher.submit(formData, { method: 'post' })
   }, [
@@ -209,6 +218,7 @@ export function useBatchCreateTriple() {
     state.requestHash,
     state.selectedAtoms,
     state.tag,
+    state.selectedType,
     isProcessing,
   ])
 

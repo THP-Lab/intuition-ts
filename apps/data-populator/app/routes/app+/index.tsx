@@ -254,15 +254,43 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
       case 'publishTriples': {
         const requestHash = formData.get('requestHash') as string
-        const selectedAtoms = JSON.parse(
-          formData.get('selectedAtoms') as string,
-        ) as WithContext<Thing>[]
-        const tag = JSON.parse(
-          formData.get('tag') as string,
-        ) as WithContext<Thing>
+        const selectedType = formData.get('selectedType') as AtomDataTypeKey
+
+        console.log('selectedType in publishTriples:', selectedType)
+
+        if (selectedType === 'CSV') {
+          const selectedAtoms = JSON.parse(
+            formData.get('selectedAtoms') as string,
+          ) as WithContext<Thing>[]
+          const tag = JSON.parse(
+            formData.get('tag') as string,
+          ) as WithContext<Thing>
+          const { calls, chunks, chunkSize } = await generateTagAtomsCallData(
+            selectedAtoms,
+            tag,
+            false, // Not raw URIs
+            requestHash,
+          )
+          return json({
+            success: true,
+            calls,
+            chunks,
+            chunkSize,
+          })
+        }
+
+        // Raw URI case:
+        const formDataString = formData.get('selectedAtoms') as string
+        const intermediaryObjects = JSON.parse(formDataString) as Array<{
+          URI?: string
+          CAIP10?: string
+        }>
+        const tag = JSON.parse(formData.get('tag') as string) as WithContext<Thing>
+        
         const { calls, chunks, chunkSize } = await generateTagAtomsCallData(
-          selectedAtoms,
+          intermediaryObjects, // Pass URIs directly
           tag,
+          true, // These are raw URIs
           requestHash,
         )
         return json({
@@ -797,9 +825,18 @@ export default function CSVEditor() {
 
   // Function to handle creating and tagging atoms
   const handleCreateAndTagAtoms = useCallback(() => {
-    // Convert selected rows to schema objects
-    const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
-    const selectedAtoms = selectedRows.map((index) => schemaObjects[index])
+    let selectedData;
+    if (selectedType === 'CSV') {
+      // Convert selected rows to schema objects for CSV type
+      const schemaObjects = convertCsvToSchemaObjects<Thing>(csvData)
+      selectedData = selectedRows.map((index) => schemaObjects[index])
+    } else {
+      // For URI/CAIP10 types, extract URIs directly
+      selectedData = selectedRows.map(index => {
+        const row = csvData[index + 1]
+        return row[0] // Assuming URI/CAIP10 is always in first column
+      })
+    }
 
     showConfirmModal(
       'Tag Selected Atoms?  This will take up to a minute or two.',
@@ -807,13 +844,14 @@ export default function CSVEditor() {
         if (confirm) {
           initiateTagRequest(
             selectedRows,
-            selectedAtoms,
+            selectedData,
             newTag as unknown as WithContext<Thing>,
+            selectedType
           )
         }
       },
     )
-  }, [selectedRows, csvData, newTag, initiateTagRequest, showConfirmModal])
+  }, [selectedRows, csvData, newTag, initiateTagRequest, showConfirmModal, selectedType])
 
   // Effect to reset tagging state when the action is complete
   useEffect(() => {
