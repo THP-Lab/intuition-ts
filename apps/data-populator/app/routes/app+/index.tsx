@@ -790,25 +790,94 @@ export default function CSVEditor() {
     )
   }
 
-  const handlePublishAtoms = useCallback(() => {
-    // Count existing and new atoms from selected rows
-    const existingCount = selectedRows.filter((rowIndex) =>
-      existingAtoms.has(rowIndex),
-    ).length
-    const totalSelected = selectedRows.length
-    const newCount = totalSelected - existingCount
-
-    const message = `${existingCount} out of the ${totalSelected} atom${
-      totalSelected !== 1 ? 's' : ''
-    } you selected already exist${existingCount !== 1 ? '' : 's'}, and ${newCount} new atom${
-      newCount !== 1 ? 's' : ''
-    } will be published. This will take about a minute.`
-
-    showConfirmModal(message, (confirm) => {
-      if (confirm) {
-        initiateBatchRequest(selectedRows, csvData, selectedType)
-      }
+  // Add this helper function to identify empty rows
+  const getEmptySelectedRows = useCallback(() => {
+    return selectedRows.filter(rowIndex => {
+      return !csvData[rowIndex + 1].some((cell, cellIndex) => {
+        const header = csvData[0][cellIndex]
+        const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
+        return cell.trim() !== defaultValue.trim()
+      })
     })
+  }, [selectedRows, csvData, selectedType])
+
+  // Update handlePublishAtoms
+  const handlePublishAtoms = useCallback(() => {
+    const emptyRows = getEmptySelectedRows()
+    
+    if (emptyRows.length > 0) {
+      const message = `${emptyRows.length} empty row${
+        emptyRows.length === 1 ? '' : 's'
+      } will be removed before publishing. Do you want to continue?`
+
+      showConfirmModal(message, (confirm) => {
+        if (confirm) {
+          // Remove empty rows and get the new data
+          let updatedCsvData: string[][]
+          setCsvData(prev => {
+            const newData = [...prev]
+            // Sort in descending order to avoid index shifting
+            const sortedEmptyRows = [...emptyRows].sort((a, b) => b - a)
+            sortedEmptyRows.forEach(rowIndex => {
+              newData.splice(rowIndex + 1, 1)
+            })
+            updatedCsvData = newData
+            return newData
+          })
+          
+          // Update selected rows
+          const emptyRowSet = new Set(emptyRows)
+          const updatedSelectedRows = selectedRows
+            .filter(rowIndex => !emptyRowSet.has(rowIndex))
+            .map(rowIndex => {
+              // Adjust indices for rows after deletions
+              const adjustedIndex = rowIndex - emptyRows.filter(e => e < rowIndex).length
+              return adjustedIndex
+            })
+          
+          setSelectedRows(updatedSelectedRows)
+
+          // Now show the regular publish confirmation
+          const existingCount = updatedSelectedRows.filter((rowIndex) =>
+            existingAtoms.has(rowIndex),
+          ).length
+          const totalSelected = updatedSelectedRows.length
+          const newCount = totalSelected - existingCount
+
+          const publishMessage = `${existingCount} out of the ${totalSelected} atom${
+            totalSelected !== 1 ? 's' : ''
+          } you selected already exist${existingCount !== 1 ? '' : 's'}, and ${newCount} new atom${
+            newCount !== 1 ? 's' : ''
+          } will be published. This will take about a minute.`
+
+          showConfirmModal(publishMessage, (confirmPublish) => {
+            if (confirmPublish) {
+              // Use the updated CSV data and selected rows for the batch request
+              initiateBatchRequest(updatedSelectedRows, updatedCsvData, selectedType)
+            }
+          })
+        }
+      })
+    } else {
+      // Regular flow when no empty rows
+      const existingCount = selectedRows.filter((rowIndex) =>
+        existingAtoms.has(rowIndex),
+      ).length
+      const totalSelected = selectedRows.length
+      const newCount = totalSelected - existingCount
+
+      const message = `${existingCount} out of the ${totalSelected} atom${
+        totalSelected !== 1 ? 's' : ''
+      } you selected already exist${existingCount !== 1 ? '' : 's'}, and ${newCount} new atom${
+        newCount !== 1 ? 's' : ''
+      } will be published. This will take about a minute.`
+
+      showConfirmModal(message, (confirm) => {
+        if (confirm) {
+          initiateBatchRequest(selectedRows, csvData, selectedType)
+        }
+      })
+    }
   }, [
     showConfirmModal,
     initiateBatchRequest,
@@ -816,6 +885,7 @@ export default function CSVEditor() {
     csvData,
     selectedType,
     existingAtoms,
+    getEmptySelectedRows,
   ])
 
   // Function to determine the text for the create/tag atoms button
@@ -1233,26 +1303,30 @@ export default function CSVEditor() {
 
   const getAtomsToPublishCount = () => {
     // Count selected rows that have content and don't exist yet
-    return selectedRows.filter(rowIndex => 
-      !existingAtoms.has(rowIndex) && 
-      csvData[rowIndex + 1].some((cell, cellIndex) => {
-        const header = csvData[0][cellIndex]
-        const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
-        return cell.trim() !== defaultValue.trim()
-      })
-    ).length
+    return selectedRows.filter(rowIndex => {
+      const row = csvData[rowIndex + 1]
+      if (!row) return false // Safety check
+      return !existingAtoms.has(rowIndex) && 
+        row.some((cell, cellIndex) => {
+          const header = csvData[0][cellIndex]
+          const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
+          return cell.trim() !== defaultValue.trim()
+        })
+    }).length
   }
 
   const getAtomsReadyForTaggingCount = () => {
     // Count selected rows that have content and already exist
-    return selectedRows.filter(rowIndex => 
-      existingAtoms.has(rowIndex) && 
-      csvData[rowIndex + 1].some((cell, cellIndex) => {
-        const header = csvData[0][cellIndex]
-        const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
-        return cell.trim() !== defaultValue.trim()
-      })
-    ).length
+    return selectedRows.filter(rowIndex => {
+      const row = csvData[rowIndex + 1]
+      if (!row) return false // Safety check
+      return existingAtoms.has(rowIndex) && 
+        row.some((cell, cellIndex) => {
+          const header = csvData[0][cellIndex]
+          const defaultValue = atomDataTypes[selectedType].defaultValues?.[header] || ''
+          return cell.trim() !== defaultValue.trim()
+        })
+    }).length
   }
 
   // Add this helper function near your other helper functions
