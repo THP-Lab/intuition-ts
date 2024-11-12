@@ -1,0 +1,90 @@
+import{j as i}from"./jsx-runtime-Cw0GR0a5.js";import{useMDXComponents as n}from"./index-DSkyVWTJ.js";import{M as m,T as d,d as a,C as t}from"./index-Y3muJgY8.js";import{B as u}from"./TransactionStatusIndicator-B41sf_Ni.js";import"./Checkbox-BUyDAOfm.js";import"./Icon.types-BJuqKE1d.js";import"./Label-TnSa-Vb6.js";import"./PieChart-BO-LlzBG.js";import"./ProgressBar-B07pz6pZ.js";import"./ProgressCard-Di9JTD4k.js";import"./ScrollArea-Dhe45Eev.js";import"./SegmentedControl-CoVeRGEn.js";import"./Separator-DLMkV6af.js";import"./Skeleton-k6WNkHQZ.js";import"./Table-BlSnVnDo.js";import"./Text-BeXQet-m.js";import"./Textarea-DtV2ds88.js";import"./ValueDisplay-ClYOGsr-.js";import{S as p,B as s,a as l,b as c}from"./RadioGroup.stories-CIGVGtV9.js";import"./index-CTjT7uj6.js";import"./iframe-LEEPIt4I.js";import"../sb-preview/runtime.js";import"./index-1qoTW4fE.js";import"./index-CjlJelaC.js";import"./index-BhgyLgKK.js";import"./index-DXimoRZY.js";import"./index-Bx4XDAbk.js";import"./index-DrFu-skq.js";import"./index-sXcn2mTS.js";import"./themes-JyTiufSz.js";import"./palette-saq09hvB.js";import"./index-9o982VWB.js";import"./index-Bb4qSo10.js";function r(o){const e={code:"code",h2:"h2",h3:"h3",h4:"h4",p:"p",...n(),...o.components};return i.jsxs(i.Fragment,{children:[i.jsx(m,{of:p}),`
+`,i.jsx(d,{}),`
+`,i.jsx(e.h4,{id:"a-set-of-checkable-buttonsknown-as-radio-buttonswhere-no-more-than-one-of-the-buttons-can-be-checked-at-a-time",children:"A set of checkable buttons—known as radio buttons—where no more than one of the buttons can be checked at a time."}),`
+`,i.jsx(u,{variant:"accent",onClick:()=>window.open("https://www.radix-ui.com/primitives/docs/components/radio-group#api-reference","_blank"),children:"API Reference"}),`
+`,i.jsx(a,{dark:!0,language:"tsx",code:`
+import { 
+  RadioGroup,
+  RadioGroupDivider,
+  RadioGroupItem,
+  RadioGroupItemContainer,
+  RadioGroupItemLabel,
+} from '@0xintuition/1ui'
+
+const radioGroupData = [
+{
+id: 'minimum',
+value: 'minimum',
+displayValue: 'Minimum',
+displaySubValue: '+0.001 ETH',
+},
+{
+id: 'minimum',
+value: 'default',
+displayValue: 'Default',
+displaySubValue: '+0.01 ETH',
+},
+{
+id: 'minimum',
+value: 'strong',
+displayValue: 'Strong',
+displaySubValue: '+0.05 ETH',
+},
+]
+
+const numberOfRadioGroupItems = radioGroupData.length
+
+<RadioGroup defaultValue={radioGroupData[0].value}>
+  {radioGroupData.map((item, index) => (
+    <div key={index}>
+      <RadioGroupItemContainer>
+        <RadioGroupItemLabel
+          htmlFor={item.id}
+          value={item.displayValue}
+          subValue={item.displaySubValue}
+        />
+        <RadioGroupItem value={item.value} id={item.id} />
+      </RadioGroupItemContainer>
+      {index + 1 < numberOfRadioGroupItems && <RadioGroupDivider />}
+    </div>
+  ))}
+</RadioGroup>
+`}),`
+`,i.jsx(t,{of:s,sourceState:"none"}),`
+`,i.jsx(e.h2,{id:"variants",children:"Variants"}),`
+`,i.jsx(e.h3,{id:"simple",children:"Simple"}),`
+`,i.jsxs(e.p,{children:["Add ",i.jsx(e.code,{children:'variant="simple"'})," to both ",i.jsx(e.code,{children:"RadioGroup"})," and ",i.jsx(e.code,{children:"RadioGroupItemContainer"})]}),`
+`,i.jsx(a,{dark:!0,language:"tsx",code:`
+<RadioGroup variant="simple" defaultValue={radioGroupData[0].value}>
+  {radioGroupData.map((item, index) => (
+    <div key={index}>
+      <RadioGroupItemContainer variant="simple">
+        <RadioGroupItem value={item.value} id={item.id} />
+        <RadioGroupItemLabel
+          htmlFor={item.id}
+          value={item.displayValue}
+        />
+      </RadioGroupItemContainer>
+    </div>
+  ))}
+</RadioGroup>
+`}),`
+`,i.jsx(t,{of:l,sourceState:"none"}),`
+`,i.jsx(e.h3,{id:"simple-small",children:"Simple Small"}),`
+`,i.jsxs(e.p,{children:["Add ",i.jsx(e.code,{children:'size="small"'})," to ",i.jsx(e.code,{children:"RadioGroupItem"})]}),`
+`,i.jsx(a,{dark:!0,language:"tsx",code:`
+<RadioGroup variant="simple" defaultValue={radioGroupData[0].value}>
+  {radioGroupData.map((item, index) => (
+    <div key={index}>
+      <RadioGroupItemContainer variant="simple">
+        <RadioGroupItem size="small" value={item.value} id={item.id} />
+        <RadioGroupItemLabel
+          htmlFor={item.id}
+          value={item.displayValue}
+        />
+      </RadioGroupItemContainer>
+    </div>
+  ))}
+</RadioGroup>
+`}),`
+`,i.jsx(t,{of:c,sourceState:"none"})]})}function K(o={}){const{wrapper:e}={...n(),...o.components};return e?i.jsx(e,{...o,children:i.jsx(r,{...o})}):r(o)}export{K as default};
