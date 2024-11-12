@@ -47,7 +47,7 @@ export default function PathCard({
             <img
               src={chartImage}
               alt=""
-              className="w-[110%] h-[121%] object-cover opacity-100 object-bottom"
+              className="w-[100%] h-[90%] object-cover opacity-100 object-bottom"
               aria-hidden="true"
             />
           </div>
