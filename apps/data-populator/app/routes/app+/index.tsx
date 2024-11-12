@@ -1403,7 +1403,7 @@ export default function CSVEditor() {
       <div className="container mx-auto p-0 border border-primary/30 rounded-lg my-4">
         <Tabs
           value={activeTab}
-          onValueChange={(value: ViewTab) => setActiveTab(value)}
+          onValueChange={(value: string) => setActiveTab(value as ViewTab)}
           className="w-full"
         >
           <TabsList className="grid w-full grid-cols-4 rounded-b-none border-b border-primary/10">
