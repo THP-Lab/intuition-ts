@@ -12,11 +12,7 @@ import type { BatchAtomsRequest, PinDataResult } from '@lib/services/populate'
 import { AtomDataTypeKey } from '@lib/utils/atom-data-types'
 import logger from '@lib/utils/logger'
 import { useFetcher } from '@remix-run/react'
-import {
-  InitiateActionData,
-  LogTxActionData,
-  PublishActionData,
-} from '@routes/app+'
+import { LogTxActionData } from '@routes/app+'
 import { Thing, WithContext } from 'schema-dts'
 import { useSendTransaction } from 'wagmi'
 
@@ -148,7 +144,7 @@ type PublishAtomsResponse = {
 
 export const BatchCreateContext = createContext<{
   state: typeof initialState
-  dispatch: React.Dispatch<any>
+  dispatch: React.Dispatch<Action>
 }>({ state: initialState, dispatch: () => null })
 
 export function useBatchCreateAtom(onSuccess?: () => void) {

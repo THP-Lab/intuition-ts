@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 import {
   Dialog,
@@ -11,7 +11,6 @@ import {
 import { usePollRequestDetails } from '@lib/hooks/usePollRequestDetails'
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 
-import { BatchCreateContext } from '../.client/useBatchCreateAtom'
 import { ScrollArea } from './ui/scroll-area'
 
 interface ProgressModalProps {

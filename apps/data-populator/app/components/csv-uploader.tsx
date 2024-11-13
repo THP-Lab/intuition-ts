@@ -52,10 +52,18 @@ export default function CsvUploader({
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       className="border border-dashed border-border/30 rounded-lg p-6 text-center cursor-pointer hover:border-border/80 hover:bg-primary/5 transition-colors"
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       onClick={() => fileInputRef.current?.click()}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          fileInputRef.current?.click()
+        }
+      }}
     >
       <input
         type="file"

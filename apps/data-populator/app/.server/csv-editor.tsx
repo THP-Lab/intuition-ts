@@ -6,16 +6,14 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from '@remix-run/node'
-import { Thing, WithContext } from 'schema-dts'
+import { Thing } from 'schema-dts'
 
 import {
   checkAtomsExist,
   checkAtomsExistWithRawURIs,
-  generateTagAtomsCallData,
   getAtomDataFromID,
   logTransactionHashAndVerifyTriples,
   Triple,
-  URIExistsResult,
 } from '../lib/services/populate'
 import { AtomDataTypeKey } from '../lib/utils/atom-data-types'
 

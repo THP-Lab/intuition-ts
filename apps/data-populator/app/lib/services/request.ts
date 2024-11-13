@@ -125,7 +125,8 @@ export async function getRequest(
 
   if (error || !data) {
     throw new Error(
-      `Request not found or access denied: ${error ? error.message : 'No data returned'
+      `Request not found or access denied: ${
+        error ? error.message : 'No data returned'
       }`,
     )
   }

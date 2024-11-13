@@ -16,7 +16,7 @@ export function convertCsvToSchemaObjects<T extends Thing>(
       // Set the property regardless of whether row[index] has a value
       // We must use the type unambiguously to properly hash its metadata
       /* eslint-disable-next-line no-extra-semi */
-      ; (obj as any)[header] = row[index]
+      ;(obj as any)[header] = row[index]
     })
 
     return obj

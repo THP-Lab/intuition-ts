@@ -420,8 +420,6 @@ export default function CSVEditor() {
     UnusualCharacterIssue[]
   >([])
   const [showProofreadModal, setShowProofreadModal] = useState(false)
-  // Ref for file input to trigger file selection programmatically
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const recheckAtomExistence = useCallback(() => {
     checkExistingAtoms(csvData, selectedType)
@@ -614,16 +612,6 @@ export default function CSVEditor() {
         setBatchCreateAtomSelectedType(detectedType)
       }
       processLoadedData(rows, detectedType)
-    }
-  }
-
-  // Update the file input handler
-  const handleFileInput = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const selectedFile = event.target.files?.[0]
-    if (selectedFile) {
-      await loadCSV(selectedFile)
     }
   }
 
@@ -1344,7 +1332,9 @@ export default function CSVEditor() {
     // Count selected rows that have content and don't exist yet
     return selectedRows.filter((rowIndex) => {
       const row = csvData[rowIndex + 1]
-      if (!row) return false // Safety check
+      if (!row) {
+        return false
+      } // Safety check
       return (
         !existingAtoms.has(rowIndex) &&
         row.some((cell, cellIndex) => {
@@ -1361,7 +1351,9 @@ export default function CSVEditor() {
     // Count selected rows that have content and already exist
     return selectedRows.filter((rowIndex) => {
       const row = csvData[rowIndex + 1]
-      if (!row) return false // Safety check
+      if (!row) {
+        return false
+      } // Safety check
       return (
         existingAtoms.has(rowIndex) &&
         row.some((cell, cellIndex) => {
@@ -1378,9 +1370,11 @@ export default function CSVEditor() {
   const hasTagContent = useCallback(() => {
     return Object.entries(newTag).some(([key, value]) => {
       // Skip @context and @type as they're always set
-      if (key === '@context' || key === '@type') return false
+      if (key === '@context' || key === '@type') {
+        return false
+      }
       // Get default value from CSV type (tags are always CSV/Schema format)
-      const defaultValue = atomDataTypes['CSV'].defaultValues?.[key] || ''
+      const defaultValue = atomDataTypes.CSV.defaultValues?.[key] || ''
       return value.trim() !== defaultValue.trim()
     })
   }, [newTag])
@@ -1437,7 +1431,12 @@ export default function CSVEditor() {
                   To start, select the type of atom data you are uploading. Use{' '}
                   {'<Thing>'} for atom with metadata, or CAIP-10 for a smart
                   contract, or URI for a raw URI (advanced). Refer to{' '}
-                  <a href="#" target="_blank" className="underline">
+                  <a
+                    href="https://tech.docs.intuition.systems/populator"
+                    target="_blank"
+                    className="underline"
+                    rel="noreferrer"
+                  >
                     documentation
                   </a>{' '}
                   for more details.
@@ -1488,7 +1487,12 @@ export default function CSVEditor() {
                   Upload a CSV file to begin. Once the file is uploaded, we will
                   will automatically perform some basic proofreading. <br />
                   Refer to{' '}
-                  <a href="#" target="_blank" className="underline">
+                  <a
+                    href="https://tech.docs.intuition.systems/populator"
+                    target="_blank"
+                    className="underline"
+                    rel="noreferrer"
+                  >
                     documentation
                   </a>{' '}
                   for formatting requirements.
@@ -1524,7 +1528,12 @@ export default function CSVEditor() {
                   Pre-existing atoms will automatically be omitted from
                   publishing. <br />
                   Refer to{' '}
-                  <a href="#" target="_blank" className="underline">
+                  <a
+                    href="https://tech.docs.intuition.systems/populator"
+                    target="_blank"
+                    className="underline"
+                    rel="noreferrer"
+                  >
                     documentation
                   </a>{' '}
                   for more details.
@@ -1628,7 +1637,12 @@ export default function CSVEditor() {
                   created.
                   <br />
                   Refer to{' '}
-                  <a href="#" target="_blank" className="underline">
+                  <a
+                    href="https://tech.docs.intuition.systems/populator"
+                    target="_blank"
+                    className="underline"
+                    rel="noreferrer"
+                  >
                     documentation
                   </a>{' '}
                   for more details.
@@ -1645,10 +1659,12 @@ export default function CSVEditor() {
                     // Only show status icons if any tag field has non-default content
                     Object.entries(newTag).some(([key, value]) => {
                       // Skip @context and @type as they're always set
-                      if (key === '@context' || key === '@type') return false
+                      if (key === '@context' || key === '@type') {
+                        return false
+                      }
                       // Get default value from CSV type (tags are always CSV/Schema format)
                       const defaultValue =
-                        atomDataTypes['CSV'].defaultValues?.[key] || ''
+                        atomDataTypes.CSV.defaultValues?.[key] || ''
                       return value.trim() !== defaultValue.trim()
                     }) &&
                     (tagExists ? (
