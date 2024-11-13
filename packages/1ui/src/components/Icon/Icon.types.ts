@@ -1,9 +1,12 @@
 export type IconNameType = (typeof IconName)[keyof typeof IconName]
 
 export const IconName = {
+  arrowUp: 'arrow-up',
+  arrowDown: 'arrow-down',
   arrowBoxLeft: 'arrow-box-left',
   arrowLeft: 'arrow-left',
   arrowRight: 'arrow-right',
+  arrowUpRight: 'arrow-up-right',
   arrowUpRightFromCircleIcon: 'arrow-up-right',
   arrowOutOfBox: 'arrow-out-of-box',
   arrowsRepeat: 'arrows-repeat',
@@ -33,6 +36,7 @@ export const IconName = {
   circleX: 'circle-x',
   circlesThree: 'circles-three',
   copy: 'copy',
+  context: 'context',
   crossLarge: 'cross-large',
   cryptoPunk: 'crypto-punk',
   crystalBall: 'crystal-ball',

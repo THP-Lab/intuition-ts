@@ -30,9 +30,9 @@ describe('ActivePositionCard', () => {
       </DocumentFragment>
     `)
   })
-  it('should render appropriate elements when given `claimFor` claimPosition value', () => {
+  it('should render appropriate elements when given `for` claimPosition value', () => {
     const { asFragment } = render(
-      <ActivePositionCard value={0.567} claimPosition="claimFor" />,
+      <ActivePositionCard value={0.567} claimPosition="for" />,
     )
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
@@ -62,9 +62,9 @@ describe('ActivePositionCard', () => {
       </DocumentFragment>
     `)
   })
-  it('should render appropriate elements when given `claimAgainst` claimPosition value', () => {
+  it('should render appropriate elements when given `against` claimPosition value', () => {
     const { asFragment } = render(
-      <ActivePositionCard value={0.567} claimPosition="claimAgainst" />,
+      <ActivePositionCard value={0.567} claimPosition="against" />,
     )
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>

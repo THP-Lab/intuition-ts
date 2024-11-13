@@ -258,6 +258,7 @@ export default function Quests() {
       isOpen: true,
       id: claim.claim_id,
       modalType: 'claim',
+      claim,
       mode: 'deposit',
       direction: 'for',
     }))
@@ -269,6 +270,7 @@ export default function Quests() {
       isOpen: true,
       id: claim.claim_id,
       modalType: 'claim',
+      claim,
       mode: 'deposit',
       direction: 'against',
     }))
@@ -280,7 +282,9 @@ export default function Quests() {
       isOpen: true,
       id: claim.claim_id,
       modalType: 'claim',
+      claim,
       mode: 'redeem',
+      direction: 'against',
     }))
     logger('redeem claim', claim)
   }
@@ -290,6 +294,7 @@ export default function Quests() {
       isOpen: true,
       id: identity.id,
       modalType: 'identity',
+      identity,
       mode: 'redeem',
     }))
     logger('redeem identity', identity)
@@ -307,7 +312,7 @@ export default function Quests() {
   function handleActivitySuccess(args: {
     identity?: IdentityPresenter
     claim?: ClaimPresenter
-    vaultDetails: VaultDetailsType
+    vaultDetailsProp?: VaultDetailsType
     direction?: 'for' | 'against'
   }) {
     const { claim } = args
@@ -414,7 +419,7 @@ export default function Quests() {
         claim={claim}
         userWallet={userWallet}
         contract={claim.contract}
-        vaultDetails={vaultDetails}
+        vaultDetailsProp={vaultDetails}
         onClose={handleCloseActivityModal}
         onSuccess={handleActivitySuccess}
         direction={stakeModalActive.direction}

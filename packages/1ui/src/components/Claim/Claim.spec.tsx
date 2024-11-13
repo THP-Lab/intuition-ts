@@ -28,11 +28,11 @@ describe('Claim', () => {
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
         <div
-          class="flex items-center w-full max-w-max group relative max-sm:flex-col max-sm:m-auto transition-colors duration-200 flex-row"
+          class="flex items-center w-full max-w-max relative max-sm:flex-col max-sm:m-auto transition-colors duration-200 flex-row"
         >
           <div>
             <button
-              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary-foreground/70 hover:text-secondary-foreground rounded-full [&>span]:rounded-full [&>span]:overflow-hidden text-base [&>span]:h-7 [&>span]:w-7 relative z-10 identity-tag transition-colors duration-200 group-hover:border-primary"
+              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-full [&>span]:rounded-full [&>span]:overflow-hidden text-base [&>span]:h-7 [&>span]:w-7 relative z-10 identity-tag transition-colors duration-200 border-theme"
               data-state="closed"
             >
               <span
@@ -42,7 +42,7 @@ describe('Claim', () => {
                   class="flex h-full w-full items-center justify-center bg-inherit"
                 >
                   <svg
-                    class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                    class="text-primary/30 w-[80%] h-[80%]"
                   >
                     <use
                       href="/src/components/Icon/Icon.sprites.svg#crypto-punk"
@@ -51,20 +51,20 @@ describe('Claim', () => {
                 </span>
               </span>
               <div
-                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70 group-hover:text-primary"
+                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70"
               >
                 Alice
               </div>
             </button>
           </div>
           <div
-            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2 group-hover:bg-primary"
+            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2"
             data-orientation="horizontal"
             role="none"
           />
           <div>
             <button
-              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary-foreground/70 hover:text-secondary-foreground rounded-md text-base [&>span]:h-7 [&>span]:w-7 relative z-10 identity-tag transition-colors duration-200 group-hover:border-primary"
+              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-7 [&>span]:w-7 relative z-10 identity-tag transition-colors duration-200 border-theme"
               data-state="closed"
             >
               <span
@@ -74,7 +74,7 @@ describe('Claim', () => {
                   class="flex h-full w-full items-center justify-center bg-inherit"
                 >
                   <svg
-                    class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                    class="text-primary/30 w-[80%] h-[80%]"
                   >
                     <use
                       href="/src/components/Icon/Icon.sprites.svg#fingerprint"
@@ -83,20 +83,20 @@ describe('Claim', () => {
                 </span>
               </span>
               <div
-                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70 group-hover:text-primary"
+                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70"
               >
                 likes
               </div>
             </button>
           </div>
           <div
-            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2 group-hover:bg-primary"
+            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2"
             data-orientation="horizontal"
             role="none"
           />
           <div>
             <button
-              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary-foreground/70 hover:text-secondary-foreground rounded-md text-base [&>span]:h-7 [&>span]:w-7 relative z-10 identity-tag transition-colors duration-200 group-hover:border-primary"
+              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-7 [&>span]:w-7 relative z-10 identity-tag transition-colors duration-200 border-theme"
               data-state="closed"
             >
               <span
@@ -106,7 +106,7 @@ describe('Claim', () => {
                   class="flex h-full w-full items-center justify-center bg-inherit"
                 >
                   <svg
-                    class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                    class="text-primary/30 w-[80%] h-[80%]"
                   >
                     <use
                       href="/src/components/Icon/Icon.sprites.svg#fingerprint"
@@ -115,7 +115,7 @@ describe('Claim', () => {
                 </span>
               </span>
               <div
-                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70 group-hover:text-primary"
+                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70"
               >
                 pizza
               </div>
@@ -131,11 +131,11 @@ describe('Claim', () => {
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
         <div
-          class="flex items-center w-full max-w-max group relative max-sm:flex-col max-sm:m-auto transition-colors duration-200 flex-row"
+          class="flex items-center w-full max-w-max relative max-sm:flex-col max-sm:m-auto transition-colors duration-200 flex-row"
         >
           <div>
             <button
-              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary-foreground/70 hover:text-secondary-foreground rounded-full [&>span]:rounded-full [&>span]:overflow-hidden text-base [&>span]:h-7 [&>span]:w-7 disabled:opacity-50 cursor-not-allowed relative z-10 identity-tag transition-colors duration-200 group-hover:border-primary"
+              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-full [&>span]:rounded-full [&>span]:overflow-hidden text-base [&>span]:h-7 [&>span]:w-7 disabled:opacity-50 cursor-not-allowed relative z-10 identity-tag transition-colors duration-200 border-theme"
               disabled=""
             >
               <span
@@ -145,7 +145,7 @@ describe('Claim', () => {
                   class="flex h-full w-full items-center justify-center bg-inherit"
                 >
                   <svg
-                    class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                    class="text-primary/30 w-[80%] h-[80%]"
                   >
                     <use
                       href="/src/components/Icon/Icon.sprites.svg#crypto-punk"
@@ -154,20 +154,20 @@ describe('Claim', () => {
                 </span>
               </span>
               <div
-                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70 group-hover:text-primary"
+                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70"
               >
                 Alice
               </div>
             </button>
           </div>
           <div
-            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2 group-hover:bg-primary"
+            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2"
             data-orientation="horizontal"
             role="none"
           />
           <div>
             <button
-              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary-foreground/70 hover:text-secondary-foreground rounded-md text-base [&>span]:h-7 [&>span]:w-7 disabled:opacity-50 cursor-not-allowed relative z-10 identity-tag transition-colors duration-200 group-hover:border-primary"
+              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-7 [&>span]:w-7 disabled:opacity-50 cursor-not-allowed relative z-10 identity-tag transition-colors duration-200 border-theme"
               disabled=""
             >
               <span
@@ -177,7 +177,7 @@ describe('Claim', () => {
                   class="flex h-full w-full items-center justify-center bg-inherit"
                 >
                   <svg
-                    class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                    class="text-primary/30 w-[80%] h-[80%]"
                   >
                     <use
                       href="/src/components/Icon/Icon.sprites.svg#fingerprint"
@@ -186,20 +186,20 @@ describe('Claim', () => {
                 </span>
               </span>
               <div
-                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70 group-hover:text-primary"
+                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70"
               >
                 likes
               </div>
             </button>
           </div>
           <div
-            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2 group-hover:bg-primary"
+            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2"
             data-orientation="horizontal"
             role="none"
           />
           <div>
             <button
-              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary-foreground/70 hover:text-secondary-foreground rounded-md text-base [&>span]:h-7 [&>span]:w-7 disabled:opacity-50 cursor-not-allowed relative z-10 identity-tag transition-colors duration-200 group-hover:border-primary"
+              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-7 [&>span]:w-7 disabled:opacity-50 cursor-not-allowed relative z-10 identity-tag transition-colors duration-200 border-theme"
               disabled=""
             >
               <span
@@ -209,7 +209,7 @@ describe('Claim', () => {
                   class="flex h-full w-full items-center justify-center bg-inherit"
                 >
                   <svg
-                    class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                    class="text-primary/30 w-[80%] h-[80%]"
                   >
                     <use
                       href="/src/components/Icon/Icon.sprites.svg#fingerprint"
@@ -218,7 +218,7 @@ describe('Claim', () => {
                 </span>
               </span>
               <div
-                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70 group-hover:text-primary"
+                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70"
               >
                 pizza
               </div>
@@ -236,11 +236,11 @@ describe('Claim', () => {
     expect(smFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
         <div
-          class="flex items-center w-full max-w-max group relative max-sm:flex-col max-sm:m-auto transition-colors duration-200 flex-row"
+          class="flex items-center w-full max-w-max relative max-sm:flex-col max-sm:m-auto transition-colors duration-200 flex-row"
         >
           <div>
             <button
-              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary-foreground/70 hover:text-secondary-foreground rounded-full [&>span]:rounded-full [&>span]:overflow-hidden text-xl [&>span]:h-11 [&>span]:w-11 relative z-10 identity-tag transition-colors duration-200 group-hover:border-primary"
+              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-full [&>span]:rounded-full [&>span]:overflow-hidden text-xl [&>span]:h-11 [&>span]:w-11 relative z-10 identity-tag transition-colors duration-200 border-theme"
               data-state="closed"
             >
               <span
@@ -250,7 +250,7 @@ describe('Claim', () => {
                   class="flex h-full w-full items-center justify-center bg-inherit"
                 >
                   <svg
-                    class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                    class="text-primary/30 w-[80%] h-[80%]"
                   >
                     <use
                       href="/src/components/Icon/Icon.sprites.svg#crypto-punk"
@@ -259,20 +259,20 @@ describe('Claim', () => {
                 </span>
               </span>
               <div
-                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70 group-hover:text-primary"
+                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70"
               >
                 Alice
               </div>
             </button>
           </div>
           <div
-            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2 group-hover:bg-primary"
+            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2"
             data-orientation="horizontal"
             role="none"
           />
           <div>
             <button
-              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary-foreground/70 hover:text-secondary-foreground rounded-md text-xl [&>span]:h-11 [&>span]:w-11 relative z-10 identity-tag transition-colors duration-200 group-hover:border-primary"
+              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-xl [&>span]:h-11 [&>span]:w-11 relative z-10 identity-tag transition-colors duration-200 border-theme"
               data-state="closed"
             >
               <span
@@ -282,7 +282,7 @@ describe('Claim', () => {
                   class="flex h-full w-full items-center justify-center bg-inherit"
                 >
                   <svg
-                    class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                    class="text-primary/30 w-[80%] h-[80%]"
                   >
                     <use
                       href="/src/components/Icon/Icon.sprites.svg#fingerprint"
@@ -291,20 +291,20 @@ describe('Claim', () => {
                 </span>
               </span>
               <div
-                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70 group-hover:text-primary"
+                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70"
               >
                 likes
               </div>
             </button>
           </div>
           <div
-            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2 group-hover:bg-primary"
+            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2"
             data-orientation="horizontal"
             role="none"
           />
           <div>
             <button
-              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary-foreground/70 hover:text-secondary-foreground rounded-md text-xl [&>span]:h-11 [&>span]:w-11 relative z-10 identity-tag transition-colors duration-200 group-hover:border-primary"
+              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-xl [&>span]:h-11 [&>span]:w-11 relative z-10 identity-tag transition-colors duration-200 border-theme"
               data-state="closed"
             >
               <span
@@ -314,7 +314,7 @@ describe('Claim', () => {
                   class="flex h-full w-full items-center justify-center bg-inherit"
                 >
                   <svg
-                    class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                    class="text-primary/30 w-[80%] h-[80%]"
                   >
                     <use
                       href="/src/components/Icon/Icon.sprites.svg#fingerprint"
@@ -323,7 +323,7 @@ describe('Claim', () => {
                 </span>
               </span>
               <div
-                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70 group-hover:text-primary"
+                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70"
               >
                 pizza
               </div>
@@ -339,11 +339,11 @@ describe('Claim', () => {
     expect(lgFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
         <div
-          class="flex items-center w-full max-w-max group relative max-sm:flex-col max-sm:m-auto transition-colors duration-200 flex-row"
+          class="flex items-center w-full max-w-max relative max-sm:flex-col max-sm:m-auto transition-colors duration-200 flex-row"
         >
           <div>
             <button
-              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary-foreground/70 hover:text-secondary-foreground rounded-full [&>span]:rounded-full [&>span]:overflow-hidden text-lg [&>span]:h-8 [&>span]:w-8 relative z-10 identity-tag transition-colors duration-200 group-hover:border-primary"
+              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-full [&>span]:rounded-full [&>span]:overflow-hidden text-lg [&>span]:h-8 [&>span]:w-8 relative z-10 identity-tag transition-colors duration-200 border-theme"
               data-state="closed"
             >
               <span
@@ -353,7 +353,7 @@ describe('Claim', () => {
                   class="flex h-full w-full items-center justify-center bg-inherit"
                 >
                   <svg
-                    class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                    class="text-primary/30 w-[80%] h-[80%]"
                   >
                     <use
                       href="/src/components/Icon/Icon.sprites.svg#crypto-punk"
@@ -362,20 +362,20 @@ describe('Claim', () => {
                 </span>
               </span>
               <div
-                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70 group-hover:text-primary"
+                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70"
               >
                 Alice
               </div>
             </button>
           </div>
           <div
-            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2 group-hover:bg-primary"
+            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2"
             data-orientation="horizontal"
             role="none"
           />
           <div>
             <button
-              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary-foreground/70 hover:text-secondary-foreground rounded-md text-lg [&>span]:h-8 [&>span]:w-8 relative z-10 identity-tag transition-colors duration-200 group-hover:border-primary"
+              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-lg [&>span]:h-8 [&>span]:w-8 relative z-10 identity-tag transition-colors duration-200 border-theme"
               data-state="closed"
             >
               <span
@@ -385,7 +385,7 @@ describe('Claim', () => {
                   class="flex h-full w-full items-center justify-center bg-inherit"
                 >
                   <svg
-                    class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                    class="text-primary/30 w-[80%] h-[80%]"
                   >
                     <use
                       href="/src/components/Icon/Icon.sprites.svg#fingerprint"
@@ -394,20 +394,20 @@ describe('Claim', () => {
                 </span>
               </span>
               <div
-                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70 group-hover:text-primary"
+                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70"
               >
                 likes
               </div>
             </button>
           </div>
           <div
-            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2 group-hover:bg-primary"
+            class="shrink-0 bg-border/20 h-[1px] transition-colors duration-200 w-4 max-sm:w-px max-sm:h-2"
             data-orientation="horizontal"
             role="none"
           />
           <div>
             <button
-              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary-foreground/70 hover:text-secondary-foreground rounded-md text-lg [&>span]:h-8 [&>span]:w-8 relative z-10 identity-tag transition-colors duration-200 group-hover:border-primary"
+              class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-lg [&>span]:h-8 [&>span]:w-8 relative z-10 identity-tag transition-colors duration-200 border-theme"
               data-state="closed"
             >
               <span
@@ -417,7 +417,7 @@ describe('Claim', () => {
                   class="flex h-full w-full items-center justify-center bg-inherit"
                 >
                   <svg
-                    class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                    class="text-primary/30 w-[80%] h-[80%]"
                   >
                     <use
                       href="/src/components/Icon/Icon.sprites.svg#fingerprint"
@@ -426,7 +426,7 @@ describe('Claim', () => {
                 </span>
               </span>
               <div
-                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70 group-hover:text-primary"
+                class="text-base font-normal relative z-10 identity-tag transition-colors duration-200 text-secondary/70"
               >
                 pizza
               </div>

@@ -3,12 +3,15 @@ import {
   ButtonSize,
   ButtonVariant,
   Claim,
+  ClaimPosition,
+  ClaimRow,
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
   Icon,
   IconName,
   Identity,
+  IdentityRow,
   IdentityTag,
   ProfileCard,
   Text,
@@ -21,8 +24,8 @@ import {
   SortColumn,
 } from '@0xintuition/api'
 
-import { ClaimRow } from '@components/claim/claim-row'
-import { IdentityRow } from '@components/identity/identity-row'
+import RemixLink from '@components/remix-link'
+import { stakeModalAtom } from '@lib/state/store'
 import {
   formatBalance,
   getAtomDescription,
@@ -30,11 +33,13 @@ import {
   getAtomIpfsLink,
   getAtomLabel,
   getAtomLink,
+  getClaimUrl,
 } from '@lib/utils/misc'
 import { Link } from '@remix-run/react'
 import { BLOCK_EXPLORER_URL, PATHS } from 'app/consts'
 import { PaginationType } from 'app/types/pagination'
 import { formatDistance } from 'date-fns'
+import { useSetAtom } from 'jotai'
 
 import { List } from './list'
 
@@ -107,12 +112,14 @@ function ActivityItem({
       : eventMessage.toString()
     : ''
 
+  const setStakeModalActive = useSetAtom(stakeModalAtom)
+
   return (
     <div
       key={activity.id}
-      className={`bg-background rounded-xl mb-6 theme-border last:mb-0 flex flex-col w-full max-sm:p-3`}
+      className={`bg-background rounded-xl mb-6 last:mb-0 flex flex-col w-full max-sm:p-3`}
     >
-      <div className="flex flex-row items-center px-6 py-4 justify-between min-w-full max-md:flex-col max-md:gap-3">
+      <div className="flex flex-row items-center py-3 justify-between min-w-full max-md:flex-col max-md:gap-3">
         <div className="flex flex-row items-center gap-2 max-md:flex-col">
           <HoverCard openDelay={150} closeDelay={150}>
             <HoverCardTrigger asChild>
@@ -171,66 +178,102 @@ function ActivityItem({
           </HoverCard>
           <Text>{message}</Text>
         </div>
-        <Text className="text-secondary-foreground">
-          {formatDistance(new Date(activity.timestamp), new Date())} ago
-        </Text>
+        <div className="flex gap-2 items-center">
+          <Text className="text-secondary-foreground">
+            {formatDistance(new Date(activity.timestamp), new Date())} ago
+          </Text>
+          <a
+            href={`${BLOCK_EXPLORER_URL}/tx/${activity.transaction_hash}`}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <Button
+              variant={ButtonVariant.secondary}
+              size={ButtonSize.md}
+              className="w-max h-fit"
+            >
+              View on Explorer{' '}
+              <Icon name={IconName.squareArrowTopRight} className="h-4 w-4" />
+            </Button>
+          </a>
+        </div>
       </div>
       <div className="flex w-full">
-        {activity.identity && (
-          <div className="bg-secondary-foreground/10 rounded-xl flex flex-row w-full gap-6 rounded-t-none items-center max-md:flex-col group hover:bg-secondary/10 transition-colors duration-200">
-            <IdentityRow
-              variant={
-                activity.identity.is_user ? Identity.user : Identity.nonUser
-              }
-              avatarSrc={getAtomImage(activity.identity)}
-              name={getAtomLabel(activity.identity)}
-              description={getAtomDescription(activity.identity)}
-              id={
-                activity.identity.user?.wallet ?? activity.identity.identity_id
-              }
-              amount={
-                +formatBalance(BigInt(activity.identity.assets_sum ?? '0'), 18)
-              }
-              totalFollowers={activity.identity.num_positions}
-              link={getAtomLink(activity.identity)}
-              ipfsLink={getAtomIpfsLink(activity.identity)}
-              tags={
-                activity.identity.tags?.map((tag) => ({
-                  label: tag.display_name,
-                  value: tag.num_tagged_identities,
-                })) ?? undefined
-              }
-              className="w-full hover:bg-transparent pr-0"
-            />
-            <a
-              href={`${BLOCK_EXPLORER_URL}/tx/${activity.transaction_hash}`}
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              <Button
-                variant={ButtonVariant.secondary}
-                size={ButtonSize.md}
-                className="w-max h-fit mr-6"
-              >
-                View on Explorer{' '}
-                <Icon name={IconName.squareArrowTopRight} className="h-4 w-4" />
-              </Button>
-            </a>
-          </div>
+        {activity.identity !== null && activity.identity !== undefined && (
+          <IdentityRow
+            variant={
+              activity.identity.is_user ? Identity.user : Identity.nonUser
+            }
+            avatarSrc={getAtomImage(activity.identity)}
+            name={getAtomLabel(activity.identity)}
+            description={getAtomDescription(activity.identity)}
+            id={activity.identity.user?.wallet ?? activity.identity.identity_id}
+            totalTVL={formatBalance(
+              BigInt(activity.identity.assets_sum ?? '0'),
+              18,
+            )}
+            numPositions={activity.identity.num_positions}
+            link={getAtomLink(activity.identity)}
+            ipfsLink={getAtomIpfsLink(activity.identity)}
+            tags={
+              activity.identity.tags?.map((tag) => ({
+                label: tag.display_name,
+                value: tag.num_tagged_identities,
+              })) ?? undefined
+            }
+            onStakeClick={() =>
+              setStakeModalActive((prevState) => ({
+                ...prevState,
+                mode: 'deposit',
+                modalType: 'identity',
+                isOpen: true,
+                identity: activity.identity ?? undefined,
+                vaultId: activity.identity?.vault_id ?? null,
+              }))
+            }
+            className="w-full hover:bg-transparent"
+          />
         )}
         {activity.claim && (
-          <div className="bg-secondary-foreground/10 rounded-xl flex flex-row w-full gap-6 rounded-t-none items-center max-md:flex-col group hover:bg-secondary/10 transition-colors duration-200">
-            <ClaimRow
-              claimsFor={activity.claim.for_num_positions}
-              claimsAgainst={activity.claim.against_num_positions}
-              claimsForValue={+formatBalance(activity.claim.for_assets_sum, 18)}
-              claimsAgainstValue={
-                +formatBalance(activity.claim.against_assets_sum, 18)
-              }
-              tvl={+formatBalance(activity.claim.assets_sum, 18)}
-              link={`${PATHS.CLAIM}/${activity.claim.vault_id}`}
-              className="w-full hover:bg-transparent pr-0"
-            >
+          <ClaimRow
+            numPositionsFor={activity.claim.for_num_positions}
+            numPositionsAgainst={activity.claim.against_num_positions}
+            tvlFor={formatBalance(activity.claim.for_assets_sum, 18)}
+            tvlAgainst={formatBalance(activity.claim.against_assets_sum, 18)}
+            totalTVL={formatBalance(activity.claim.assets_sum, 18)}
+            userPosition={formatBalance(activity.claim.user_assets, 18)}
+            positionDirection={
+              +activity.claim.user_assets_for > 0
+                ? ClaimPosition.claimFor
+                : +activity.claim.user_assets_against > 0
+                  ? ClaimPosition.claimAgainst
+                  : undefined
+            }
+            onStakeForClick={() =>
+              setStakeModalActive((prevState) => ({
+                ...prevState,
+                mode: 'deposit',
+                modalType: 'claim',
+                direction: ClaimPosition.claimFor,
+                isOpen: true,
+                claim: activity.claim ?? undefined,
+                vaultId: activity.claim?.vault_id ?? null,
+              }))
+            }
+            onStakeAgainstClick={() =>
+              setStakeModalActive((prevState) => ({
+                ...prevState,
+                mode: 'deposit',
+                modalType: 'claim',
+                direction: ClaimPosition.claimAgainst,
+                isOpen: true,
+                claim: activity.claim ?? undefined,
+                vaultId: activity.claim?.counter_vault_id ?? null,
+              }))
+            }
+            className="w-full hover:bg-transparent"
+          >
+            <Link to={getClaimUrl(activity.claim.vault_id)} prefetch="intent">
               <Claim
                 size="md"
                 subject={{
@@ -253,6 +296,7 @@ function ActivityItem({
                   link: getAtomLink(
                     activity.claim.subject as IdentityPresenter,
                   ),
+                  linkComponent: RemixLink,
                 }}
                 predicate={{
                   variant: activity.claim.predicate?.is_user
@@ -274,6 +318,7 @@ function ActivityItem({
                   link: getAtomLink(
                     activity.claim.predicate as IdentityPresenter,
                   ),
+                  linkComponent: RemixLink,
                 }}
                 object={{
                   variant: activity.claim.object?.is_user
@@ -293,24 +338,12 @@ function ActivityItem({
                     activity.claim.object as IdentityPresenter,
                   ),
                   link: getAtomLink(activity.claim.object as IdentityPresenter),
+                  linkComponent: RemixLink,
                 }}
+                isClickable={true}
               />
-            </ClaimRow>
-            <a
-              href={`${BLOCK_EXPLORER_URL}/tx/${activity.transaction_hash}`}
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              <Button
-                variant={ButtonVariant.secondary}
-                size={ButtonSize.md}
-                className="w-max h-fit mr-6"
-              >
-                View on Explorer{' '}
-                <Icon name={IconName.squareArrowTopRight} className="h-4 w-4" />
-              </Button>
-            </a>
-          </div>
+            </Link>
+          </ClaimRow>
         )}
       </div>
     </div>
