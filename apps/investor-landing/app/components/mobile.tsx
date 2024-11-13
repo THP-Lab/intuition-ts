@@ -121,7 +121,7 @@ export default function Mobile() {
             </div>
             <div className="flex justify-center">
               <a href={DEMO_VIDEOS} target="_blank" rel="noreferrer">
-                <SunburstCard label="Demo Videos" size="x-sm" disableScale />
+                <SunburstCard label="Demo Video" size="x-sm" disableScale />
               </a>
             </div>
           </div>

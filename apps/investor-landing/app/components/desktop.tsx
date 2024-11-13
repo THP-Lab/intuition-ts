@@ -269,7 +269,7 @@ export default function Desktop() {
                 </a>
 
                 <a href={DEMO_VIDEOS} target="_blank" rel="noreferrer">
-                  <SunburstCard label="Demo Videos" size="sm" />
+                  <SunburstCard label="Demo Video" size="sm" />
                 </a>
               </div>
             </div>
