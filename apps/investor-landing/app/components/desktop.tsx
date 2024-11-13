@@ -20,18 +20,21 @@ import SunburstCard from '@components/sunburst-card'
 import { Business } from '@components/svg/business'
 import { Product } from '@components/svg/product'
 import {
-  APP_DEMO,
-  CALENDLY,
-  FINANCIALS,
-  GIT_BOOK,
+  CAP_TABLE,
+  CONTACT_US,
+  DEMO_VIDEOS,
+  DOCS,
+  EXECUTIVE_SUMMARY,
+  FINANCIAL_MODEL,
   GROWTH_STRATEGY,
-  INCORPORATION_DOCS,
+  LEGAL_DOCS,
+  LITE_PAPER,
   MEDIA_MENTIONS,
-  ONE_PAGER,
   PITCH_DECK,
-  PRO_FORMA_CAP_TABLE,
-  SNAP_DEMO,
+  PODCASTS,
+  SCHEDULE_A_CALL,
   TOKENOMICS,
+  WHITE_PAPER,
 } from '@consts/links'
 import { useNavigate } from '@remix-run/react'
 import { motion, useScroll, useSpring } from 'framer-motion'
@@ -255,21 +258,17 @@ export default function Desktop() {
                 The Vision
               </Text>
               <div className="grid grid-cols-2 gap-5">
-                <a href={ONE_PAGER} target="_blank" rel="noreferrer">
+                <a href={EXECUTIVE_SUMMARY} target="_blank" rel="noreferrer">
                   <SunburstCard label="Executive Summary" size="sm" />
                 </a>
-                <a
-                  href={'https://medium.com/0xintuition'}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <SunburstCard label="Medium" size="sm" />
+                <a href={LITE_PAPER} target="_blank" rel="noreferrer">
+                  <SunburstCard label="Lite Paper" size="sm" />
                 </a>
-                <a href={APP_DEMO} target="_blank" rel="noreferrer">
+                <a href={PODCASTS} target="_blank" rel="noreferrer">
                   <SunburstCard label="Podcasts" size="sm" />
                 </a>
 
-                <a href={SNAP_DEMO} target="_blank" rel="noreferrer">
+                <a href={DEMO_VIDEOS} target="_blank" rel="noreferrer">
                   <SunburstCard label="Demo Videos" size="sm" />
                 </a>
               </div>
@@ -282,10 +281,10 @@ export default function Desktop() {
               >
                 How it Works
               </Text>
-              <a href={GIT_BOOK} target="_blank" rel="noreferrer">
+              <a href={WHITE_PAPER} target="_blank" rel="noreferrer">
                 <SunburstCard label="Whitepaper" size="sm" />
               </a>
-              <a href={GIT_BOOK} target="_blank" rel="noreferrer">
+              <a href={DOCS} target="_blank" rel="noreferrer">
                 <SunburstCard label="Docs" size="sm" />
               </a>
             </div>
@@ -325,13 +324,13 @@ export default function Desktop() {
                 <a href={TOKENOMICS} target="_blank" rel="noreferrer">
                   <SunburstCard label="Tokenomics" size="sm" />
                 </a>
-                <a href={FINANCIALS} target="_blank" rel="noreferrer">
+                <a href={FINANCIAL_MODEL} target="_blank" rel="noreferrer">
                   <SunburstCard label="Financial Model" size="sm" />
                 </a>
-                <a href={PRO_FORMA_CAP_TABLE} target="_blank" rel="noreferrer">
+                <a href={CAP_TABLE} target="_blank" rel="noreferrer">
                   <SunburstCard label="Cap Table" size="sm" />
                 </a>
-                <a href={INCORPORATION_DOCS} target="_blank" rel="noreferrer">
+                <a href={LEGAL_DOCS} target="_blank" rel="noreferrer">
                   <SunburstCard label="Legal Docs" size="sm" />
                 </a>
               </div>
@@ -384,16 +383,26 @@ export default function Desktop() {
                 >
                   Get Involved
                 </Text>
-                <a href={CALENDLY} target="_blank" rel="noreferrer">
-                  <Button
-                    onClick={() => console.log('scheduled call')}
-                    variant={ButtonVariant.primary}
-                    size={ButtonSize.xl}
-                    className="mx-auto uppercase tracking-widest transition-all duration-300"
+                <div className="flex items-center flex-col gap-4">
+                  <a href={SCHEDULE_A_CALL} target="_blank" rel="noreferrer">
+                    <Button
+                      onClick={() => console.log('scheduled call')}
+                      variant={ButtonVariant.primary}
+                      size={ButtonSize.xl}
+                      className="mx-auto uppercase tracking-widest transition-all duration-300"
+                    >
+                      Schedule a Call
+                    </Button>
+                  </a>
+                  <a
+                    href={CONTACT_US}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="transition-all duration-200 text-foreground/50 underline hover:text-foreground hover:underline"
                   >
-                    Schedule a Call
-                  </Button>
-                </a>
+                    Contact Us
+                  </a>
+                </div>
               </div>
               <div className="flex justify-end items-end flex-row gap-12">
                 <IconButtonLink
@@ -401,7 +410,7 @@ export default function Desktop() {
                   icon={IconName.medium}
                 />
                 <IconButtonLink
-                  url={'https://discord.gg/2vbVnX6wQp'}
+                  url={'https://discord.gg/0xintuition'}
                   icon={IconName.discord}
                 />
                 <IconButtonLink
