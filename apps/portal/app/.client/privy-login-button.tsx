@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Button, Icon } from '@0xintuition/1ui'
+import { Button, ButtonSize, ButtonVariant, Icon } from '@0xintuition/1ui'
 
 import logger from '@lib/utils/logger'
 import { useLogin, User } from '@privy-io/react-auth'
@@ -35,8 +35,8 @@ export default function PrivyLoginButton({
   return (
     <Button
       onClick={handleClick}
-      variant="primary"
-      size="xl"
+      variant={ButtonVariant.primary}
+      size={ButtonSize.xl}
       disabled={loading}
       className="px-10"
     >
