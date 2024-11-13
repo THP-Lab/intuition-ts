@@ -9,6 +9,7 @@ import {
 
 import intuitionLogo from '@assets/intuition-logo.svg'
 import investorWelcomeCardBg from '@assets/investor-welcome-card-bg.png'
+import { BORING_DOCSEND } from '@consts/links'
 import { useNavigate } from '@remix-run/react'
 
 export default function InvestorsWelcome() {
@@ -48,9 +49,16 @@ export default function InvestorsWelcome() {
           </Text> */}
           <div className="flex flex-row items-start justify-center gap-6">
             <div className="flex flex-col gap-2">
-              <Button className="rounded-md border border-for/50 bg-for/15 text-primary/70 tracking-widest transition-all duration-300 hover:bg-for/30 hover:border-for hover:text-primary">
-                BLUE PILL
-              </Button>
+              <a
+                href={BORING_DOCSEND}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-block no-underline w-full"
+              >
+                <Button className="rounded-md border border-for/50 bg-for/15 text-primary/70 tracking-widest transition-all duration-300 hover:bg-for/30 hover:border-for hover:text-primary w-full">
+                  BLUE PILL
+                </Button>
+              </a>
               <Text
                 variant={TextVariant.caption}
                 className="tracking-widest text-primary/50 uppercase text-center"
