@@ -27,13 +27,15 @@ import PrivyButton from '@client/privy-button'
 import {
   globalCreateClaimModalAtom,
   globalCreateIdentityModalAtom,
+  stakeModalAtom,
 } from '@lib/state/store'
 import { NavLink, useLocation, useNavigate, useSubmit } from '@remix-run/react'
-import { PATHS } from 'app/consts'
+import { MULTIVAULT_CONTRACT_ADDRESS, PATHS } from 'app/consts'
 import { useAtom } from 'jotai'
 
 import CreateClaimModal from './create-claim/create-claim-modal'
 import CreateIdentityModal from './create-identity/create-identity-modal'
+import StakeModal from './stake/stake-modal'
 
 interface SidebarNavRoute {
   route: string
@@ -113,6 +115,8 @@ export default function SidebarNav({
   const [createClaimModalActive, setCreateClaimModalActive] = useAtom(
     globalCreateClaimModalAtom,
   )
+
+  const [stakeModalActive, setStakeModalActive] = useAtom(stakeModalAtom)
 
   function onLogout() {
     submit(null, {
@@ -389,6 +393,22 @@ export default function SidebarNav({
         open={createClaimModalActive}
         wallet={userObject.wallet}
         onClose={() => setCreateClaimModalActive(false)}
+      />
+      <StakeModal
+        open={stakeModalActive.isOpen}
+        onClose={() =>
+          setStakeModalActive({
+            isOpen: false,
+            id: null,
+            vaultId: null,
+            vaultDetails: undefined,
+          })
+        }
+        identity={stakeModalActive.identity}
+        claim={stakeModalActive.claim}
+        direction={stakeModalActive.direction}
+        userWallet={userObject.wallet}
+        contract={MULTIVAULT_CONTRACT_ADDRESS}
       />
     </>
   )

@@ -16,7 +16,7 @@ import { HomeStatsHeader } from '@components/home/home-stats-header'
 import { ActivityList } from '@components/list/activity'
 import { ClaimsList } from '@components/list/claims'
 import { IdentitiesList } from '@components/list/identities'
-import { ListClaimsList } from '@components/list/list-claims'
+import { FeaturedListCarousel } from '@components/lists/featured-lists-carousel'
 import { ListClaimsSkeletonLayout } from '@components/lists/list-skeletons'
 import { RevalidateButton } from '@components/revalidate-button'
 import {
@@ -148,16 +148,13 @@ export default function HomePage() {
                   return <EmptyStateCard message="No lists found." />
                 }
                 return (
-                  <ListClaimsList
-                    listClaims={resolvedFeaturedLists.featuredLists}
-                    enableSort={false}
-                    enableSearch={false}
-                    columns={3}
+                  <FeaturedListCarousel
+                    lists={resolvedFeaturedLists.featuredLists}
                   />
                 )
               }}
             </Await>
-          </Suspense>
+          </Suspense>{' '}
         </div>
         <div className="flex flex-col gap-4">
           <HomeSectionHeader
@@ -221,7 +218,7 @@ export default function HomePage() {
                 return (
                   <IdentitiesList
                     identities={resolvedTopUsers.data}
-                    enalbeHeader={false}
+                    enableHeader={false}
                     enableSearch={false}
                     enableSort={false}
                   />

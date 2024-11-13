@@ -1,5 +1,6 @@
-import { IdentityPresenter, TagEmbeddedPresenter } from '@0xintuition/api'
+import { ClaimPresenter, IdentityPresenter } from '@0xintuition/api'
 
+import { VaultDetailsType } from 'app/types'
 import type { WritableAtom } from 'jotai'
 import { atom, createStore } from 'jotai'
 
@@ -43,12 +44,20 @@ export const stakeModalAtom = atom<{
   direction?: 'for' | 'against'
   modalType?: 'identity' | 'claim'
   mode?: 'deposit' | 'redeem'
+  claim?: ClaimPresenter
+  identity?: IdentityPresenter
+  vaultId: string | null
+  vaultDetails?: VaultDetailsType
 }>({
   isOpen: false,
   id: null,
   direction: undefined,
   modalType: undefined,
   mode: undefined,
+  claim: undefined,
+  identity: undefined,
+  vaultId: null,
+  vaultDetails: undefined,
 })
 
 export const followModalAtom = atom<{
@@ -70,7 +79,7 @@ export const addIdentitiesListModalAtom = atom<{
 export const saveListModalAtom = atom<{
   isOpen: boolean
   id?: string | null
-  tag?: TagEmbeddedPresenter | null
+  tag?: IdentityPresenter | null
   identity?: IdentityPresenter | null
   invalidIdentity?: IdentityPresenter | null
 }>({

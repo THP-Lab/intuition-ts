@@ -1,6 +1,7 @@
 import {
   ActivePositionCard,
   Claim,
+  ClaimPosition,
   DialogDescription,
   DialogHeader,
   DialogTitle,
@@ -8,7 +9,7 @@ import {
   Skeleton,
   Text,
 } from '@0xintuition/1ui'
-import { IdentityPresenter, TagEmbeddedPresenter } from '@0xintuition/api'
+import { IdentityPresenter } from '@0xintuition/api'
 
 import StakingRadioGroup from '@components/staking-radio-group'
 import { TransactionState } from '@components/transaction-state'
@@ -30,7 +31,7 @@ import {
 import SaveReview from './save-review'
 
 interface SaveFormProps {
-  tag: IdentityPresenter | TagEmbeddedPresenter
+  tag: IdentityPresenter
   identity: IdentityPresenter
   user_assets: string
   entry_fee: string
@@ -100,8 +101,8 @@ export default function SaveForm({
               </Text>
             </DialogDescription>
           </DialogHeader>
-          <div className="h-full w-full flex-col pt-5 md:px-10 pb-10 gap-5 inline-flex">
-            <div className="flex items-center w-full mr-2.5 gap-5 ">
+          <div className="h-full w-full flex-col py-5 gap-5 inline-flex">
+            <div className="flex items-center w-full mr-2.5 gap-5 justify-center">
               <Claim
                 size="md"
                 subject={{
@@ -124,12 +125,12 @@ export default function SaveForm({
                 }}
                 object={{
                   variant: Identity.nonUser,
-                  label: tag.display_name ?? tag.identity_id ?? '',
-                  imgSrc: tag.image,
+                  label: getAtomLabel(tag),
+                  imgSrc: getAtomImage(tag),
                   id: tag.identity_id,
-                  description: '',
-                  ipfsLink: '',
-                  link: '',
+                  description: getAtomDescription(tag),
+                  ipfsLink: getAtomIpfsLink(tag),
+                  link: getAtomLink(tag),
                 }}
                 maxIdentityLength={12}
               />
@@ -141,7 +142,9 @@ export default function SaveForm({
                 ) : (
                   <ActivePositionCard
                     value={Number(formatBalance(user_assets, 18))}
-                    claimPosition={user_assets > '0' ? 'claimFor' : null}
+                    claimPosition={
+                      user_assets > '0' ? ClaimPosition.claimFor : null
+                    }
                   />
                 )}
               </div>

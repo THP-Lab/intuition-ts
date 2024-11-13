@@ -23,6 +23,11 @@ interface ClaimItemProps {
   ipfsLink?: string
   link?: string
   shouldHover?: boolean
+  linkComponent?: React.ComponentType<{
+    href: string
+    onClick: (e: React.MouseEvent) => void
+    children: React.ReactNode
+  }>
 }
 
 export interface ClaimProps {
@@ -32,8 +37,13 @@ export interface ClaimProps {
   predicate: ClaimItemProps
   object: ClaimItemProps
   orientation?: 'horizontal' | 'vertical'
-  onClick?: () => void
+  isClickable?: boolean
   maxIdentityLength?: number
+  linkComponent?: React.ComponentType<{
+    href: string
+    onClick: (e: React.MouseEvent) => void
+    children: React.ReactNode
+  }>
 }
 
 export const Claim = ({
@@ -43,34 +53,20 @@ export const Claim = ({
   orientation = 'horizontal',
   disabled,
   size,
-  onClick,
+  isClickable,
   maxIdentityLength,
 }: ClaimProps) => {
   const separatorWidth = size !== IdentityTagSize.default ? 'w-4' : 'w-2'
   const items = [subject, predicate, object]
-  const [isHovered, setIsHovered] = useState(false)
+  const [isFullClaimHovered, setIsFullClaimHovered] = useState(false)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
-
-  const handleMouseEnter = () => {
-    setIsHovered(true)
-    if (onClick) {
-      setHoveredIndex(null)
-    }
-  }
-
-  const handleMouseLeave = () => {
-    setIsHovered(false)
-    setHoveredIndex(null)
-  }
 
   const claimContent = (
     <div
       className={cn(
-        'flex items-center w-full max-w-max group relative max-sm:flex-col max-sm:m-auto transition-colors duration-200',
+        'flex items-center w-full max-w-max relative max-sm:flex-col max-sm:m-auto transition-colors duration-200',
         orientation === 'vertical' ? 'flex-col items-start' : 'flex-row',
       )}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       {items.map((item, index) => (
         <Fragment key={index}>
@@ -81,8 +77,7 @@ export const Claim = ({
                 orientation === 'vertical'
                   ? 'w-px h-2 ml-2'
                   : `${separatorWidth} max-sm:w-px max-sm:h-2`,
-                { 'bg-primary': isHovered && onClick },
-                { 'group-hover:bg-primary': !onClick && hoveredIndex === null },
+                { 'bg-primary': isFullClaimHovered },
               )}
             />
           )}
@@ -91,25 +86,41 @@ export const Claim = ({
               item={item}
               size={size}
               disabled={disabled}
-              shouldHover={!onClick}
+              shouldHover={true}
               maxIdentityLength={maxIdentityLength}
-              isHovered={onClick ? isHovered : hoveredIndex === index}
-              isAnyHovered={hoveredIndex !== null}
-              onMouseEnter={() => !onClick && setHoveredIndex(index)}
-              onMouseLeave={() => !onClick && setHoveredIndex(null)}
+              isHovered={isFullClaimHovered || hoveredIndex === index}
+              onMouseEnter={() => {
+                if (!isFullClaimHovered) {
+                  setHoveredIndex(index)
+                }
+              }}
+              onMouseLeave={() => {
+                if (!isFullClaimHovered) {
+                  setHoveredIndex(null)
+                }
+              }}
             />
           </div>
         </Fragment>
       ))}
-      {onClick && (
-        <div className="pl-1">
+      {isClickable && ( // Replace onClick check with isClickable
+        <div
+          className="pl-1"
+          onMouseEnter={(e) => {
+            e.stopPropagation()
+            setIsFullClaimHovered(true)
+            setHoveredIndex(null)
+          }}
+          onMouseLeave={(e) => {
+            e.stopPropagation()
+            setIsFullClaimHovered(false)
+          }}
+        >
           <Icon
             name={'arrow-up-right'}
             className={cn(
               'h-4 w-4 transition-colors duration-200',
-              isHovered
-                ? 'text-primary'
-                : 'text-secondary/50 group-hover:text-primary',
+              isFullClaimHovered ? 'text-primary' : 'text-secondary/50',
             )}
           />
         </div>
@@ -117,11 +128,7 @@ export const Claim = ({
     </div>
   )
 
-  return onClick ? (
-    <button onClick={onClick}>{claimContent}</button>
-  ) : (
-    claimContent
-  )
+  return claimContent
 }
 
 const ClaimItem = ({
@@ -131,9 +138,9 @@ const ClaimItem = ({
   shouldHover = true,
   maxIdentityLength,
   isHovered,
-  isAnyHovered,
   onMouseEnter,
   onMouseLeave,
+  linkComponent: LinkComponent,
 }: {
   item: ClaimItemProps
   link?: string
@@ -142,9 +149,13 @@ const ClaimItem = ({
   disabled?: boolean
   maxIdentityLength?: number
   isHovered: boolean
-  isAnyHovered: boolean
   onMouseEnter: () => void
   onMouseLeave: () => void
+  linkComponent?: React.ComponentType<{
+    href: string
+    onClick: (e: React.MouseEvent) => void
+    children: React.ReactNode
+  }>
 }) => {
   const effectiveMaxLength = maxIdentityLength ?? 24
 
@@ -159,9 +170,8 @@ const ClaimItem = ({
       className={cn(
         'relative z-10 identity-tag transition-colors duration-200',
         {
-          'group-hover:border-primary': !isAnyHovered,
           'border-primary bg-primary/10': isHovered,
-          'border-theme bg-none': isAnyHovered && !isHovered,
+          'border-theme': !isHovered,
         },
       )}
       shouldHover={shouldHover}
@@ -173,23 +183,48 @@ const ClaimItem = ({
         className={cn(
           'relative z-10 identity-tag transition-colors duration-200 text-secondary/70',
           {
-            'group-hover:text-primary': !isAnyHovered,
             'text-primary': isHovered,
-            'text-secondary/70': isAnyHovered && !isHovered,
+            'text-secondary/70': !isHovered,
           },
         )}
       />
     </IdentityTag>
   )
 
+  const linkProps = {
+    href: item.link || '',
+    onClick: (e: React.MouseEvent) => e.stopPropagation(),
+    children: <span aria-label={`Link to ${item.label}`}>{content}</span>,
+  }
+
   if (disabled || !shouldHover) {
-    return item.link ? <a href={item.link}>{content}</a> : content
+    return item.link ? (
+      LinkComponent ? (
+        <LinkComponent {...linkProps} />
+      ) : (
+        <a {...linkProps}>
+          <span>{content}</span>
+        </a>
+      )
+    ) : (
+      content
+    )
   }
 
   return (
     <HoverCard openDelay={150} closeDelay={150}>
       <HoverCardTrigger asChild>
-        {item.link ? <a href={item.link}>{content}</a> : content}
+        {item.link ? (
+          LinkComponent ? (
+            <LinkComponent {...linkProps} />
+          ) : (
+            <a {...linkProps}>
+              <span>{content}</span>
+            </a>
+          )
+        ) : (
+          content
+        )}
       </HoverCardTrigger>
       <HoverCardContent
         side="bottom"

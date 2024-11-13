@@ -36,7 +36,7 @@ describe('InfoCard', () => {
               href="link"
             >
               <button
-                class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary-foreground/70 hover:text-secondary-foreground rounded-full [&>span]:rounded-full [&>span]:overflow-hidden text-base [&>span]:h-6 [&>span]:w-6"
+                class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-full [&>span]:rounded-full [&>span]:overflow-hidden text-base [&>span]:h-6 [&>span]:w-6"
               >
                 <span
                   class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background theme-border rounded-full"
@@ -45,7 +45,7 @@ describe('InfoCard', () => {
                     class="flex h-full w-full items-center justify-center bg-inherit"
                   >
                     <svg
-                      class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                      class="text-primary/30 w-[80%] h-[80%]"
                     >
                       <use
                         href="/src/components/Icon/Icon.sprites.svg#crypto-punk"

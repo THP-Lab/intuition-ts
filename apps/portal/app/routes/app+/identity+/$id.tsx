@@ -4,13 +4,13 @@ import {
   Banner,
   Icon,
   Identity,
+  IdentityStakeCard,
   PieChartVariant,
   PositionCard,
   PositionCardLastUpdated,
   PositionCardOwnership,
   PositionCardStaked,
   ProfileCard,
-  StakeCard,
   Tag,
   Tags,
   TagsButton,
@@ -21,7 +21,6 @@ import {
   ClaimPresenter,
   ClaimsService,
   IdentityPresenter,
-  TagEmbeddedPresenter,
 } from '@0xintuition/api'
 
 import { DetailInfoCard } from '@components/detail-info-card'
@@ -35,6 +34,7 @@ import StakeModal from '@components/stake/stake-modal'
 import TagsModal from '@components/tags/tags-modal'
 import { useLiveLoader } from '@lib/hooks/useLiveLoader'
 import { getIdentityOrPending } from '@lib/services/identities'
+import { getTags } from '@lib/services/tags'
 import {
   imageModalAtom,
   saveListModalAtom,
@@ -117,12 +117,23 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
   }
 
+  const url = new URL(request.url)
+  const searchParams = new URLSearchParams(url.search)
+
+  const { tagClaims } = await getTags({
+    request,
+    subjectId: identity.id,
+    searchParams,
+  })
+
+  logger('[$ID] -- END')
   return json({
     identity,
     list,
     isPending,
     vaultDetails,
     userWallet,
+    tagClaims,
   })
 }
 
@@ -132,10 +143,11 @@ export interface IdentityLoaderData {
   vaultDetails: VaultDetailsType
   userWallet: string
   isPending: boolean
+  tagClaims: ClaimPresenter[]
 }
 
 export default function IdentityDetails() {
-  const { identity, list, vaultDetails, userWallet, isPending } =
+  const { identity, list, vaultDetails, userWallet, isPending, tagClaims } =
     useLiveLoader<IdentityLoaderData>(['attest', 'create'])
   const navigate = useNavigate()
 
@@ -145,7 +157,9 @@ export default function IdentityDetails() {
   const [saveListModalActive, setSaveListModalActive] =
     useAtom(saveListModalAtom)
   const [imageModalActive, setImageModalActive] = useAtom(imageModalAtom)
-  const [selectedTag, setSelectedTag] = useState<TagEmbeddedPresenter>()
+  const [selectedTag, setSelectedTag] = useState<
+    IdentityPresenter | null | undefined
+  >(null)
   const [shareModalActive, setShareModalActive] = useAtom(shareModalAtom)
 
   useEffect(() => {
@@ -177,24 +191,25 @@ export default function IdentityDetails() {
         <>
           <Tags>
             <div className="flex flex-row gap-2 md:flex-col">
-              {identity?.tags && identity?.tags.length > 0 && (
-                <TagsContent numberOfTags={identity?.tag_count ?? 0}>
-                  {identity?.tags?.map((tag) => (
+              {Array.isArray(tagClaims) && tagClaims.length > 0 ? (
+                <TagsContent numberOfTags={tagClaims?.length ?? 0}>
+                  {tagClaims.slice(0, 5).map((tagClaim) => (
                     <TagWithValue
-                      key={tag.identity_id}
-                      label={tag.display_name}
-                      value={tag.num_tagged_identities}
+                      key={tagClaim.claim_id}
+                      label={tagClaim.object?.display_name}
+                      value={tagClaim.num_positions}
                       onStake={() => {
-                        setSelectedTag(tag)
+                        setSelectedTag(tagClaim.object)
                         setSaveListModalActive({
                           isOpen: true,
-                          id: tag.vault_id,
+                          id: tagClaim.vault_id,
+                          tag: tagClaim.object,
                         })
                       }}
                     />
                   ))}
                 </TagsContent>
-              )}
+              ) : null}
               <Tag
                 className="w-fit border-dashed"
                 onClick={() => {
@@ -219,6 +234,7 @@ export default function IdentityDetails() {
                   ...prevState,
                   mode: 'redeem',
                   modalType: 'identity',
+                  identity,
                   isOpen: true,
                 }))
               }
@@ -237,7 +253,7 @@ export default function IdentityDetails() {
               <PositionCardLastUpdated timestamp={identity.updated_at} />
             </PositionCard>
           ) : null}
-          <StakeCard
+          <IdentityStakeCard
             tvl={+formatBalance(assets_sum, 18)}
             holders={identity?.num_positions}
             variant={identity.is_user ? Identity.user : Identity.nonUser}
@@ -248,6 +264,7 @@ export default function IdentityDetails() {
                 ...prevState,
                 mode: 'deposit',
                 modalType: 'identity',
+                identity,
                 isOpen: true,
               }))
             }
@@ -312,7 +329,7 @@ export default function IdentityDetails() {
             contract={identity.contract}
             open={stakeModalActive.isOpen}
             identity={identity}
-            vaultDetails={vaultDetails}
+            vaultDetailsProp={vaultDetails}
             onClose={() => {
               setStakeModalActive((prevState) => ({
                 ...prevState,
@@ -323,6 +340,7 @@ export default function IdentityDetails() {
           />
           <TagsModal
             identity={identity}
+            tagClaims={tagClaims}
             userWallet={userWallet}
             open={tagsModalActive.isOpen}
             mode={tagsModalActive.mode}

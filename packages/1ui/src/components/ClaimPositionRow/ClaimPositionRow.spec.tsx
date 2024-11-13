@@ -10,7 +10,7 @@ describe('ClaimPositionRow', () => {
     const { asFragment } = render(
       <ClaimPositionRow
         variant="user"
-        position="claimFor"
+        position="for"
         name="John Doe"
         description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi."
         id="0x1234567890abcdef1234567890abcdef12345678"
@@ -41,7 +41,7 @@ describe('ClaimPositionRow', () => {
                   class="flex h-full w-full items-center justify-center bg-inherit"
                 >
                   <svg
-                    class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                    class="text-primary/30 w-[80%] h-[80%]"
                   >
                     <use
                       href="/src/components/Icon/Icon.sprites.svg#crypto-punk"
@@ -134,7 +134,7 @@ describe('ClaimPositionRow', () => {
       const { asFragment } = render(
         <ClaimPositionRow
           variant="claim"
-          position="claimAgainst"
+          position="against"
           claimsFor={30}
           claimsAgainst={70}
           claimsForValue={10}

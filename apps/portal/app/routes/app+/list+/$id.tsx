@@ -89,6 +89,11 @@ export default function ListDetails() {
   const navigate = useNavigate()
   const handleGoBack = useGoBack({ fallbackRoute: PATHS.EXPLORE_LISTS })
 
+  const hasUserParam = location.search.includes('user=')
+  const fullPath = hasUserParam
+    ? `${location.pathname}${location.search}`
+    : `${location.pathname}${location.search}${location.search ? '&' : '?'}user=${userWallet}&tab=additional`
+
   const leftPanel = (
     <div className="flex-col justify-start items-start gap-6 inline-flex max-lg:w-full">
       <NavigationButton
@@ -156,7 +161,7 @@ export default function ListDetails() {
         onShareClick={() =>
           setShareModalActive({
             isOpen: true,
-            currentPath: location.pathname,
+            currentPath: fullPath,
           })
         }
       />
@@ -191,7 +196,7 @@ export default function ListDetails() {
         />
       )}
       <ShareModal
-        currentPath={location.pathname}
+        currentPath={fullPath}
         open={shareModalActive.isOpen}
         onClose={() =>
           setShareModalActive({

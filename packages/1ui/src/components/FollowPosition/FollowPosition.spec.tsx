@@ -9,7 +9,7 @@ describe('FollowPosition', () => {
   it('should render UI', () => {
     const { asFragment } = render(
       <FollowPosition
-        position="claimFor"
+        position="for"
         name="John Doe"
         walletAddress="0x1234567890abcdef1234567890abcdef12345678"
         avatarSrc="https://avatars.githubusercontent.com/u/94311139?s=200&v=4"
@@ -33,7 +33,7 @@ describe('FollowPosition', () => {
                 class="flex h-full w-full items-center justify-center bg-inherit"
               >
                 <svg
-                  class="text-primary/30 w-[80%] h-[80%] max-w-8 max-h-8"
+                  class="text-primary/30 w-[80%] h-[80%]"
                 >
                   <use
                     href="/src/components/Icon/Icon.sprites.svg#crypto-punk"
