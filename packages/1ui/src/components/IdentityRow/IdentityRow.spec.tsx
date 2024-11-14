@@ -45,7 +45,7 @@ describe('IdentityRow', () => {
                       class="flex h-full w-full items-center justify-center bg-inherit"
                     >
                       <svg
-                        class="text-primary/30 w-[80%] h-[80%]"
+                        class="text-primary/30 w-1/2 h-1/2 max-h-10 max-w-10"
                       >
                         <use
                           href="/src/components/Icon/Icon.sprites.svg#crypto-punk"
@@ -164,7 +164,7 @@ describe('IdentityRow', () => {
                       class="flex h-full w-full items-center justify-center bg-inherit"
                     >
                       <svg
-                        class="text-primary/30 w-[80%] h-[80%]"
+                        class="text-primary/30 w-1/2 h-1/2 max-h-10 max-w-10"
                       >
                         <use
                           href="/src/components/Icon/Icon.sprites.svg#crypto-punk"
@@ -202,7 +202,7 @@ describe('IdentityRow', () => {
                 </div>
               </div>
               <button
-                class="flex justify-center items-center text-sm font-medium border aria-disabled:text-muted-foreground aria-disabled:border-muted aria-disabled:pointer-events-none bg-gradient-to-b from-transparent to-transparent hover:text-primary aria-disabled:bg-transparent aria-selected:primary-gradient-subtle aria-selected:border-primary/10 shadow-md-subtle max-sm:py-2 max-sm:text-base py-0.5 px-2.5 gap-1.5 h-9 w-16 rounded-xl disabled:bg-primary/5 disabled:border-primary/20 disabled:text-primary/20 bg-primary/10 border-primary/30 hover:bg-primary/20 hover:border-primary/60 text-secondary"
+                class="flex justify-center items-center text-sm font-medium border aria-disabled:text-muted-foreground aria-disabled:border-muted aria-disabled:pointer-events-none bg-gradient-to-b from-transparent to-transparent hover:text-primary aria-disabled:bg-transparent aria-selected:primary-gradient-subtle aria-selected:border-primary/10 shadow-md-subtle max-sm:py-2 max-sm:text-base py-0.5 px-2.5 gap-1.5 h-9 w-16 rounded-xl disabled:bg-primary/5 disabled:border-primary/20 disabled:text-primary/20 hover:bg-primary/20 text-secondary bg-primary/20 border-primary/60 hover:border-primary/60"
               >
                 <svg
                   class="h-4 w-4"
