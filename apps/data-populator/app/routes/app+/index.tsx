@@ -1423,15 +1423,16 @@ export default function CSVEditor() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <FileType className="w-6 h-6" strokeWidth={1.5} />
-                  <Text variant={TextVariant.headline}>Select Data Type</Text>
+                  <Text variant={TextVariant.headline}>Select Atom Type</Text>
                 </div>
                 <Text
                   variant={TextVariant.body}
                   className="text-muted-foreground"
                 >
                   To start, select the type of atom data you are uploading. Use{' '}
-                  {'<Thing>'} for atom with metadata, or CAIP-10 for a smart
-                  contract, or URI for a raw URI (advanced). Refer to{' '}
+                  {'<Thing>'} for atoms with metadata, CAIP-10 for smart
+                  contracts, or URI for raw URIs (advanced users only). <br />
+                  Refer to our{' '}
                   <a
                     href="https://tech.docs.intuition.systems/populator"
                     target="_blank"
@@ -1440,7 +1441,7 @@ export default function CSVEditor() {
                   >
                     documentation
                   </a>{' '}
-                  for more details.
+                  for more details on atom types.
                 </Text>
               </div>
               <div className="">
@@ -1474,15 +1475,17 @@ export default function CSVEditor() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <FileSpreadsheet className="w-6 h-6" strokeWidth={1.5} />
-                  <Text variant={TextVariant.headline}>Upload CSV</Text>
+                  <Text variant={TextVariant.headline}>Load CSV</Text>
                 </div>
                 <Text
                   variant={TextVariant.body}
                   className="text-muted-foreground"
                 >
-                  Upload a CSV file to begin. Once the file is uploaded, we will
-                  will automatically perform some basic proofreading. <br />
-                  Refer to{' '}
+                  Upload a properly formatted CSV based on the atom type
+                  selected. Atoms that already exist on Intuition will be
+                  automatically flagged, and do not need to be republished.{' '}
+                  <br />
+                  Refer to our{' '}
                   <a
                     href="https://tech.docs.intuition.systems/populator"
                     target="_blank"
@@ -1517,10 +1520,12 @@ export default function CSVEditor() {
                   variant={TextVariant.body}
                   className="text-muted-foreground"
                 >
-                  Begin the process by uploading atoms to Intuition.
-                  Pre-existing atoms will automatically be omitted from
-                  publishing. <br />
-                  Refer to{' '}
+                  Select atoms in the Atoms table and publish them using the{' '}
+                  <b>Publish Selected Atoms</b> button below. Atoms flagged as
+                  already published do not need to be republished - the data
+                  populator tool will ensure they&apos;re correctly handled for
+                  you. <br />
+                  Refer to our{' '}
                   <a
                     href="https://tech.docs.intuition.systems/populator"
                     target="_blank"
@@ -1628,11 +1633,14 @@ export default function CSVEditor() {
                   variant={TextVariant.body}
                   className="text-muted-foreground"
                 >
-                  Organize your published atoms by adding tags via triples. The
-                  tag atoms must be published first, and the tag must be
-                  created.
+                  Create a tag and apply it to the selected atoms. You will need
+                  to publish the tag if it does not already exist before you can
+                  apply it to the atoms in your list. You don&apos;t need to
+                  re-create it if it already exists. If you want to re-apply the
+                  same tag in the future, make sure that every tag field exactly
+                  matches what you used previously.
                   <br />
-                  Refer to{' '}
+                  Refer to our{' '}
                   <a
                     href="https://tech.docs.intuition.systems/populator"
                     target="_blank"
