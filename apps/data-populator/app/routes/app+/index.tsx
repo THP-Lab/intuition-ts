@@ -1464,12 +1464,7 @@ export default function CSVEditor() {
                 </div>
               </div>
               <div className="flex justify-end">
-                <Button
-                  onClick={() => setActiveTab('upload')}
-                  disabled={!selectedType}
-                >
-                  Continue
-                </Button>
+                <Button onClick={() => setActiveTab('upload')}>Continue</Button>
               </div>
             </div>
           </TabsContent>
@@ -1504,10 +1499,7 @@ export default function CSVEditor() {
                 onFileChange={loadCSV}
               />
               <div className="flex justify-end">
-                <Button
-                  onClick={() => setActiveTab('publish')}
-                  disabled={!file}
-                >
+                <Button onClick={() => setActiveTab('publish')}>
                   Continue
                 </Button>
               </div>
@@ -1587,7 +1579,7 @@ export default function CSVEditor() {
                   </div>
                 </div>
               </div>
-              <div className="flex justify-end">
+              <div className="flex justify-end space-x-4">
                 {tooltipsEnabled ? (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -1596,7 +1588,8 @@ export default function CSVEditor() {
                         disabled={
                           selectedRows.length === 0 ||
                           isLoading ||
-                          !hasSelectedRowContent()
+                          !hasSelectedRowContent() ||
+                          getAtomsToPublishCount() === 0
                         }
                       >
                         {isLoading ? 'Processing...' : 'Publish Selected Atoms'}
@@ -1612,12 +1605,14 @@ export default function CSVEditor() {
                     disabled={
                       selectedRows.length === 0 ||
                       isLoading ||
-                      !hasSelectedRowContent()
+                      !hasSelectedRowContent() ||
+                      getAtomsToPublishCount() === 0
                     }
                   >
                     {isLoading ? 'Processing...' : 'Publish Selected Atoms'}
                   </Button>
                 )}
+                <Button onClick={() => setActiveTab('tag')}>Continue</Button>
               </div>
             </div>
           </TabsContent>
