@@ -1,7 +1,7 @@
 {
   "name": "@0xintuition/template-remix-vite",
   "version": "0.1.1",
-  "description": "Auth Ready Remix Template",
+  "description": "Auth Ready Remix/Vite Template",
   "sideEffects": false,
   "type": "module",
   "scripts": {
