@@ -1165,38 +1165,38 @@ export default function CSVEditor() {
 
   // Add this function to handle tag creation
   const handleCreateTag = useCallback(() => {
-    const tagAtom = {
-      '@context': newTag['@context'],
-      '@type': newTag['@type'],
-      name: newTag.name,
-      description: newTag.description,
-      image: newTag.image,
-      url: newTag.url,
-    }
+    // Store current csvData
+    const currentCsvData = csvData
+
+    // Convert tag to CSV format that matches our schema
+    const tagCsvData = [
+      ['@context', '@type', 'name', 'description', 'image', 'url'],
+      [
+        newTag['@context'],
+        newTag['@type'],
+        newTag.name,
+        newTag.description,
+        newTag.image,
+        newTag.url,
+      ],
+    ]
 
     showConfirmModal(
       'Create tag as atom? This will take about a minute.',
       (confirm) => {
         if (confirm) {
-          initiateBatchRequest(
-            [0],
-            [
-              ['@context', '@type', 'name', 'description', 'image', 'url'],
-              [
-                tagAtom['@context'],
-                tagAtom['@type'],
-                tagAtom.name,
-                tagAtom.description,
-                tagAtom.image,
-                tagAtom.url,
-              ],
-            ],
-            'CSV',
-          )
+          // Set tag data for creation
+          setCsvData(tagCsvData) // anarchy
+          initiateBatchRequest([0], tagCsvData, 'CSV')
+
+          // Restore original csvData after initiating request
+          setTimeout(() => {
+            setCsvData(currentCsvData)
+          }, 0)
         }
       },
     )
-  }, [newTag, initiateBatchRequest, showConfirmModal])
+  }, [newTag, initiateBatchRequest, showConfirmModal, csvData])
 
   // Add this function to check if tag exists
   const checkTagExists = useCallback(async () => {
