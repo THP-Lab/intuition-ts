@@ -1,0 +1,7 @@
+import{j as t}from"./jsx-runtime-Cw0GR0a5.js";import{ag as p,af as a}from"./TransactionStatusIndicator-CeOhUi86.js";const u={title:"Components/Lists/ListGrid",component:p},o=({children:r})=>t.jsx("span",{className:"w-full cursor-pointer",children:r}),s={args:{},render:r=>t.jsxs(p,{...r,children:[t.jsx(a,{displayName:"Best Crypto Trackers",imgSrc:"https://avatars.githubusercontent.com/u/94311139?s=200&v=4",identitiesCount:45,buttonWrapper:e=>t.jsx(o,{children:e})}),t.jsx(a,{displayName:"Top DeFi Platforms",imgSrc:"https://avatars.githubusercontent.com/u/94311139?s=200&v=4",identitiesCount:45,buttonWrapper:e=>t.jsx(o,{children:e})})]})};var i,n,c;s.parameters={...s.parameters,docs:{...(i=s.parameters)==null?void 0:i.docs,source:{originalSource:`{
+  args: {},
+  render: args => <ListGrid {...args}>
+      <ListCard displayName="Best Crypto Trackers" imgSrc="https://avatars.githubusercontent.com/u/94311139?s=200&v=4" identitiesCount={45} buttonWrapper={button => <MockLink>{button}</MockLink>} />
+      <ListCard displayName="Top DeFi Platforms" imgSrc="https://avatars.githubusercontent.com/u/94311139?s=200&v=4" identitiesCount={45} buttonWrapper={button => <MockLink>{button}</MockLink>} />
+    </ListGrid>
+}`,...(c=(n=s.parameters)==null?void 0:n.docs)==null?void 0:c.source}}};const m=["BasicUsage"],g=Object.freeze(Object.defineProperty({__proto__:null,BasicUsage:s,__namedExportsOrder:m,default:u},Symbol.toStringTag,{value:"Module"}));export{s as B,g as S};
