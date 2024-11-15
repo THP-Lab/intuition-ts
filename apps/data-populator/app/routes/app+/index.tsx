@@ -59,9 +59,12 @@ import { generateCsvContent, parseCsv } from '@lib/utils/csv'
 import { loadThumbnail, loadThumbnails } from '@lib/utils/image'
 import logger from '@lib/utils/logger'
 import {
+  CAIP10Issue,
   detectAdjacentDuplicatesForCell,
   detectAllAdjacentDuplicates,
+  fixCAIP10,
   proofreadAll,
+  proofreadCAIP10s,
   proofreadRow,
   type CellHighlight,
   type UnusualCharacterIssue,
@@ -616,19 +619,42 @@ export default function CSVEditor() {
     }
   }
 
-  // Separate function to handle the data processing
+  // Update processLoadedData to include CAIP10 proofing
   const processLoadedData = (rows: string[][], type: AtomDataTypeKey) => {
     setCsvData(rows)
     setLoadedCSVData(rows)
 
     const proofreadResult = proofreadAll(rows)
+    const issues: UnusualCharacterIssue[] = []
 
+    // Add CAIP10 proofing for CAIP10 type
+    if (type === 'CAIP10') {
+      const caip10Result = proofreadCAIP10s(rows)
+      if (caip10Result.cellIssues.length > 0) {
+        issues.push(
+          ...caip10Result.cellIssues.map((issue: CAIP10Issue) => ({
+            rowIndex: issue.rowIndex,
+            cellIndex: issue.cellIndex,
+            originalValue: issue.originalValue,
+            suggestedValue: issue.suggestedValue,
+            reason: issue.reason,
+          })),
+        )
+      }
+    }
+
+    // Add character proofing issues
     if (proofreadResult.unusualCharacters.hasUnusualCharacters) {
-      const adjustedIssues = proofreadResult.unusualCharacters.cellIssues
-      setProofreadIssues(adjustedIssues)
+      issues.push(...proofreadResult.unusualCharacters.cellIssues)
+    }
+
+    // Show proofread modal if there are any issues
+    if (issues.length > 0) {
+      setProofreadIssues(issues)
       setShowProofreadModal(true)
     }
 
+    // Handle duplicates check
     if (proofreadResult.duplicates.hasDuplicates) {
       showConfirmModal(
         `Duplicative data found. ${proofreadResult.duplicates.duplicateIndices.length} duplicate row(s) will be removed. You can save over the old data using the Save CSV button.`,
@@ -666,6 +692,7 @@ export default function CSVEditor() {
               issue.cellIndex >= 0 &&
               issue.cellIndex < newData[issue.rowIndex].length
             ) {
+              // Apply the fix
               newData[issue.rowIndex][issue.cellIndex] = issue.suggestedValue
             } else {
               console.error(
@@ -679,12 +706,23 @@ export default function CSVEditor() {
           }
         })
 
+        // If this is a CAIP10 type, recheck for any remaining issues
+        if (selectedType === 'CAIP10') {
+          const remainingIssues = proofreadCAIP10s(newData).cellIssues
+          if (remainingIssues.length > 0) {
+            console.warn(
+              'Some CAIP10 issues remain after fixes:',
+              remainingIssues,
+            )
+          }
+        }
+
         checkExistingAtoms(newData, selectedType)
         return newData
       })
       setShowProofreadModal(false)
     },
-    [checkExistingAtoms],
+    [selectedType],
   )
 
   // Function to update cell highlights for a specific cell
@@ -1055,7 +1093,7 @@ export default function CSVEditor() {
     [csvData],
   )
 
-  // Simplify handleCellBlur to only handle height reset and highlights
+  // Update handleCellBlur to handle CAIP10 validation without showing modal
   const handleCellBlur = useCallback(
     (
       e: React.FocusEvent<HTMLTextAreaElement>,
@@ -1063,6 +1101,19 @@ export default function CSVEditor() {
       cellIndex: number,
     ) => {
       e.target.style.height = '2rem' // Reset to default height
+
+      // Check for CAIP10 format if this is a CAIP10 type
+      if (selectedType === 'CAIP10') {
+        const value = e.target.value
+        const fixResult = fixCAIP10(value)
+        if (
+          fixResult.isValidCAIP10 &&
+          fixResult.reason === 'Address checksummed'
+        ) {
+          // Only automatically apply checksum fixes
+          handleCellEdit(rowIndex, cellIndex, fixResult.fixedText)
+        }
+      }
 
       // Check if the edited row is now a duplicate
       const editedRow = csvData[rowIndex]
@@ -1083,7 +1134,13 @@ export default function CSVEditor() {
 
       updateCellHighlights(rowIndex, cellIndex)
     },
-    [csvData, showConfirmModal, updateCellHighlights],
+    [
+      csvData,
+      showConfirmModal,
+      updateCellHighlights,
+      selectedType,
+      handleCellEdit,
+    ],
   )
 
   // Function to handle cell pasting content into cells
