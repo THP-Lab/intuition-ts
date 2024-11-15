@@ -262,7 +262,7 @@ export default function Desktop() {
                   <SunburstCard label="Executive Summary" size="sm" />
                 </a>
                 <a href={LITE_PAPER} target="_blank" rel="noreferrer">
-                  <SunburstCard label="Lite Paper" size="sm" />
+                  <SunburstCard label="Litepaper" size="sm" />
                 </a>
                 <a href={PODCASTS} target="_blank" rel="noreferrer">
                   <SunburstCard label="Podcasts" size="sm" />
