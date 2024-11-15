@@ -4,12 +4,19 @@ query GetAtoms(
   $orderBy: [atoms_order_by!]
   $where: atoms_bool_exp
 ) {
-  atoms(limit: $limit, offset: $offset, order_by: $orderBy, where: $where) {
-    ...AtomMetadata
-    ...AtomTxn
-    ...AtomVaultDetails
-    creator {
-      ...AccountMetadata
+  atoms_aggregate(
+    limit: $limit
+    offset: $offset
+    order_by: $orderBy
+    where: $where
+  ) {
+    nodes {
+      ...AtomMetadata
+      ...AtomTxn
+      ...AtomVaultDetails
+      creator {
+        ...AccountMetadata
+      }
     }
   }
 }
