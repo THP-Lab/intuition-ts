@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
   Badge,
@@ -22,23 +22,23 @@ import {
 import { ClaimPresenter, IdentityPresenter } from '@0xintuition/api'
 
 import { InfoTooltip } from '@components/info-tooltip'
-import { GET_VAULT_DETAILS_RESOURCE_ROUTE, MIN_DEPOSIT } from '@consts/general'
+import { MIN_DEPOSIT } from '@consts/general'
 import { multivaultAbi } from '@lib/abis/multivault'
-import { useDepositAtom } from '@lib/hooks/useDepositAtom'
+import { useStakeMutation } from '@lib/hooks/mutations/useStakeMutation'
+import { useGetVaultDetails } from '@lib/hooks/useGetVaultDetails'
 import { useGetWalletBalance } from '@lib/hooks/useGetWalletBalance'
-import { useRedeemAtom } from '@lib/hooks/useRedeemAtom'
 import { transactionReducer } from '@lib/hooks/useTransactionReducer'
 import { stakeModalAtom } from '@lib/state/store'
-import logger from '@lib/utils/logger'
 import { useGenericTxState } from '@lib/utils/use-tx-reducer'
-import { useFetcher, useLocation } from '@remix-run/react'
+import { useLocation } from '@remix-run/react'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   TransactionActionType,
   TransactionStateType,
 } from 'app/types/transaction'
 import { VaultDetailsType } from 'app/types/vault'
 import { useAtom } from 'jotai'
-import { Abi, Address, decodeEventLog, formatUnits, parseUnits } from 'viem'
+import { Address, decodeEventLog, formatUnits } from 'viem'
 import { useAccount, usePublicClient } from 'wagmi'
 
 import StakeButton from './stake-button'
@@ -57,7 +57,7 @@ interface StakeModalProps {
   open: boolean
   identity?: IdentityPresenter
   claim?: ClaimPresenter
-  vaultId?: string
+  vaultId: string
   vaultDetailsProp?: VaultDetailsType
   onClose?: () => void
   onSuccess?: (args: {
@@ -81,12 +81,8 @@ export default function StakeModal({
   direction,
   onSuccess,
 }: StakeModalProps) {
-  console.log('claim', claim)
-  console.log('direction', direction)
-  const fetchReval = useFetcher()
   const [stakeModalState] = useAtom(stakeModalAtom)
   const { mode, modalType } = stakeModalState
-  const formRef = useRef(null)
   const [val, setVal] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [lastTxHash, setLastTxHash] = useState<string | undefined>(undefined)
@@ -95,40 +91,28 @@ export default function StakeModal({
     TransactionActionType
   >(transactionReducer, initialTxState)
   const publicClient = usePublicClient()
+  const queryClient = useQueryClient()
+  const { data: vaultDetailsData, isLoading: isLoadingVaultDetails } =
+    useGetVaultDetails(contract, vaultId, claim?.counter_vault_id, {
+      queryKey: [
+        'get-vault-details',
+        contract,
+        vaultId,
+        claim?.counter_vault_id,
+        direction,
+      ],
+      enabled: open,
+    })
 
-  const vaultDetailsFetcher = useFetcher<VaultDetailsType>()
-  const [fetchId, setFetchId] = useState(0)
+  const vaultDetails = vaultDetailsData ?? vaultDetailsProp
+  console.log('vaultDetails source:', {
+    vaultDetailsData,
+    vaultDetailsProp,
+    finalVaultDetails: vaultDetails,
+  })
 
-  const [vaultDetails, setVaultDetails] = useState<
-    VaultDetailsType | undefined
-  >(vaultDetailsProp)
-
-  useEffect(() => {
-    setVaultDetails(vaultDetailsProp)
-  }, [vaultDetailsProp])
-
-  useEffect(() => {
-    let isCancelled = false
-
-    if (vaultId !== null) {
-      const finalUrl = `${GET_VAULT_DETAILS_RESOURCE_ROUTE}?contract=${contract}&vaultId=${vaultId}&fetchId=${fetchId}`
-      if (!isCancelled) {
-        vaultDetailsFetcher.load(finalUrl)
-      }
-    }
-
-    return () => {
-      isCancelled = true
-    }
-    // omits the fetcher from the exhaustive deps
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contract, vaultId, fetchId])
-
-  useEffect(() => {
-    if (vaultDetailsFetcher.state === 'idle' && vaultDetailsFetcher.data) {
-      setVaultDetails(vaultDetailsFetcher.data)
-    }
-  }, [vaultDetailsFetcher.state, vaultDetailsFetcher.data])
+  console.log('vaultDetails', vaultDetails)
+  console.log('claim', claim)
 
   const identityShouldOverride = identity && identity.vault_id !== '0'
 
@@ -139,134 +123,117 @@ export default function StakeModal({
   }
 
   let user_conviction: string = '0'
-  if (identityShouldOverride) {
-    user_conviction = vaultDetails?.user_conviction ?? identity.user_conviction
-  } else if (claim) {
+  if (vaultDetails?.user_conviction) {
+    user_conviction = vaultDetails.user_conviction
+  } else if (identityShouldOverride) {
+    user_conviction = identity.user_conviction
+  } else if (claim && direction) {
     user_conviction =
       direction === 'for'
-        ? vaultDetails?.user_conviction ?? claim.user_conviction_for
-        : vaultDetails?.user_conviction_against ?? claim.user_conviction_against
+        ? claim.user_conviction_for
+        : claim.user_conviction_against
   }
 
   let conviction_price: string = '0'
-  if (identityShouldOverride) {
-    conviction_price =
-      vaultDetails?.conviction_price ?? identity.conviction_price
-  } else if (claim) {
+  if (vaultDetails?.conviction_price) {
+    conviction_price = vaultDetails.conviction_price
+  } else if (identityShouldOverride) {
+    conviction_price = identity.conviction_price
+  } else if (claim && direction) {
     conviction_price =
       direction === 'for'
-        ? vaultDetails?.conviction_price ?? claim.for_conviction_price
-        : vaultDetails?.against_conviction_price ??
-          claim.against_conviction_price
+        ? claim.for_conviction_price
+        : claim.against_conviction_price
   }
-
   let user_assets: string = '0'
+  console.log('Starting values:', {
+    identityShouldOverride,
+    identity: identity?.user_assets,
+    claim,
+    direction,
+    vaultDetails: vaultDetails?.user_assets,
+  })
+
   if (identityShouldOverride) {
-    user_assets = vaultDetails?.user_assets ?? identity.user_assets
-  } else if (claim) {
+    user_assets = identity?.user_assets ?? '0'
+    console.log('Set from identity:', user_assets)
+  } else if (claim && direction) {
     user_assets =
       direction === 'for'
-        ? vaultDetails?.user_assets ?? claim.user_assets_for
-        : vaultDetails?.user_assets_against ?? claim.user_assets_against
+        ? claim.user_assets_for ?? '0'
+        : claim.user_assets_against ?? '0'
+    console.log('Set from claim:', user_assets)
+  }
+  if (vaultDetails?.user_assets) {
+    user_assets = vaultDetails.user_assets
+    console.log('Set from vaultDetails:', user_assets)
   }
 
-  const { min_deposit } = vaultDetails ?? { min_deposit: MIN_DEPOSIT }
+  console.log('Final user_assets:', user_assets)
 
-  const depositHook = useDepositAtom(contract)
-
-  const redeemHook = useRedeemAtom(contract)
+  const min_deposit = vaultDetails
+    ? formatUnits(BigInt(vaultDetails?.min_deposit), 18)
+    : MIN_DEPOSIT
 
   const {
-    writeContractAsync,
-    receipt: txReceipt,
+    mutateAsync: stake,
+    txReceipt,
     awaitingWalletConfirmation,
     awaitingOnChainConfirmation,
     isError,
     reset,
-  } = mode === 'deposit' ? depositHook : redeemHook
+  } = useStakeMutation(contract, mode as 'deposit' | 'redeem')
 
-  const useHandleAction = (actionType: string) => {
-    return async () => {
-      try {
-        const parsedValue = parseUnits(val === '' ? '0' : val, 18)
-        const txHash = await writeContractAsync({
-          address: contract as `0x${string}`,
-          abi: multivaultAbi as Abi,
-          functionName:
-            actionType === 'buy'
-              ? claim !== undefined
-                ? 'depositTriple'
-                : 'depositAtom'
-              : claim !== undefined
-                ? 'redeemTriple'
-                : 'redeemAtom',
-          args:
-            actionType === 'buy'
-              ? [userWallet as `0x${string}`, vaultId]
-              : [
-                  parseUnits(
-                    val === ''
-                      ? '0'
-                      : (
-                          Number(val) /
-                          Number(formatUnits(BigInt(conviction_price), 18))
-                        ).toString(),
-                    18,
-                  ),
-                  userWallet as `0x${string}`,
-                  vaultId,
-                ],
-          value: actionType === 'buy' ? parsedValue : undefined,
+  const handleAction = async () => {
+    try {
+      const txHash = await stake({
+        val,
+        userWallet,
+        vaultId,
+        claim,
+        identity,
+        conviction_price,
+        mode,
+        contract,
+      })
+
+      if (publicClient && txHash) {
+        dispatch({ type: 'TRANSACTION_PENDING' })
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash,
         })
 
-        if (publicClient && txHash) {
-          dispatch({ type: 'TRANSACTION_PENDING' })
-          const receipt = await publicClient.waitForTransactionReceipt({
-            hash: txHash,
-          })
-          logger('receipt', receipt)
-          logger('txHash', txHash)
-          dispatch({
-            type: 'TRANSACTION_COMPLETE',
-            txHash,
-            txReceipt: receipt,
-          })
-          onSuccess?.({
-            identity,
-            claim,
-            vaultDetails,
-            direction,
-          })
-          fetchReval.submit(formRef.current, {
-            method: 'POST',
-          })
-        }
-      } catch (error) {
-        logger('error', error)
-        setIsLoading(false)
-        if (error instanceof Error) {
-          let errorMessage = 'Failed transaction'
-          if (error.message.includes('insufficient')) {
-            errorMessage = 'Insufficient funds'
-          }
-          if (error.message.includes('rejected')) {
-            errorMessage = 'Transaction rejected'
-          }
-          dispatch({
-            type: 'TRANSACTION_ERROR',
-            error: errorMessage,
-          })
-          toast.error(errorMessage)
-          return
-        }
+        dispatch({
+          type: 'TRANSACTION_COMPLETE',
+          txHash,
+          txReceipt: receipt,
+        })
+
+        await queryClient.refetchQueries({
+          queryKey: [
+            'get-vault-details',
+            contract,
+            vaultId,
+            claim?.counter_vault_id,
+          ],
+        })
+
+        onSuccess?.({
+          identity,
+          claim,
+          vaultDetails,
+          direction,
+        })
       }
+    } catch (error) {
+      dispatch({
+        type: 'TRANSACTION_ERROR',
+        error: 'Error processing transaction',
+      })
     }
   }
 
-  const handleDeposit = useHandleAction('buy')
-  const handleRedeem = useHandleAction('sell')
-
-  const action = mode === 'deposit' ? handleDeposit : handleRedeem
+  const action = handleAction
 
   useEffect(() => {
     if (isError) {
@@ -362,9 +329,15 @@ export default function StakeModal({
         !!awaitingOnChainConfirmation ||
         state.status === 'confirm' ||
         state.status === 'transaction-pending' ||
-        state.status === 'transaction-confirmed',
+        state.status === 'transaction-confirmed' ||
+        isLoadingVaultDetails,
     )
-  }, [awaitingWalletConfirmation, awaitingOnChainConfirmation, state.status])
+  }, [
+    isLoadingVaultDetails,
+    awaitingWalletConfirmation,
+    awaitingOnChainConfirmation,
+    state.status,
+  ])
 
   const { address } = useAccount()
   const walletBalance = useGetWalletBalance(
@@ -376,7 +349,7 @@ export default function StakeModal({
 
   const handleStakeButtonClick = async () => {
     if (
-      (mode === 'deposit' && +val < +formatUnits(BigInt(min_deposit), 18)) ||
+      (mode === 'deposit' && +val < +min_deposit) ||
       +val > (mode === 'deposit' ? +walletBalance : +(user_conviction ?? '0'))
     ) {
       setShowErrors(true)
@@ -394,14 +367,10 @@ export default function StakeModal({
 
   const handleClose = () => {
     onClose()
-    setVaultDetails(undefined)
     setIsLoading(false)
     setVal('')
     setShowErrors(false)
     setValidationErrors([])
-    vaultDetailsFetcher.data = undefined
-    vaultDetailsFetcher.state = 'idle'
-    setFetchId((prevId) => prevId + 1)
     setTimeout(() => {
       dispatch({ type: 'START_TRANSACTION' })
       reset()
@@ -410,14 +379,10 @@ export default function StakeModal({
 
   useEffect(() => {
     if (open) {
-      setVaultDetails(undefined)
       setIsLoading(false)
       setVal('')
       setShowErrors(false)
       setValidationErrors([])
-      vaultDetailsFetcher.data = undefined
-      vaultDetailsFetcher.state = 'idle'
-      setFetchId((prevId) => prevId + 1)
       dispatch({ type: 'START_TRANSACTION' })
     }
   }, [open, dispatch])
@@ -516,8 +481,6 @@ export default function StakeModal({
           setVal={setVal}
           mode={mode}
           state={state}
-          fetchReval={fetchReval}
-          formRef={formRef}
           isLoading={isLoading}
           modalType={modalType}
           validationErrors={validationErrors}

@@ -72,7 +72,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     (searchParams.get('direction') as SortDirection) ?? 'desc'
 
   const { claim } = await getClaim(request, id)
-
   if (!claim) {
     throw new Response('Not Found', { status: 404 })
   }
@@ -321,6 +320,7 @@ export default function ClaimDetails() {
         open={stakeModalActive.isOpen}
         direction={stakeModalActive.direction}
         claim={claim}
+        vaultId={stakeModalActive.vaultId}
         vaultDetailsProp={vaultDetails}
         onClose={() => {
           setStakeModalActive((prevState) => ({
