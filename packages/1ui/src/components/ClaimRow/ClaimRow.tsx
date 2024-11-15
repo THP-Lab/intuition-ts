@@ -8,6 +8,7 @@ import {
   ContextMenuTrigger,
 } from 'components/ContextMenu'
 import { Icon, IconName } from 'components/Icon'
+import { Separator } from 'components/Separator'
 import { StakeButton, StakeButtonVariant } from 'components/StakeButton'
 import { StakeTVL } from 'components/StakeTVL'
 import { Text, TextVariant } from 'components/Text'
@@ -48,7 +49,7 @@ const ClaimRow = ({
   return (
     <div
       className={cn(
-        `w-full flex flex-col items-center bg-primary/5 border border-border/10 overflow-hidden`,
+        `w-full flex flex-col items-center border border-border/10 overflow-hidden`,
         isFirst && 'rounded-t-xl',
         isLast && 'rounded-b-xl',
         className,
@@ -59,17 +60,35 @@ const ClaimRow = ({
           backgroundImage:
             userPosition && userPosition !== '0'
               ? positionDirection === ClaimPosition.claimFor
-                ? 'linear-gradient(to right, transparent, rgba(0, 111, 232, 0.5))'
-                : 'linear-gradient(to right, transparent, rgba(255, 149, 0, 0.5))'
+                ? 'linear-gradient(to right, transparent, rgba(0, 111, 232, 0.3))'
+                : 'linear-gradient(to right, transparent, rgba(255, 149, 0, 0.3))'
               : 'none',
         }}
         className={cn(
-          `w-full flex justify-between items-center p-4`,
+          `w-full flex flex-col md:flex-row justify-between items-center p-4 max-sm:gap-6`,
           isFirst && 'rounded-t-xl',
         )}
       >
-        <div className="flex items-center gap-1">{children}</div>
-        <div className="flex items-center gap-3">
+        <div className="flex w-full items-start md:items-center gap-1">
+          {children}
+          <ContextMenu>
+            <ContextMenuTrigger className="sm:hidden ml-auto">
+              <Button variant={ButtonVariant.text} size={ButtonSize.icon}>
+                <Icon
+                  name={IconName.context}
+                  className="text-secondary/70 h-4 w-4"
+                />
+              </Button>
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+              <ContextMenuItem>Profile</ContextMenuItem>
+              <ContextMenuItem>Settings</ContextMenuItem>
+              <ContextMenuItem>Logout</ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
+        </div>
+        <Separator className="md:hidden" />
+        <div className="flex items-center gap-3 max-sm:w-full">
           <StakeTVL
             totalTVL={+totalTVL}
             tvlFor={+tvlFor}
@@ -88,6 +107,7 @@ const ClaimRow = ({
                 positionDirection={positionDirection}
                 disabled={positionDirection === ClaimPosition.claimAgainst}
                 onClick={onStakeForClick}
+                className="max-sm:w-full"
               />
               <StakeButton
                 variant={StakeButtonVariant.claimAgainst}
@@ -96,11 +116,12 @@ const ClaimRow = ({
                 positionDirection={positionDirection}
                 disabled={positionDirection === ClaimPosition.claimFor}
                 onClick={onStakeAgainstClick}
+                className="max-sm:w-full"
               />
             </>
           )}
           <ContextMenu>
-            <ContextMenuTrigger disabled>
+            <ContextMenuTrigger disabled className="max-sm:hidden">
               <Button
                 variant={ButtonVariant.text}
                 size={ButtonSize.icon}
@@ -125,16 +146,19 @@ const ClaimRow = ({
           style={{
             backgroundImage:
               positionDirection === ClaimPosition.claimFor
-                ? 'linear-gradient(to right, transparent, rgba(0, 111, 232, 0.2))'
-                : 'linear-gradient(to right, transparent, rgba(255, 149, 0, 0.2))',
+                ? 'linear-gradient(to right, transparent, rgba(0, 111, 232, 0.3))'
+                : 'linear-gradient(to right, transparent, rgba(255, 149, 0, 0.3))',
           }}
           className={cn(
-            `flex flex-row justify-end px-4 py-0.5 w-full items-center gap-1.5 h-9`,
+            `flex flex-row justify-center md:justify-end px-4 py-0.5 w-full items-center gap-1.5 h-14 md:h-9`,
             isLast && 'rounded-b-xl',
+            positionDirection === ClaimPosition.claimFor
+              ? 'text-for'
+              : 'text-against',
           )}
         >
           <Icon name={IconName.arrowUp} className="h-4 w-4" />
-          <Text variant={TextVariant.caption} className="text-inherit">
+          <Text variant={TextVariant.caption} className={cn('text-inherit')}>
             You have staked {userPosition} {currency} {positionDirection} this
             claim
           </Text>

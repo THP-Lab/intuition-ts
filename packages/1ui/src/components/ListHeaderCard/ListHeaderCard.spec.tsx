@@ -48,15 +48,17 @@ describe('ListHeaderCard', () => {
             class="flex items-center"
           >
             <div
-              class="flex items-center w-full max-w-max relative max-sm:flex-col max-sm:m-auto transition-colors duration-200 flex-row"
+              class="flex items-center w-full max-w-max relative max-sm:m-auto transition-colors duration-200 flex-row"
             >
-              <div>
+              <div
+                class="flex items-center"
+              >
                 <button
-                  class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 border-theme"
+                  class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 theme-border"
                   data-state="closed"
                 >
                   <span
-                    class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background theme-border rounded"
+                    class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background border-border/10 rounded"
                   >
                     <span
                       class="flex h-full w-full items-center justify-center bg-inherit"
@@ -82,13 +84,15 @@ describe('ListHeaderCard', () => {
                 data-orientation="horizontal"
                 role="none"
               />
-              <div>
+              <div
+                class="flex items-center"
+              >
                 <button
-                  class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 border-theme"
+                  class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 theme-border"
                   data-state="closed"
                 >
                   <span
-                    class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background theme-border rounded"
+                    class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background border-border/10 rounded"
                   >
                     <span
                       class="flex h-full w-full items-center justify-center bg-inherit"
@@ -114,13 +118,15 @@ describe('ListHeaderCard', () => {
                 data-orientation="horizontal"
                 role="none"
               />
-              <div>
+              <div
+                class="flex items-center"
+              >
                 <button
-                  class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 border-theme"
+                  class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 theme-border"
                   data-state="closed"
                 >
                   <span
-                    class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background theme-border rounded"
+                    class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background border-border/10 rounded"
                   >
                     <span
                       class="flex h-full w-full items-center justify-center bg-inherit"

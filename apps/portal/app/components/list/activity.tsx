@@ -16,6 +16,7 @@ import {
   ProfileCard,
   Text,
   Trunctacular,
+  useSidebarLayoutContext,
 } from '@0xintuition/1ui'
 import {
   ActivityPresenter,
@@ -116,6 +117,8 @@ function ActivityItem({
       : eventMessage.toString()
     : ''
 
+  const { isMobileView } = useSidebarLayoutContext()
+
   return (
     <div
       key={activity.id}
@@ -200,7 +203,7 @@ function ActivityItem({
           </a>
         </div>
       </div>
-      <div className="flex w-full">
+      <div className="flex w-full px-5 pb-4">
         {activity.identity !== null && activity.identity !== undefined && (
           <IdentityRow
             variant={
@@ -225,7 +228,7 @@ function ActivityItem({
             }
             isFirst={index === 0}
             isLast={index === totalItems - 1}
-            className="border-none rounded-none"
+            className="border-none rounded-xl bg-primary/5"
           />
         )}
         {activity.claim && (
@@ -245,7 +248,7 @@ function ActivityItem({
             }
             isFirst={index === 0}
             isLast={index === totalItems - 1}
-            className="border-none rounded-none"
+            className="border-none rounded-xl bg-primary/5"
           >
             <Link to={getClaimUrl(activity.claim.vault_id)} prefetch="intent">
               <Claim
@@ -315,6 +318,7 @@ function ActivityItem({
                   linkComponent: RemixLink,
                 }}
                 isClickable={true}
+                orientation={isMobileView ? 'vertical' : 'horizontal'}
               />
             </Link>
           </ClaimRow>

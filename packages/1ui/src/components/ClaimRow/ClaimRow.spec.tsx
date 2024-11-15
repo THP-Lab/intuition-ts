@@ -26,25 +26,27 @@ describe('ClaimRow', () => {
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
         <div
-          class="w-full flex flex-col items-center bg-primary/5 border border-border/10 overflow-hidden rounded-t-xl rounded-b-xl"
+          class="w-full flex flex-col items-center border border-border/10 overflow-hidden rounded-t-xl rounded-b-xl"
         >
           <div
-            class="w-full flex justify-between items-center p-4 rounded-t-xl"
+            class="w-full flex flex-col md:flex-row justify-between items-center p-4 max-sm:gap-6 rounded-t-xl"
             style="background-image: none;"
           >
             <div
-              class="flex items-center gap-1"
+              class="flex w-full items-start md:items-center gap-1"
             >
               <div
-                class="flex items-center w-full max-w-max relative max-sm:flex-col max-sm:m-auto transition-colors duration-200 flex-row"
+                class="flex items-center w-full max-w-max relative max-sm:m-auto transition-colors duration-200 flex-row"
               >
-                <div>
+                <div
+                  class="flex items-center"
+                >
                   <button
-                    class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 border-theme"
+                    class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 theme-border"
                     data-state="closed"
                   >
                     <span
-                      class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background theme-border rounded"
+                      class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background border-border/10 rounded"
                     >
                       <span
                         class="flex h-full w-full items-center justify-center bg-inherit"
@@ -70,13 +72,15 @@ describe('ClaimRow', () => {
                   data-orientation="horizontal"
                   role="none"
                 />
-                <div>
+                <div
+                  class="flex items-center"
+                >
                   <button
-                    class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 border-theme"
+                    class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 theme-border"
                     data-state="closed"
                   >
                     <span
-                      class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background theme-border rounded"
+                      class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background border-border/10 rounded"
                     >
                       <span
                         class="flex h-full w-full items-center justify-center bg-inherit"
@@ -102,13 +106,15 @@ describe('ClaimRow', () => {
                   data-orientation="horizontal"
                   role="none"
                 />
-                <div>
+                <div
+                  class="flex items-center"
+                >
                   <button
-                    class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 border-theme"
+                    class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 theme-border"
                     data-state="closed"
                   >
                     <span
-                      class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background theme-border rounded"
+                      class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background border-border/10 rounded"
                     >
                       <span
                         class="flex h-full w-full items-center justify-center bg-inherit"
@@ -130,9 +136,30 @@ describe('ClaimRow', () => {
                   </button>
                 </div>
               </div>
+              <span
+                class="sm:hidden ml-auto"
+                data-state="closed"
+              >
+                <button
+                  class="flex justify-center items-center gap-2 text-sm font-medium border disabled:text-muted-foreground aria-disabled:text-muted-foreground aria-disabled:pointer-events-none bg-transparent text-primary/70 border-transparent hover:text-primary disabled:border-transparent aria-disabled:border-transparent disabled:bg-transparent aria-disabled:bg-transparent shadow-none p-1"
+                >
+                  <svg
+                    class="text-secondary/70 h-4 w-4"
+                  >
+                    <use
+                      href="/src/components/Icon/Icon.sprites.svg#context"
+                    />
+                  </svg>
+                </button>
+              </span>
             </div>
             <div
-              class="flex items-center gap-3"
+              class="shrink-0 bg-border/20 h-[1px] w-full md:hidden"
+              data-orientation="horizontal"
+              role="none"
+            />
+            <div
+              class="flex items-center gap-3 max-sm:w-full"
             >
               <div
                 class="h-9 justify-start items-center gap-1 inline-flex"
@@ -150,9 +177,18 @@ describe('ClaimRow', () => {
                       TVL
                     </div>
                     <div
-                      class="text-primary text-sm font-normal"
+                      class="flex flex-row items-center gap-1"
                     >
-                      420.69 ETH
+                      <div
+                        class="text-primary text-sm font-normal"
+                      >
+                        420.6900
+                      </div>
+                      <div
+                        class="text-primary text-sm font-normal"
+                      >
+                        ETH
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -174,7 +210,7 @@ describe('ClaimRow', () => {
                 </div>
               </div>
               <button
-                class="flex justify-center items-center text-sm font-medium border aria-disabled:text-muted-foreground aria-disabled:border-muted aria-disabled:pointer-events-none bg-gradient-to-b from-transparent to-transparent hover:text-primary aria-disabled:bg-transparent aria-selected:primary-gradient-subtle aria-selected:border-primary/10 shadow-md-subtle max-sm:py-2 max-sm:text-base py-0.5 px-2.5 gap-1.5 h-9 w-16 rounded-xl disabled:bg-primary/5 disabled:border-primary/20 disabled:text-primary/20 bg-for/10 border-for/30 hover:bg-for hover:border-for/50 text-for"
+                class="flex justify-center items-center text-sm font-medium border aria-disabled:text-muted-foreground aria-disabled:pointer-events-none bg-gradient-to-b from-transparent to-transparent hover:text-primary disabled:hover:cursor-not-allowed aria-disabled:bg-primary/5 aria-disabled:border-primary/10 aria-selected:primary-gradient-subtle aria-selected:border-primary/10 shadow-md-subtle max-sm:py-2 max-sm:text-base py-0.5 px-2.5 gap-1.5 h-9 w-16 rounded-xl disabled:bg-primary/5 disabled:border-primary/20 disabled:text-primary/20 bg-for/10 border-for/30 hover:bg-for hover:border-for/50 text-for max-sm:w-full"
               >
                 <svg
                   class="h-4 w-4"
@@ -190,7 +226,7 @@ describe('ClaimRow', () => {
                 </div>
               </button>
               <button
-                class="flex justify-center items-center text-sm font-medium border aria-disabled:text-muted-foreground aria-disabled:border-muted aria-disabled:pointer-events-none bg-gradient-to-b from-transparent to-transparent hover:text-primary aria-disabled:bg-transparent aria-selected:primary-gradient-subtle aria-selected:border-primary/10 shadow-md-subtle max-sm:py-2 max-sm:text-base py-0.5 px-2.5 gap-1.5 h-9 w-16 rounded-xl disabled:bg-primary/5 disabled:border-primary/20 disabled:text-primary/20 bg-against/10 border-against/30 hover:bg-against hover:border-against/50 text-against"
+                class="flex justify-center items-center text-sm font-medium border aria-disabled:text-muted-foreground aria-disabled:pointer-events-none bg-gradient-to-b from-transparent to-transparent hover:text-primary disabled:hover:cursor-not-allowed aria-disabled:bg-primary/5 aria-disabled:border-primary/10 aria-selected:primary-gradient-subtle aria-selected:border-primary/10 shadow-md-subtle max-sm:py-2 max-sm:text-base py-0.5 px-2.5 gap-1.5 h-9 w-16 rounded-xl disabled:bg-primary/5 disabled:border-primary/20 disabled:text-primary/20 bg-against/10 border-against/30 hover:bg-against hover:border-against/50 text-against max-sm:w-full"
               >
                 <svg
                   class="h-4 w-4"
@@ -206,6 +242,7 @@ describe('ClaimRow', () => {
                 </div>
               </button>
               <span
+                class="max-sm:hidden"
                 data-disabled=""
                 data-state="closed"
               >
@@ -253,24 +290,26 @@ describe('ClaimRow', () => {
     expect(asFragment()).toMatchInlineSnapshot(`
       <DocumentFragment>
         <div
-          class="w-full flex flex-col items-center bg-primary/5 border border-border/10 overflow-hidden rounded-t-xl rounded-b-xl"
+          class="w-full flex flex-col items-center border border-border/10 overflow-hidden rounded-t-xl rounded-b-xl"
         >
           <div
-            class="w-full flex justify-between items-center p-4 rounded-t-xl"
+            class="w-full flex flex-col md:flex-row justify-between items-center p-4 max-sm:gap-6 rounded-t-xl"
           >
             <div
-              class="flex items-center gap-1"
+              class="flex w-full items-start md:items-center gap-1"
             >
               <div
-                class="flex items-center w-full max-w-max relative max-sm:flex-col max-sm:m-auto transition-colors duration-200 flex-row"
+                class="flex items-center w-full max-w-max relative max-sm:m-auto transition-colors duration-200 flex-row"
               >
-                <div>
+                <div
+                  class="flex items-center"
+                >
                   <button
-                    class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 border-theme"
+                    class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 theme-border"
                     data-state="closed"
                   >
                     <span
-                      class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background theme-border rounded"
+                      class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background border-border/10 rounded"
                     >
                       <span
                         class="flex h-full w-full items-center justify-center bg-inherit"
@@ -296,13 +335,15 @@ describe('ClaimRow', () => {
                   data-orientation="horizontal"
                   role="none"
                 />
-                <div>
+                <div
+                  class="flex items-center"
+                >
                   <button
-                    class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 border-theme"
+                    class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 theme-border"
                     data-state="closed"
                   >
                     <span
-                      class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background theme-border rounded"
+                      class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background border-border/10 rounded"
                     >
                       <span
                         class="flex h-full w-full items-center justify-center bg-inherit"
@@ -328,13 +369,15 @@ describe('ClaimRow', () => {
                   data-orientation="horizontal"
                   role="none"
                 />
-                <div>
+                <div
+                  class="flex items-center"
+                >
                   <button
-                    class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 border-theme"
+                    class="theme-border font-medium py-0.5 pl-0.5 pr-2 hover:bg-primary/10 disabled:pointer-events-none flex gap-2 items-center text-secondary/70 hover:text-secondary rounded-md text-base [&>span]:h-6 [&>span]:w-6 relative z-10 identity-tag transition-colors duration-200 theme-border"
                     data-state="closed"
                   >
                     <span
-                      class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background theme-border rounded"
+                      class="relative flex h-10 w-10 shrink-0 overflow-hidden aspect-square bg-background border-border/10 rounded"
                     >
                       <span
                         class="flex h-full w-full items-center justify-center bg-inherit"
@@ -356,9 +399,30 @@ describe('ClaimRow', () => {
                   </button>
                 </div>
               </div>
+              <span
+                class="sm:hidden ml-auto"
+                data-state="closed"
+              >
+                <button
+                  class="flex justify-center items-center gap-2 text-sm font-medium border disabled:text-muted-foreground aria-disabled:text-muted-foreground aria-disabled:pointer-events-none bg-transparent text-primary/70 border-transparent hover:text-primary disabled:border-transparent aria-disabled:border-transparent disabled:bg-transparent aria-disabled:bg-transparent shadow-none p-1"
+                >
+                  <svg
+                    class="text-secondary/70 h-4 w-4"
+                  >
+                    <use
+                      href="/src/components/Icon/Icon.sprites.svg#context"
+                    />
+                  </svg>
+                </button>
+              </span>
             </div>
             <div
-              class="flex items-center gap-3"
+              class="shrink-0 bg-border/20 h-[1px] w-full md:hidden"
+              data-orientation="horizontal"
+              role="none"
+            />
+            <div
+              class="flex items-center gap-3 max-sm:w-full"
             >
               <div
                 class="h-9 justify-start items-center gap-1 inline-flex"
@@ -376,9 +440,18 @@ describe('ClaimRow', () => {
                       TVL
                     </div>
                     <div
-                      class="text-primary text-sm font-normal"
+                      class="flex flex-row items-center gap-1"
                     >
-                      420.69 ETH
+                      <div
+                        class="text-primary text-sm font-normal"
+                      >
+                        420.6900
+                      </div>
+                      <div
+                        class="text-primary text-sm font-normal"
+                      >
+                        ETH
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -400,7 +473,7 @@ describe('ClaimRow', () => {
                 </div>
               </div>
               <button
-                class="flex justify-center items-center text-sm font-medium border aria-disabled:text-muted-foreground aria-disabled:border-muted aria-disabled:pointer-events-none bg-gradient-to-b from-transparent to-transparent hover:text-primary aria-disabled:bg-transparent aria-selected:primary-gradient-subtle aria-selected:border-primary/10 shadow-md-subtle max-sm:py-2 max-sm:text-base py-0.5 px-2.5 gap-1.5 h-9 w-16 rounded-xl disabled:bg-primary/5 disabled:border-primary/20 disabled:text-primary/20 hover:bg-for text-primary bg-for border-border/30 hover:border-border/30"
+                class="flex justify-center items-center text-sm font-medium border aria-disabled:text-muted-foreground aria-disabled:pointer-events-none bg-gradient-to-b from-transparent to-transparent hover:text-primary disabled:hover:cursor-not-allowed aria-disabled:bg-primary/5 aria-disabled:border-primary/10 aria-selected:primary-gradient-subtle aria-selected:border-primary/10 shadow-md-subtle max-sm:py-2 max-sm:text-base py-0.5 px-2.5 gap-1.5 h-9 w-16 rounded-xl disabled:bg-primary/5 disabled:border-primary/20 disabled:text-primary/20 hover:bg-for text-primary bg-for border-border/30 hover:border-border/30 max-sm:w-full"
               >
                 <svg
                   class="h-4 w-4"
@@ -416,7 +489,7 @@ describe('ClaimRow', () => {
                 </div>
               </button>
               <button
-                class="flex justify-center items-center text-sm font-medium border aria-disabled:text-muted-foreground aria-disabled:border-muted aria-disabled:pointer-events-none bg-gradient-to-b from-transparent to-transparent hover:text-primary aria-disabled:bg-transparent aria-selected:primary-gradient-subtle aria-selected:border-primary/10 shadow-md-subtle max-sm:py-2 max-sm:text-base py-0.5 px-2.5 gap-1.5 h-9 w-16 rounded-xl disabled:bg-primary/5 disabled:border-primary/20 disabled:text-primary/20 hover:bg-against text-primary bg-for border-border/30 hover:border-border/30"
+                class="flex justify-center items-center text-sm font-medium border aria-disabled:text-muted-foreground aria-disabled:pointer-events-none bg-gradient-to-b from-transparent to-transparent hover:text-primary disabled:hover:cursor-not-allowed aria-disabled:bg-primary/5 aria-disabled:border-primary/10 aria-selected:primary-gradient-subtle aria-selected:border-primary/10 shadow-md-subtle max-sm:py-2 max-sm:text-base py-0.5 px-2.5 gap-1.5 h-9 w-16 rounded-xl disabled:bg-primary/5 disabled:border-primary/20 disabled:text-primary/20 hover:bg-against text-primary bg-for border-border/30 hover:border-border/30 max-sm:w-full"
                 disabled=""
               >
                 <svg
@@ -433,6 +506,7 @@ describe('ClaimRow', () => {
                 </div>
               </button>
               <span
+                class="max-sm:hidden"
                 data-disabled=""
                 data-state="closed"
               >
@@ -452,7 +526,7 @@ describe('ClaimRow', () => {
             </div>
           </div>
           <div
-            class="flex flex-row justify-end px-4 py-0.5 w-full items-center gap-1.5 h-9 rounded-b-xl"
+            class="flex flex-row justify-center md:justify-end px-4 py-0.5 w-full items-center gap-1.5 h-14 md:h-9 rounded-b-xl text-for"
           >
             <svg
               class="h-4 w-4"
