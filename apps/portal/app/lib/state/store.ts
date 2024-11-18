@@ -80,8 +80,8 @@ export const saveListModalAtom = atom<{
   isOpen: boolean
   id?: string | null
   tag?: IdentityPresenter | IdentityType | null
-  identity?: IdentityPresenter | null
-  invalidIdentity?: IdentityPresenter | null
+  identity?: IdentityPresenter | IdentityType | null
+  invalidIdentity?: IdentityPresenter | IdentityType | null
 }>({
   isOpen: false,
   id: null,

@@ -21,8 +21,8 @@ import {
   getAtomLabel,
   getAtomLink,
 } from '@lib/utils/misc'
-import { type FetcherWithComponents } from '@remix-run/react'
 import { IPFS_GATEWAY_URL, PATHS } from 'app/consts'
+import { IdentityType } from 'app/types'
 import {
   TransactionActionType,
   TransactionStateType,
@@ -31,8 +31,8 @@ import {
 import SaveReview from './save-review'
 
 interface SaveFormProps {
-  tag: IdentityPresenter
-  identity: IdentityPresenter
+  tag: IdentityPresenter | IdentityType
+  identity: IdentityPresenter | IdentityType
   user_assets: string
   entry_fee: string
   exit_fee: string
@@ -42,8 +42,6 @@ interface SaveFormProps {
   mode: string | undefined
   dispatch: (action: TransactionActionType) => void
   state: TransactionStateType
-  fetchReval: FetcherWithComponents<unknown>
-  formRef: React.RefObject<HTMLFormElement>
   showErrors: boolean
   setShowErrors: (show: boolean) => void
   validationErrors: string[]
@@ -63,8 +61,6 @@ export default function SaveForm({
   mode,
   dispatch,
   state,
-  fetchReval,
-  formRef,
   showErrors,
   setShowErrors,
   validationErrors,
@@ -73,14 +69,6 @@ export default function SaveForm({
 }: SaveFormProps) {
   return (
     <>
-      <fetchReval.Form
-        hidden
-        ref={formRef}
-        action={`/actions/reval`}
-        method="post"
-      >
-        <input type="hidden" name="eventName" value="attest" />
-      </fetchReval.Form>
       {state.status === 'idle' ? (
         <>
           <DialogHeader>
@@ -106,7 +94,7 @@ export default function SaveForm({
               <Claim
                 size="md"
                 subject={{
-                  variant: identity?.is_user ? Identity.user : Identity.nonUser,
+                  variant: identity?.isUser ? Identity.user : Identity.nonUser,
                   label: getAtomLabel(identity),
                   imgSrc: getAtomImage(identity),
                   id: identity?.identity_id,
