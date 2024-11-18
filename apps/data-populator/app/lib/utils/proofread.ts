@@ -227,10 +227,9 @@ export function proofreadCAIP10s(csvData: CsvData): CAIP10ProofreadResult {
     for (let cellIndex = 0; cellIndex < row.length; cellIndex++) {
       const cell = row[cellIndex]
       const fixResult = fixCAIP10(cell)
-      if (
-        !fixResult.isValidCAIP10 ||
-        fixResult.reason === 'Address checksummed'
-      ) {
+
+      // Flag the cell if it needs any fixes (not just invalid or checksum)
+      if (fixResult.fixedText !== cell) {
         cellIssues.push({
           rowIndex: rowIndex + 1, // Add 1 to account for header row
           cellIndex,
@@ -251,52 +250,77 @@ export function fixCAIP10(text: string): {
   reason: string
 } {
   try {
-    // Split into namespace:chainId:address
-    const parts = text.split(':')
-    if (parts.length !== 3) {
+    let fixedText = text
+    const reasons: string[] = []
+    let isValid = true
+
+    // Split and check parts
+    let parts = fixedText.split(':')
+
+    // Fix 1: Add CAIP10 prefix if missing
+    if (parts.length === 3 && parts[0] !== 'caip10') {
+      fixedText = `caip10:${fixedText}`
+      reasons.push('Added CAIP10 prefix')
+      parts = fixedText.split(':')
+    }
+
+    // If we don't have 4 parts after potential prefix fix, it's invalid
+    if (parts.length !== 4) {
       return {
         isValidCAIP10: false,
-        fixedText: text,
-        reason: 'Invalid CAIP-10 format - must have 3 parts',
+        fixedText,
+        reason:
+          'Invalid CAIP-10 format - must be caip10:eip155:chainId:address',
       }
     }
 
-    const [namespace, chainId, address] = parts
+    let [prefix, namespace, chainId, address] = parts
 
-    // Verify namespace
+    // Fix 2: Fix prefix if needed
+    if (prefix !== 'caip10') {
+      prefix = 'caip10'
+      reasons.push('Fixed prefix')
+    }
+
+    // Fix 3: Fix namespace if needed
     if (namespace !== 'eip155') {
-      return {
-        isValidCAIP10: false,
-        fixedText: text,
-        reason: 'Invalid namespace - must be eip155',
-      }
+      namespace = 'eip155'
+      reasons.push('Fixed namespace')
     }
 
-    // Verify chainId is a number
+    // Fix 4: Attempt to clean chainId
     if (!/^\d+$/.test(chainId)) {
-      return {
-        isValidCAIP10: false,
-        fixedText: text,
-        reason: 'Invalid chainId - must be numeric',
+      // Try to extract numbers only
+      const cleanedChainId = chainId.replace(/[^\d]/g, '')
+      if (cleanedChainId) {
+        chainId = cleanedChainId
+        reasons.push('Fixed chainId format')
+      } else {
+        isValid = false
+        reasons.push('Invalid chainId')
       }
     }
 
-    // Verify and checksum the address
+    // Fix 5: Try to fix and checksum the address
     try {
       const checksummedAddress = getAddress(address)
-      const fixedCAIP10 = `${namespace}:${chainId}:${checksummedAddress}`
-
-      return {
-        isValidCAIP10: true,
-        fixedText: fixedCAIP10,
-        reason: text === fixedCAIP10 ? '' : 'Address checksummed',
+      if (address !== checksummedAddress) {
+        address = checksummedAddress
+        reasons.push('Address checksummed')
       }
     } catch {
-      return {
-        isValidCAIP10: false,
-        fixedText: text,
-        reason: 'Invalid Ethereum address',
-      }
+      // If we can't checksum it, mark as invalid but keep going
+      isValid = false
+      reasons.push('Invalid Ethereum address')
+    }
+
+    // Reconstruct the CAIP10 string with all attempted fixes
+    fixedText = `${prefix}:${namespace}:${chainId}:${address}`
+
+    return {
+      isValidCAIP10: isValid,
+      fixedText,
+      reason: reasons.join(' and '),
     }
   } catch {
     return {

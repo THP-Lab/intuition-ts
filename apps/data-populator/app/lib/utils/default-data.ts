@@ -27,7 +27,7 @@ export const defaultURIData = [
 ]
 
 export const defaultCAIP10Descriptions: Record<string, string> = {
-  CAIP10: 'eip155:1:0x0',
+  CAIP10: 'caip10:eip155:1:0x0',
 }
 
 export const defaultURIDescriptions: Record<string, string> = {
