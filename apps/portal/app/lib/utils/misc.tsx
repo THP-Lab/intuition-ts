@@ -5,6 +5,7 @@ import { IdentityPresenter } from '@0xintuition/api'
 
 import { SubmitFunction } from '@remix-run/react'
 import { BLOCK_EXPLORER_URL, IPFS_GATEWAY_URL, PATHS } from 'app/consts'
+import { IdentityType } from 'app/types'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { extractChain, formatUnits } from 'viem'
@@ -425,6 +426,100 @@ export const getAtomId = (atom: IdentityPresenter) => {
     return atom.user?.ens_name ?? atom.user?.wallet
   }
   return atom.identity_id
+}
+
+// atom GQL helpers
+export const getAtomImageGQL = (atom: IdentityType | null | undefined) => {
+  if (!atom) {
+    return ''
+  }
+  return (
+    atom?.image ??
+    atom?.value?.person?.image ??
+    atom?.value?.thing?.image ??
+    atom?.value?.organization?.image ??
+    ''
+  )
+}
+
+export const getAtomLabelGQL = (atom: IdentityType | null | undefined) => {
+  if (!atom) {
+    return '?'
+  }
+  return (
+    atom.label ??
+    atom.value?.person?.name ??
+    atom.value?.thing?.name ??
+    atom.value?.organization?.name ??
+    atom.walletId ??
+    atom.id ??
+    ''
+  )
+}
+
+export const getAtomDescriptionGQL = (
+  atom: IdentityType | null | undefined,
+) => {
+  return (
+    atom?.value?.person?.description ??
+    atom?.value?.thing?.description ??
+    atom?.value?.organization?.description ??
+    ''
+  )
+}
+
+export const getAtomIpfsLinkGQL = (atom: IdentityType | null | undefined) => {
+  if (!atom) {
+    return ''
+  }
+  if (atom.type === ('Account' || 'Default')) {
+    return `${BLOCK_EXPLORER_URL}/address/${atom.walletId}`
+  }
+  if (atom.data?.startsWith('https')) {
+    return atom.data
+  }
+  if (atom.label?.startsWith('caip10')) {
+    const parts = atom.label.split(':')
+    const chainId = Number(parts[2])
+    const address = parts[3]
+    const chain = extractChain({
+      chains: Object.values(chains),
+      // @ts-ignore Ignoring type since viem doesn't provide proper typings for chain IDs
+      id: chainId,
+    })
+    return chain?.blockExplorers?.default
+      ? `${chain.blockExplorers.default.url}/address/${address}`
+      : ''
+  }
+  return `${IPFS_GATEWAY_URL}/${atom.data?.replace('ipfs://', '')}`
+  return ''
+}
+
+export const getAtomLinkGQL = (
+  atom: IdentityType | null | undefined,
+  readOnly: boolean = false,
+) => {
+  if (!atom) {
+    return ''
+  }
+  if (atom.type === ('Account' || 'Default')) {
+    return readOnly
+      ? `${PATHS.READONLY_PROFILE}/${atom.walletId}`
+      : `${PATHS.PROFILE}/${atom.walletId}`
+  }
+  return readOnly
+    ? `${PATHS.READONLY_IDENTITY}/${atom.vaultId}`
+    : `${PATHS.IDENTITY}/${atom.vaultId}`
+}
+
+export const getAtomIdGQL = (atom: IdentityType) => {
+  if (!atom) {
+    return ''
+  }
+  if (atom.type === ('Account' || 'Default')) {
+    return atom.walletId
+  }
+  return atom.id
 }
 
 export const calculatePointsFromFees = (totalProtocolFees: string): number => {

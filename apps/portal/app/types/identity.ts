@@ -36,6 +36,4 @@ export type IdentityListType = {
   }
 }
 
-export type IdentityType = NonNullable<
-  GetAtomsQuery['atoms_aggregate']['nodes'][0]
->
+export type IdentityType = NonNullable<GetAtomsQuery['atoms'][0]>
