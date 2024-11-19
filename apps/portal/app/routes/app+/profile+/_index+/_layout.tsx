@@ -260,7 +260,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (saveListModalActive.tag) {
-      setSelectedTag(saveListModalActive.tag)
+      setSelectedTag(saveListModalActive.tag as IdentityPresenter)
     }
   }, [saveListModalActive])
 

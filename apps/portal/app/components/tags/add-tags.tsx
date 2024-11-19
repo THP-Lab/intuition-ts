@@ -24,17 +24,19 @@ import { useAtom } from 'jotai'
 import { TagsListInputPortal } from './tags-list-input-portal'
 
 interface AddTagsProps {
-  selectedTags: IdentityType[]
+  selectedTags: IdentityPresenter[] | IdentityType[]
   existingTagIds: string[]
   identity: IdentityPresenter
   userWallet: string
-  onAddTag: (newTag: IdentityType) => void
+  onAddTag: (newTag: IdentityPresenter | IdentityType) => void
   onRemoveTag: (id: string) => void
   onRemoveInvalidTag: (id: string) => void
   dispatch: (action: TransactionActionType) => void
   subjectVaultId: string
-  invalidTags: IdentityType[]
-  setInvalidTags: React.Dispatch<React.SetStateAction<IdentityType[]>>
+  invalidTags: IdentityPresenter[] | IdentityType[]
+  setInvalidTags: React.Dispatch<
+    React.SetStateAction<IdentityPresenter[] | IdentityType[]>
+  >
 }
 
 export function AddTags({
