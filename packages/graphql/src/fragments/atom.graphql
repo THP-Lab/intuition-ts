@@ -23,6 +23,7 @@ fragment AtomValue on atoms {
 
 fragment AtomMetadata on atoms {
   id
+  data
   image
   label
   emoji
