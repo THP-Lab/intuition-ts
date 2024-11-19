@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 
-import type { useFetcher } from '@remix-run/react'
 import { TagLoaderData } from '@routes/resources+/tag'
 
 interface UseInvalidItemsProps<T> {

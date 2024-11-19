@@ -4,13 +4,13 @@ import { useGetAtomsQuery } from '@0xintuition/graphql'
 
 import { useDebounce } from './useDebounce'
 
-interface UseAtomSearchProps {
-  selectedAtomIds?: string[]
+interface UseTripleAtomSearchProps {
+  excludeIds?: string[]
 }
 
-export function useAtomSearch({
-  selectedAtomIds = [],
-}: UseAtomSearchProps = {}) {
+export function useTripleAtomSearch({
+  excludeIds = [],
+}: UseTripleAtomSearchProps = {}) {
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearch = useDebounce(searchQuery, 300)
 
@@ -22,15 +22,12 @@ export function useAtomSearch({
               { label: { _ilike: `%${debouncedSearch}%` } },
               { type: { _ilike: `%${debouncedSearch}%` } },
             ],
-            id: { _nin: selectedAtomIds },
+            id: { _nin: excludeIds },
           }
-        : { id: { _nin: selectedAtomIds } },
+        : { id: { _nin: excludeIds } },
     },
     {
-      queryKey: [
-        'get-atoms-query',
-        { search: debouncedSearch, selectedAtomIds },
-      ],
+      queryKey: ['get-atoms-query', { search: debouncedSearch, excludeIds }],
     },
   )
 
@@ -39,8 +36,8 @@ export function useAtomSearch({
   }
 
   return {
-    atoms: atomsData?.atoms_aggregate.nodes || [],
     setSearchQuery,
+    atoms: atomsData?.atoms_aggregate.nodes || [],
     handleInput,
   }
 }

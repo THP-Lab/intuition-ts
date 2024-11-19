@@ -1,3 +1,5 @@
+import { FormEvent } from 'react'
+
 import {
   HoverCard,
   HoverCardContent,
@@ -12,33 +14,26 @@ import {
   Trunctacular,
   useSidebarLayoutContext,
 } from '@0xintuition/1ui'
-import { IdentityPresenter } from '@0xintuition/api'
 
 import { IdentitySearchCombobox } from '@components/identity/identity-search-combo-box'
 import { InfoTooltip } from '@components/info-tooltip'
 import { globalCreateIdentityModalAtom } from '@lib/state/store'
-import {
-  getAtomDescription,
-  getAtomImage,
-  getAtomIpfsLink,
-  getAtomLabel,
-  sliceString,
-} from '@lib/utils/misc'
-import { ClaimElementType } from 'app/types'
+import { sliceString } from '@lib/utils/misc'
+import { ClaimElementType, IdentityType } from 'app/types'
 import { useSetAtom } from 'jotai'
 
 interface IdentityPopoverProps {
   type: ClaimElementType
   isObjectPopoverOpen: boolean
   setIsObjectPopoverOpen: (isOpen: boolean) => void
-  selectedIdentity?: IdentityPresenter | null
-  identities: IdentityPresenter[]
+  selectedIdentity?: IdentityType | null
+  identities: IdentityType[]
   handleIdentitySelection: (
     identityType: ClaimElementType,
-    identity: IdentityPresenter,
+    identity: IdentityType,
   ) => void
   setSearchQuery: (query: string) => void
-  handleInput: (event: React.FormEvent<HTMLInputElement>) => Promise<void>
+  handleInput: (e: FormEvent<HTMLInputElement>) => void | Promise<void>
 }
 
 export const IdentityPopover: React.FC<IdentityPopoverProps> = ({
@@ -88,20 +83,18 @@ export const IdentityPopover: React.FC<IdentityPopoverProps> = ({
               <IdentityTag
                 size="lg"
                 variant={
-                  selectedIdentity?.is_user ? Identity.user : Identity.nonUser
+                  selectedIdentity?.type === 'Person' ||
+                  selectedIdentity?.type === 'Account'
+                    ? Identity.user
+                    : Identity.nonUser
                 }
-                imgSrc={getAtomImage(selectedIdentity)}
+                imgSrc={selectedIdentity?.image}
                 className="w-full"
               >
                 <Trunctacular
                   maxStringLength={20}
                   variant="bodyLarge"
-                  value={
-                    (selectedIdentity?.user?.display_name ??
-                      selectedIdentity?.display_name ??
-                      '') ||
-                    type
-                  }
+                  value={(selectedIdentity?.label ?? '') || type}
                   disableTooltip
                 />
               </IdentityTag>
@@ -111,30 +104,41 @@ export const IdentityPopover: React.FC<IdentityPopoverProps> = ({
                 <div className="w-80 max-md:w-[80%]">
                   <ProfileCard
                     variant={
-                      selectedIdentity.is_user === true
+                      selectedIdentity?.type === 'Person' ||
+                      selectedIdentity?.type === 'Account'
                         ? Identity.user
                         : Identity.nonUser
                     }
-                    avatarSrc={getAtomImage(selectedIdentity)}
-                    name={getAtomLabel(selectedIdentity)}
+                    avatarSrc={selectedIdentity?.image ?? ''}
+                    name={selectedIdentity?.label ?? ''}
                     id={
-                      selectedIdentity.is_user === true
-                        ? selectedIdentity.user?.ens_name ??
-                          sliceString(selectedIdentity.user?.wallet, 6, 4)
-                        : selectedIdentity.identity_id
+                      selectedIdentity?.type === 'Person' ||
+                      selectedIdentity?.type === 'Account'
+                        ? selectedIdentity.walletId ??
+                          sliceString(selectedIdentity.walletId, 6, 4)
+                        : selectedIdentity.id
                     }
                     stats={
-                      selectedIdentity.is_user === true
+                      selectedIdentity?.type === 'Person' ||
+                      selectedIdentity?.type === 'Account'
                         ? {
-                            numberOfFollowers:
-                              selectedIdentity.follower_count ?? 0,
-                            numberOfFollowing:
-                              selectedIdentity.followed_count ?? 0,
+                            numberOfFollowers: 0, // TODO: ENG-4782: Add followers when it becomes available
+                            numberOfFollowing: 0, // TODO: ENG-4782: Add following when it becomes available
                           }
                         : undefined
                     }
-                    bio={getAtomDescription(selectedIdentity)}
-                    ipfsLink={getAtomIpfsLink(selectedIdentity)}
+                    bio={
+                      selectedIdentity.value?.person?.description ??
+                      selectedIdentity.value?.thing?.description ??
+                      selectedIdentity.value?.organization?.description ??
+                      ''
+                    }
+                    ipfsLink={
+                      selectedIdentity.value?.person?.url ??
+                      selectedIdentity.value?.thing?.url ??
+                      selectedIdentity.value?.organization?.url ??
+                      ''
+                    }
                   />
                 </div>
               </HoverCardContent>

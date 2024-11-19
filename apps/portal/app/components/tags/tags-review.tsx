@@ -9,7 +9,6 @@ import {
   Text,
   toast,
 } from '@0xintuition/1ui'
-import { IdentityPresenter } from '@0xintuition/api'
 
 import { multivaultAbi } from '@lib/abis/multivault'
 import { useBatchCreateTriple } from '@lib/hooks/useBatchCreateTriple'
@@ -20,6 +19,7 @@ import {
   GENERIC_ERROR_MSG,
   MULTIVAULT_CONTRACT_ADDRESS,
 } from 'app/consts'
+import { IdentityType } from 'app/types'
 import { TransactionActionType } from 'app/types/transaction'
 import { formatUnits } from 'viem'
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
@@ -29,7 +29,7 @@ import { createTagArrays } from './tag-utils'
 interface TagsReviewProps {
   dispatch: (action: TransactionActionType) => void
   subjectVaultId: string
-  tags: IdentityPresenter[]
+  tags: IdentityType[]
 }
 
 export default function TagsReview({
@@ -157,8 +157,8 @@ export default function TagsReview({
               {tags.map((tag, index) => (
                 <TagWithValue
                   key={index}
-                  label={tag.display_name}
-                  value={tag.tag_count ?? 0}
+                  label={tag.label ?? ''}
+                  value={0} //TODO: ENG-4782: Add tag count when it becomes available.
                 />
               ))}
             </div>

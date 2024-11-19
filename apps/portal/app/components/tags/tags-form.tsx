@@ -24,6 +24,7 @@ import { saveListModalAtom } from '@lib/state/store'
 import logger from '@lib/utils/logger'
 import { useNavigate } from '@remix-run/react'
 import { PATHS } from 'app/consts'
+import { IdentityType } from 'app/types'
 import {
   TransactionActionType,
   TransactionStateType,
@@ -75,21 +76,21 @@ export function TagsForm({
     'error',
   ].includes(state.status)
 
-  const [selectedTags, setSelectedTags] = useState<IdentityPresenter[]>([])
-  const [invalidTags, setInvalidTags] = useState<IdentityPresenter[]>([])
+  const [selectedTags, setSelectedTags] = useState<IdentityType[]>([])
+  const [invalidTags, setInvalidTags] = useState<IdentityType[]>([])
 
-  const handleAddTag = (newTag: IdentityPresenter) => {
+  const handleAddTag = (newTag: IdentityType) => {
     setSelectedTags((prevTags) => [...prevTags, newTag])
     logger('selectedTags', selectedTags)
   }
 
   const handleRemoveTag = (id: string) => {
-    setSelectedTags((prevTags) => prevTags.filter((tag) => tag.vault_id !== id))
+    setSelectedTags((prevTags) => prevTags.filter((tag) => tag.vaultId !== id))
   }
 
   const handleRemoveInvalidTag = (vaultId: string) => {
-    setInvalidTags((prev) => prev.filter((tag) => tag.vault_id !== vaultId))
-    setSelectedTags((prev) => prev.filter((tag) => tag.vault_id !== vaultId))
+    setInvalidTags((prev) => prev.filter((tag) => tag.vaultId !== vaultId))
+    setSelectedTags((prev) => prev.filter((tag) => tag.vaultId !== vaultId))
   }
 
   const setSaveListModalActive = useSetAtom(saveListModalAtom)

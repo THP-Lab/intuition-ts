@@ -100,9 +100,9 @@ export const imageModalAtom = atom<{
 
 export const createClaimModalAtom = atom<{
   isOpen: boolean
-  subject?: IdentityPresenter | null
-  predicate?: IdentityPresenter | null
-  object?: IdentityPresenter | null
+  subject?: IdentityType | null
+  predicate?: IdentityType | null
+  object?: IdentityType | null
 }>({
   isOpen: false,
   subject: null,

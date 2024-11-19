@@ -9,7 +9,7 @@ import {
   Identity,
   Text,
 } from '@0xintuition/1ui'
-import { IdentityPresenter, TagEmbeddedPresenter } from '@0xintuition/api'
+import { IdentityPresenter } from '@0xintuition/api'
 
 import {
   formatBalance,
@@ -21,6 +21,7 @@ import {
   getAtomLink,
 } from '@lib/utils/misc'
 import { IPFS_GATEWAY_URL, PATHS } from 'app/consts'
+import { IdentityType } from 'app/types'
 import {
   TransactionActionType,
   TransactionStateType,
@@ -32,7 +33,7 @@ interface SaveReviewProps {
   dispatch: (action: TransactionActionType) => void
   state: TransactionStateType
   isError?: boolean
-  tag: IdentityPresenter | TagEmbeddedPresenter
+  tag: IdentityType
   identity: IdentityPresenter
   user_assets: string
   entry_fee: string
@@ -128,9 +129,9 @@ export default function SaveReview({
               }}
               object={{
                 variant: Identity.nonUser,
-                label: tag.display_name ?? tag.identity_id ?? '',
+                label: tag.label ?? tag.id ?? '',
                 imgSrc: tag.image,
-                id: tag.identity_id,
+                id: tag.id,
                 description: '',
                 ipfsLink: '',
                 link: '',

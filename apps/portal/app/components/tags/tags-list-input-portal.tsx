@@ -46,9 +46,9 @@ export const TagsListInputPortal = ({
         {tags.map((tag) => (
           <TagWithValue
             key={tag.id}
-            label={tag.name}
+            label={tag.name ?? ''}
             value={tag.tagCount ?? 0}
-            onRemove={() => onRemoveTag(tag.id)}
+            onRemove={() => tag.id && onRemoveTag(tag.id)}
           />
         ))}
         {tags.length < 5 ? (

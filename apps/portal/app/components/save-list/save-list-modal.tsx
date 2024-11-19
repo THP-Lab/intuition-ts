@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
   Dialog,
@@ -11,25 +11,19 @@ import { IdentityPresenter } from '@0xintuition/api'
 
 import { multivaultAbi } from '@lib/abis/multivault'
 import { useStakeMutation } from '@lib/hooks/mutations/useStakeMutation'
-import { useDepositTriple } from '@lib/hooks/useDepositTriple'
 import { useGetVaultDetails } from '@lib/hooks/useGetVaultDetails'
 import { useGetWalletBalance } from '@lib/hooks/useGetWalletBalance'
-import { useRedeemTriple } from '@lib/hooks/useRedeemTriple'
 import { transactionReducer } from '@lib/hooks/useTransactionReducer'
-import { saveListModalAtom } from '@lib/state/store'
-import logger from '@lib/utils/logger'
 import { useGenericTxState } from '@lib/utils/use-tx-reducer'
-import { useFetcher, useLocation } from '@remix-run/react'
+import { useLocation } from '@remix-run/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { GET_VAULT_DETAILS_RESOURCE_ROUTE, MIN_DEPOSIT } from 'app/consts'
+import { MIN_DEPOSIT } from 'app/consts'
 import { IdentityType } from 'app/types'
 import {
   TransactionActionType,
   TransactionStateType,
 } from 'app/types/transaction'
-import { VaultDetailsType } from 'app/types/vault'
-import { useAtomValue } from 'jotai'
-import { Abi, Address, decodeEventLog, formatUnits, parseUnits } from 'viem'
+import { Address, decodeEventLog, formatUnits } from 'viem'
 import { useAccount, usePublicClient } from 'wagmi'
 
 import SaveButton from './save-button'
@@ -46,8 +40,9 @@ const initialTxState: TransactionStateType = {
 interface SaveListModalProps {
   userWallet: string
   open: boolean
-  tag: IdentityPresenter | IdentityType
-  identity: IdentityPresenter | IdentityType
+  tag: IdentityType
+  vaultId: string
+  identity: IdentityPresenter
   contract: string
   onClose?: () => void
   min_deposit?: string
@@ -57,6 +52,7 @@ export default function SaveListModal({
   userWallet,
   open = false,
   tag,
+  vaultId,
   identity,
   contract,
   onClose = () => {},
@@ -78,14 +74,16 @@ export default function SaveListModal({
 
   const [isLoading, setIsLoading] = useState(true)
 
-  const { id: vaultId } = useAtomValue(saveListModalAtom)
-
   const queryClient = useQueryClient()
-  const { data: vaultDetails, isLoading: isLoadingVaultDetails } =
-    useGetVaultDetails(contract, vaultId, {
+  const { data: vaultDetails } = useGetVaultDetails(
+    contract,
+    vaultId,
+    undefined,
+    {
       queryKey: ['get-vault-details', contract, vaultId],
       enabled: open,
-    })
+    },
+  )
 
   console.log('vaultDetails', vaultDetails)
 

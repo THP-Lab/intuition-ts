@@ -31,8 +31,8 @@ import {
 import SaveReview from './save-review'
 
 interface SaveFormProps {
-  tag: IdentityPresenter | IdentityType
-  identity: IdentityPresenter | IdentityType
+  tag: IdentityType
+  identity: IdentityPresenter
   user_assets: string
   entry_fee: string
   exit_fee: string
@@ -94,7 +94,7 @@ export default function SaveForm({
               <Claim
                 size="md"
                 subject={{
-                  variant: identity?.isUser ? Identity.user : Identity.nonUser,
+                  variant: identity?.is_user ? Identity.user : Identity.nonUser,
                   label: getAtomLabel(identity),
                   imgSrc: getAtomImage(identity),
                   id: identity?.identity_id,
@@ -113,12 +113,20 @@ export default function SaveForm({
                 }}
                 object={{
                   variant: Identity.nonUser,
-                  label: getAtomLabel(tag),
-                  imgSrc: getAtomImage(tag),
-                  id: tag.identity_id,
-                  description: getAtomDescription(tag),
-                  ipfsLink: getAtomIpfsLink(tag),
-                  link: getAtomLink(tag),
+                  label: tag.label ?? '',
+                  imgSrc: tag.image ?? '',
+                  id: tag.id,
+                  description:
+                    tag.value?.person?.description ||
+                    tag.value?.thing?.description ||
+                    tag.value?.organization?.description ||
+                    '',
+                  ipfsLink:
+                    tag.value?.person?.url ||
+                    tag.value?.thing?.url ||
+                    tag.value?.organization?.url ||
+                    '',
+                  link: `${PATHS.IDENTITY}/${tag.vaultId}`,
                 }}
                 maxIdentityLength={12}
               />
