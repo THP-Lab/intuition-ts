@@ -1,10 +1,9 @@
 import { useEffect } from 'react'
 
-import type { useFetcher } from '@remix-run/react'
 import { TagLoaderData } from '@routes/resources+/tag'
 
 interface UseInvalidItemsProps<T> {
-  fetcher: ReturnType<typeof useFetcher<TagLoaderData>>
+  data: TagLoaderData
   selectedItems: T[]
   setInvalidItems: React.Dispatch<React.SetStateAction<T[]>>
   onRemoveItem?: (id: string) => void
@@ -13,7 +12,7 @@ interface UseInvalidItemsProps<T> {
 }
 
 function useInvalidItems<T>({
-  fetcher,
+  data,
   selectedItems,
   setInvalidItems,
   onRemoveItem,
@@ -21,35 +20,39 @@ function useInvalidItems<T>({
   dataIdKey,
 }: UseInvalidItemsProps<T>) {
   useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data !== undefined) {
-      const result = fetcher.data.result
-      const itemId = fetcher.data?.[dataIdKey]
-
-      if (result === '0') {
-        setInvalidItems((prev) => prev.filter((item) => item[idKey] !== itemId))
-      } else if (itemId) {
-        const itemToAdd = selectedItems.find((item) => item[idKey] === itemId)
-        if (itemToAdd) {
-          setInvalidItems((prev) => {
-            if (prev.some((item) => item[idKey] === itemId)) {
-              return prev
-            }
-            return [...prev, itemToAdd]
-          })
-          if (onRemoveItem) {
-            onRemoveItem(itemId)
-          }
-        }
-      }
+    if (!data?.result || !data?.[dataIdKey]) {
+      return
     }
+
+    const result = data.result
+    const itemId = data[dataIdKey]
+
+    setInvalidItems((prev) => {
+      if (result === '0') {
+        return prev.filter((item) => item[idKey] !== itemId)
+      }
+
+      if (!itemId) {
+        return prev
+      }
+
+      const itemToAdd = selectedItems.find((item) => item[idKey] === itemId)
+      if (!itemToAdd || prev.some((item) => item[idKey] === itemId)) {
+        return prev
+      }
+
+      if (onRemoveItem) {
+        onRemoveItem(itemId)
+      }
+      return [...prev, itemToAdd]
+    })
   }, [
-    fetcher.state,
-    fetcher.data,
-    setInvalidItems,
+    data?.result,
+    data?.[dataIdKey],
     selectedItems,
-    onRemoveItem,
     idKey,
     dataIdKey,
+    onRemoveItem,
   ])
 }
 
