@@ -10903,6 +10903,7 @@ export type GetFollowingPositionsQueryVariables = Exact<{
   address: Scalars['String']['input']
   limit?: InputMaybe<Scalars['Int']['input']>
   offset?: InputMaybe<Scalars['Int']['input']>
+  positionsOrderBy?: InputMaybe<Array<Positions_Order_By> | Positions_Order_By>
 }>
 
 export type GetFollowingPositionsQuery = {
@@ -15401,7 +15402,7 @@ useGetEventsDataQuery.fetcher = (
   )
 
 export const GetFollowingPositionsDocument = `
-    query GetFollowingPositions($subjectId: numeric!, $predicateId: numeric!, $address: String!, $limit: Int, $offset: Int) {
+    query GetFollowingPositions($subjectId: numeric!, $predicateId: numeric!, $address: String!, $limit: Int, $offset: Int, $positionsOrderBy: [positions_order_by!]) {
   triples_aggregate(
     where: {_and: [{subjectId: {_eq: $subjectId}}, {predicateId: {_eq: $predicateId}}, {vault: {positions: {accountId: {_eq: $address}}}}]}
   ) {
@@ -15435,7 +15436,7 @@ export const GetFollowingPositionsDocument = `
           }
         }
       }
-      positions(where: {accountId: {_eq: $address}}) {
+      positions(where: {accountId: {_eq: $address}}, order_by: $positionsOrderBy) {
         accountId
         account {
           id
@@ -28380,6 +28381,23 @@ export const GetFollowingPositions = {
           },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'positionsOrderBy' },
+          },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'positions_order_by' },
+              },
+            },
+          },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -28792,6 +28810,14 @@ export const GetFollowingPositions = {
                                   },
                                 },
                               ],
+                            },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'order_by' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'positionsOrderBy' },
                             },
                           },
                         ],
