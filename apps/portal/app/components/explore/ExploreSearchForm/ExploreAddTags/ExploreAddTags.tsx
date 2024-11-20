@@ -10,10 +10,11 @@ import {
 import { IdentityPresenter } from '@0xintuition/api'
 
 import { IdentitySearchCombobox } from '@components/identity/identity-search-combo-box'
-import { useIdentityServerSearch } from '@lib/hooks/useIdentityServerSearch'
+import { useAtomSearch } from '@lib/hooks/useAtomSearch'
 import logger from '@lib/utils/logger'
 import { useFetcher } from '@remix-run/react'
 import { SEARCH_IDENTITIES_BY_TAGS_RESOURCE_ROUTE } from 'app/consts'
+import { IdentityType } from 'app/types'
 import { TagType } from 'app/types/tags'
 
 import {
@@ -28,13 +29,22 @@ const ExploreAddTags = ({
   inputId: string
   initialValue?: string | null
 }) => {
-  const { setSearchQuery, identities, handleInput } = useIdentityServerSearch()
-  const identityTagFetcher = useFetcher<IdentityPresenter[]>()
   const tagsContainerRef = React.useRef<HTMLDivElement>(null)
   const popoverContentRef = React.useRef<HTMLDivElement>(null)
   const inputElementRef = React.useRef<HTMLInputElement>(null)
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false)
   const [selectedTags, setSelectedTags] = React.useState<TagType[]>([])
+
+  const selectedAtomIds = selectedTags.map((tag) => tag.id)
+  const {
+    atoms: identities,
+    setSearchQuery,
+    handleInput,
+  } = useAtomSearch({
+    selectedAtomIds,
+  })
+
+  const identityTagFetcher = useFetcher<IdentityPresenter[]>()
 
   logger('initialValue', initialValue)
   React.useEffect(() => {
@@ -100,7 +110,6 @@ const ExploreAddTags = ({
 
   return (
     <div ref={tagsContainerRef}>
-      {/* Add hidden input element to feed parent form */}
       <Input
         ref={inputElementRef}
         className="hidden"
@@ -127,12 +136,12 @@ const ExploreAddTags = ({
             identities={identities.filter(
               (identity) => !selectedTags.some((tag) => tag.id === identity.id),
             )}
-            onIdentitySelect={(selection: IdentityPresenter) => {
+            onIdentitySelect={(selection: IdentityType) => {
               if (!isTagAlreadySelected(selection, selectedTags)) {
                 setSelectedTags([
                   ...selectedTags,
                   {
-                    name: selection.display_name,
+                    name: selection.label ?? 'Unknown',
                     id: selection.id,
                   },
                 ])

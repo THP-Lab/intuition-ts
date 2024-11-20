@@ -11,7 +11,7 @@ import {
   Text,
   toast,
 } from '@0xintuition/1ui'
-import { ClaimPresenter, IdentityPresenter } from '@0xintuition/api'
+import { ClaimPresenter } from '@0xintuition/api'
 import { useGetTripleQuery } from '@0xintuition/graphql'
 
 import { IdentityPopover } from '@components/create-claim/create-claim-popovers'
@@ -20,10 +20,10 @@ import { InfoTooltip } from '@components/info-tooltip'
 import WrongNetworkButton from '@components/wrong-network-button'
 import { multivaultAbi } from '@lib/abis/multivault'
 import { useCheckClaim } from '@lib/hooks/useCheckClaim'
+import { useClaimAtomSearch } from '@lib/hooks/useClaimAtomSearch'
 import { useCreateClaimConfig } from '@lib/hooks/useCreateClaimConfig'
 import { useCreateTriple } from '@lib/hooks/useCreateTriple'
 import { useGetWalletBalance } from '@lib/hooks/useGetWalletBalance'
-import { useIdentityServerSearch } from '@lib/hooks/useIdentityServerSearch'
 import {
   initialTransactionState,
   transactionReducer,
@@ -39,7 +39,7 @@ import {
   MULTIVAULT_CONTRACT_ADDRESS,
   PATHS,
 } from 'app/consts'
-import { ClaimElement, ClaimElementType } from 'app/types'
+import { ClaimElement, ClaimElementType, IdentityType } from 'app/types'
 import {
   TransactionActionType,
   TransactionStateType,
@@ -141,9 +141,9 @@ function CreateClaimForm({
   const [vaultId, setVaultId] = useState<string | undefined>(undefined)
   // const [searchQuery, setSearchQuery] = useState('')
   const [selectedIdentities, setSelectedIdentities] = useState<{
-    subject: IdentityPresenter | null
-    predicate: IdentityPresenter | null
-    object: IdentityPresenter | null
+    subject: IdentityType | null
+    predicate: IdentityType | null
+    object: IdentityType | null
   }>({
     subject: subject ?? null,
     predicate: predicate ?? null,
@@ -156,9 +156,9 @@ function CreateClaimForm({
   const { fees } = configData ?? {}
 
   const { data: claimCheckData, refetch: refetchClaimCheck } = useCheckClaim({
-    subjectId: selectedIdentities.subject?.vault_id,
-    predicateId: selectedIdentities.predicate?.vault_id,
-    objectId: selectedIdentities.object?.vault_id,
+    subjectId: selectedIdentities.subject?.vaultId,
+    predicateId: selectedIdentities.predicate?.vaultId,
+    objectId: selectedIdentities.object?.vaultId,
   })
 
   const { data: claimData, refetch: refetchClaim } = useGetTripleQuery(
@@ -179,8 +179,17 @@ function CreateClaimForm({
 
   const navigate = useNavigate()
 
-  const { setSearchQuery, identities, handleInput } = useIdentityServerSearch()
-
+  const {
+    setSearchQuery,
+    atoms: identities,
+    handleInput,
+  } = useClaimAtomSearch({
+    excludeIds: [
+      selectedIdentities.subject?.id,
+      selectedIdentities.predicate?.id,
+      selectedIdentities.object?.id,
+    ].filter(Boolean) as string[],
+  })
   const publicClient = usePublicClient()
   const { address, chain } = useAccount()
 
@@ -303,9 +312,9 @@ function CreateClaimForm({
         selectedIdentities.object !== null
       ) {
         handleOnChainCreateTriple({
-          subjectVaultId: selectedIdentities.subject.vault_id,
-          predicateVaultId: selectedIdentities.predicate.vault_id,
-          objectVaultId: selectedIdentities.object.vault_id,
+          subjectVaultId: selectedIdentities.subject.vaultId,
+          predicateVaultId: selectedIdentities.predicate.vaultId,
+          objectVaultId: selectedIdentities.object.vaultId,
         })
       }
     } catch (error: unknown) {
@@ -315,7 +324,7 @@ function CreateClaimForm({
 
   const handleIdentitySelection = (
     identityType: ClaimElementType,
-    identity: IdentityPresenter,
+    identity: IdentityType,
   ) => {
     setSelectedIdentities((prevState) => ({
       ...prevState,
@@ -389,7 +398,7 @@ function CreateClaimForm({
                     identities={identities}
                     handleIdentitySelection={(
                       identityType: ClaimElementType,
-                      identity: IdentityPresenter,
+                      identity: IdentityType,
                     ) => handleIdentitySelection(identityType, identity)}
                     setSearchQuery={setSearchQuery}
                     handleInput={handleInput}
@@ -403,7 +412,7 @@ function CreateClaimForm({
                     identities={identities}
                     handleIdentitySelection={(
                       identityType: ClaimElementType,
-                      identity: IdentityPresenter,
+                      identity: IdentityType,
                     ) => handleIdentitySelection(identityType, identity)}
                     setSearchQuery={setSearchQuery}
                     handleInput={handleInput}
@@ -417,7 +426,7 @@ function CreateClaimForm({
                     identities={identities}
                     handleIdentitySelection={(
                       identityType: ClaimElementType,
-                      identity: IdentityPresenter,
+                      identity: IdentityType,
                     ) => handleIdentitySelection(identityType, identity)}
                     setSearchQuery={setSearchQuery}
                     handleInput={handleInput}

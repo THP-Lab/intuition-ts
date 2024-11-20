@@ -18,16 +18,17 @@ import { IdentityPresenter } from '@0xintuition/api'
 import { IdentitySearchCombobox } from '@components/identity/identity-search-combo-box'
 import { InfoTooltip } from '@components/info-tooltip'
 import SaveListModal from '@components/save-list/save-list-modal'
-import useFilteredIdentitySearch from '@lib/hooks/useFilteredIdentitySearch'
+import { useAtomSearch } from '@lib/hooks/useAtomSearch'
+import { useCheckClaim } from '@lib/hooks/useCheckClaim'
 import useInvalidItems from '@lib/hooks/useInvalidItems'
 import {
   globalCreateIdentityModalAtom,
   saveListModalAtom,
 } from '@lib/state/store'
 import { getSpecialPredicate } from '@lib/utils/app'
-import { useFetcher } from '@remix-run/react'
 import { TagLoaderData } from '@routes/resources+/tag'
-import { CURRENT_ENV, TAG_RESOURCE_ROUTE } from 'app/consts'
+import { CURRENT_ENV } from 'app/consts'
+import { IdentityType } from 'app/types'
 import { useAtom } from 'jotai'
 
 import { AddListExistingCta } from './add-list-existing-cta'
@@ -37,11 +38,11 @@ interface AddIdentitiesProps {
   identity: IdentityPresenter
   userWallet: string
   selectedIdentities: IdentityPresenter[]
-  onAddIdentity: (newTag: IdentityPresenter) => void
+  onAddIdentity: (newTag: IdentityType) => void
   onRemoveIdentity: (id: string) => void
   onRemoveInvalidIdentity: (id: string) => void
   maxIdentitiesToAdd: number
-  invalidIdentities: IdentityPresenter[]
+  invalidIdentities: IdentityType[]
   setInvalidIdentities: React.Dispatch<
     React.SetStateAction<IdentityPresenter[]>
   >
@@ -65,36 +66,47 @@ export function AddIdentities({
   const [saveListModalActive, setSaveListModalActive] =
     useAtom(saveListModalAtom)
 
-  const { setSearchQuery, filteredIdentities, handleInput } =
-    useFilteredIdentitySearch({
-      selectedItems: selectedIdentities,
-    })
+  const selectedAtomIds = selectedIdentities.map(
+    (identity) => identity.vault_id,
+  )
+  const {
+    atoms: filteredIdentities,
+    setSearchQuery,
+    handleInput,
+  } = useAtomSearch({
+    selectedAtomIds,
+  })
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
 
   const [selectedInvalidIdentity, setSelectedInvalidIdentity] =
-    useState<IdentityPresenter | null>(null)
+    useState<IdentityType | null>(null)
 
-  const tagFetcher = useFetcher<TagLoaderData>()
-
-  const handleIdentitySelect = (identity: IdentityPresenter) => {
-    onAddIdentity(identity)
-    setSearchQuery('')
-    setIsPopoverOpen(false)
-
-    const searchParams = new URLSearchParams({
+  const { data: claimCheckData = { result: '0' }, refetch: refetchClaimCheck } =
+    useCheckClaim({
       subjectId: identity.vault_id,
       predicateId:
         getSpecialPredicate(CURRENT_ENV).tagPredicate.vaultId?.toString(),
       objectId: objectVaultId,
     })
 
-    const finalUrl = `${TAG_RESOURCE_ROUTE}?${searchParams.toString()}`
-
-    tagFetcher.load(finalUrl)
+  const handleIdentitySelect = (identity: IdentityType) => {
+    onAddIdentity(identity)
+    setSearchQuery('')
+    setIsPopoverOpen(false)
+    refetchClaimCheck()
   }
 
-  const handleSaveClick = (invalidIdentity: IdentityPresenter) => {
+  useInvalidItems({
+    data: claimCheckData as TagLoaderData,
+    selectedItems: selectedIdentities,
+    setInvalidItems: setInvalidIdentities,
+    onRemoveItem: onRemoveIdentity,
+    idKey: 'vault_id',
+    dataIdKey: 'subjectId',
+  })
+
+  const handleSaveClick = (invalidIdentity: IdentityType) => {
     setSelectedInvalidIdentity(invalidIdentity)
     setSaveListModalActive({
       isOpen: true,
@@ -102,18 +114,10 @@ export function AddIdentities({
     })
   }
 
-  useInvalidItems({
-    fetcher: tagFetcher,
-    selectedItems: selectedIdentities,
-    setInvalidItems: setInvalidIdentities,
-    idKey: 'vault_id',
-    dataIdKey: 'subjectId',
-  })
-
   const validIdentities = selectedIdentities.filter(
     (identity) =>
       !invalidIdentities.some(
-        (invalid) => invalid.vault_id === identity.vault_id,
+        (invalid) => invalid.vaultId === identity.vault_id,
       ),
   )
 
@@ -207,11 +211,11 @@ export function AddIdentities({
         )}
         {invalidIdentities.map((invalidIdentity) => (
           <AddListExistingCta
-            key={invalidIdentity.vault_id}
+            key={invalidIdentity.vaultId}
             identity={invalidIdentity}
             variant="identity"
             onSaveClick={() => handleSaveClick(invalidIdentity)}
-            onClose={() => onRemoveInvalidIdentity(invalidIdentity.vault_id)}
+            onClose={() => onRemoveInvalidIdentity(invalidIdentity.vaultId)}
           />
         ))}
       </div>

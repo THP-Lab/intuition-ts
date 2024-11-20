@@ -8,7 +8,7 @@ import {
   IconName,
   IdentityTag,
   IdentityTagSize,
-  IdentityType,
+  IdentityType as IdentityVariant,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -20,13 +20,13 @@ import {
   TooltipTrigger,
   Trunctacular,
 } from '@0xintuition/1ui'
-import { IdentityPresenter } from '@0xintuition/api'
 
 import { IdentitySearchCombobox } from '@components/identity/identity-search-combo-box'
-import { useIdentityServerSearch } from '@lib/hooks/useIdentityServerSearch'
+import { useAtomSearch } from '@lib/hooks/useAtomSearch'
+import { IdentityType } from 'app/types'
 
 type IdentityInputSelectedValueType = {
-  variant?: IdentityType
+  variant?: IdentityVariant
   imgSrc?: string | null
   name?: string
 }
@@ -38,8 +38,8 @@ export interface IdentityInputButtonProps
   selectedValue: IdentityInputSelectedValueType
   isPopoverOpen: boolean
   onClick?: () => void
-  identities: IdentityPresenter[]
-  onIdentitySelect: (identity: IdentityPresenter) => void
+  identities: IdentityType[]
+  onIdentitySelect: (identity: IdentityType) => void
 }
 
 const IdentityInputButton = ({
@@ -51,11 +51,14 @@ const IdentityInputButton = ({
   onIdentitySelect,
   ...props
 }: IdentityInputButtonProps) => {
+  const selectedAtomIds = identities.map((identity) => identity.id)
   const {
+    atoms: filteredIdentities,
     setSearchQuery,
-    identities: filteredIdentities,
     handleInput,
-  } = useIdentityServerSearch()
+  } = useAtomSearch({
+    selectedAtomIds,
+  })
 
   const identitiesToList = filteredIdentities.length
     ? filteredIdentities
