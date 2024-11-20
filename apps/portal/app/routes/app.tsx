@@ -22,7 +22,7 @@ import { PATHS } from 'app/consts'
 import RootLayout from 'app/layouts/root-layout'
 import { Address } from 'viem'
 
-// Create a cookie instance to handle the test cookie
+// Create a cookie instance to handle the previous session cookie
 const privySessionCookie = createCookie('privy-session', {
   httpOnly: false,
   secure: true,

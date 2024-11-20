@@ -24,7 +24,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     throw redirect('/intro')
   }
   const { accessToken, sessionToken } = getPrivyTokens(request)
-  if (accessToken) {
+  if (accessToken && sessionToken) {
     logger('accessToken', accessToken)
     if (redirectTo) {
       throw redirect(redirectTo)
