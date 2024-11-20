@@ -1,6 +1,70 @@
 query GetFollowingPositions(
   $subjectId: numeric!
   $predicateId: numeric!
+  $address: String!
+  $limit: Int
+  $offset: Int
+) {
+  triples_aggregate(
+    where: {
+      _and: [
+        { subjectId: { _eq: $subjectId } }
+        { predicateId: { _eq: $predicateId } }
+        { vault: { positions: { accountId: { _eq: $address } } } }
+      ]
+    }
+  ) {
+    aggregate {
+      count
+    }
+  }
+  triples(
+    limit: $limit
+    offset: $offset
+    where: {
+      _and: [
+        { subjectId: { _eq: $subjectId } }
+        { predicateId: { _eq: $predicateId } }
+        { vault: { positions: { accountId: { _eq: $address } } } }
+      ]
+    }
+  ) {
+    id
+    subject {
+      ...AtomMetadata
+    }
+    predicate {
+      ...AtomMetadata
+    }
+    object {
+      ...AtomMetadata
+    }
+    vault {
+      totalShares
+      currentSharePrice
+      positions_aggregate {
+        aggregate {
+          count
+          sum {
+            shares
+          }
+        }
+      }
+      positions(where: { accountId: { _eq: $address } }) {
+        accountId
+        account {
+          id
+          label
+        }
+        shares
+      }
+    }
+  }
+}
+
+query GetFollowerPositions(
+  $subjectId: numeric!
+  $predicateId: numeric!
   $objectId: numeric!
   $positionsLimit: Int
   $positionsOffset: Int
@@ -16,40 +80,42 @@ query GetFollowingPositions(
       ]
     }
   ) {
-    ...FollowMetadata
-  }
-}
-
-query GetFollowerPositions(
-  $subjectId: numeric!
-  $predicateId: numeric!
-  $address: String!
-  $positionsLimit: Int
-  $positionsOffset: Int
-  $positionsOrderBy: [positions_order_by!]
-  $positionsWhere: positions_bool_exp
-) {
-  triples_aggregate(
-    where: {
-      _and: [
-        { subjectId: { _eq: $subjectId } }
-        { predicateId: { _eq: $predicateId } }
-        { vault: { positions: { accountId: { _eq: $address } } } }
-      ]
+    id
+    label
+    subject {
+      ...AtomMetadata
     }
-  ) {
-    ...FollowAggregate
-  }
-  triples(
-    where: {
-      _and: [
-        { subjectId: { _eq: $subjectId } }
-        { predicateId: { _eq: $predicateId } }
-        { vault: { positions: { accountId: { _eq: $address } } } }
-      ]
+    predicate {
+      ...AtomMetadata
     }
-  ) {
-    ...FollowMetadata
+    object {
+      ...AtomMetadata
+    }
+    vault {
+      totalShares
+      currentSharePrice
+      positions_aggregate {
+        aggregate {
+          count
+          sum {
+            shares
+          }
+        }
+      }
+      positions(
+        limit: $positionsLimit
+        offset: $positionsOffset
+        order_by: $positionsOrderBy
+        where: $positionsWhere
+      ) {
+        account {
+          id
+          label
+          image
+        }
+        shares
+      }
+    }
   }
 }
 

@@ -6,23 +6,13 @@ import {
   TextVariant,
   TextWeight,
 } from '@0xintuition/1ui'
-import { ClaimPresenter, IdentityPresenter } from '@0xintuition/api'
+import { IdentityPresenter } from '@0xintuition/api'
 
-import CreateClaimModal from '@components/create-claim/create-claim-modal'
 import RemixLink from '@components/remix-link'
-import { NO_FOLLOW_CLAIM_ERROR, NO_WALLET_ERROR } from '@consts/errors'
-import { createClaimModalAtom } from '@lib/state/store'
-import {
-  getAtomDescription,
-  getAtomImage,
-  getAtomIpfsLink,
-  getAtomLabel,
-  getAtomLink,
-  getClaimUrl,
-  invariant,
-} from '@lib/utils/misc'
-import { Link, useLocation, useRouteLoaderData } from '@remix-run/react'
-import { useAtom } from 'jotai'
+import { BLOCK_EXPLORER_URL } from '@consts/general'
+import logger from '@lib/utils/logger'
+import { getAtomLink, getClaimUrl, getProfileUrl } from '@lib/utils/misc'
+import { Link } from '@remix-run/react'
 
 export const ConnectionsHeaderVariants = {
   followers: 'followers',
@@ -34,39 +24,24 @@ export type ConnectionsHeaderVariantType =
 
 interface ConnectionsHeaderProps {
   variant: ConnectionsHeaderVariantType
-  userIdentity: IdentityPresenter
-  followClaim?: ClaimPresenter
   totalFollowers: number
   totalStake: string
-}
-
-interface RouteLoaderData {
-  userWallet: string
-  followClaim: ClaimPresenter
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  triples?: any[] // TODO: )ENG-4782) Fix once we have the correct types
+  userIdentity?: IdentityPresenter // remove once we fully migrate
 }
 
 export const ConnectionsHeader: React.FC<ConnectionsHeaderProps> = ({
   variant,
-  userIdentity,
   totalFollowers,
   totalStake = '0',
+  triples,
 }) => {
-  const [createClaimModalActive, setCreateClaimModalActive] =
-    useAtom(createClaimModalAtom)
-
-  const location = useLocation()
-  const routeLoaderKey =
-    location.pathname === '/app/profile/connections'
-      ? 'routes/app+/profile+/_index+/_layout'
-      : 'routes/app+/profile+/$wallet'
-
-  const { userWallet, followClaim } =
-    useRouteLoaderData<RouteLoaderData>(routeLoaderKey) ?? {}
-  invariant(followClaim, NO_FOLLOW_CLAIM_ERROR)
-  invariant(userWallet, NO_WALLET_ERROR)
+  const triple = triples?.[0]
+  logger('triple', triple)
 
   return (
-    <div className="flex flex-col w-full gap-3">
+    <div className="flex flex-col w-full gap-3 mb-6">
       <div className="p-6 bg-black rounded-xl theme-border flex flex-col gap-5">
         <div className="flex justify-between items-center max-sm:flex-col max-sm:gap-3">
           <div className="flex gap-10 max-sm:flex-col max-sm:gap-3 max-sm:m-auto">
@@ -97,76 +72,67 @@ export const ConnectionsHeader: React.FC<ConnectionsHeaderProps> = ({
               />
             </div>
           </div>
-          <div className="flex flex-col items-end gap-2 max-sm:hidden">
-            <Text
-              variant="caption"
-              weight="regular"
-              className="text-secondary-foreground"
-            >
-              Follow Claim
-            </Text>
-            <Link to={getClaimUrl(followClaim.vault_id)} prefetch="intent">
-              <Claim
-                size="md"
-                subject={{
-                  variant: Identity.nonUser,
-                  label: getAtomLabel(followClaim.subject),
-                  imgSrc: getAtomImage(followClaim.subject),
-                  id: followClaim.subject?.identity_id,
-                  description: getAtomDescription(followClaim.subject),
-                  ipfsLink: getAtomIpfsLink(followClaim.subject),
-                  link: getAtomLink(followClaim.subject),
-                  linkComponent: RemixLink,
-                }}
-                predicate={{
-                  variant: Identity.nonUser,
-                  label: getAtomLabel(followClaim.predicate),
-                  imgSrc: getAtomImage(followClaim.predicate),
-                  id: followClaim.predicate?.identity_id,
-                  description: getAtomDescription(followClaim.predicate),
-                  ipfsLink: getAtomIpfsLink(followClaim.predicate),
-                  link: getAtomLink(followClaim.predicate),
-                  linkComponent: RemixLink,
-                }}
-                object={
-                  variant === 'followers'
-                    ? {
-                        variant: Identity.user,
-                        label: getAtomLabel(userIdentity),
-                        imgSrc: getAtomImage(userIdentity),
-                        id: userIdentity?.identity_id,
-                        description: getAtomDescription(userIdentity),
-                        ipfsLink: getAtomIpfsLink(userIdentity),
-                        link: getAtomLink(userIdentity),
-                        linkComponent: RemixLink,
-                      }
-                    : {
-                        variant: Identity.nonUser,
-                        label: '?',
-                        imgSrc: '',
-                        id: '?',
-                        description: '?',
-                        ipfsLink: '',
-                      }
-                }
-                isClickable={variant === 'followers'}
-              />
-            </Link>
-          </div>
+
+          {triple && (
+            <div className="flex flex-col items-end gap-2 max-sm:hidden">
+              <Text
+                variant="caption"
+                weight="regular"
+                className="text-secondary-foreground"
+              >
+                Follow Claim
+              </Text>
+              <Link to={getClaimUrl(triple.id)} prefetch="intent">
+                <Claim
+                  size="md"
+                  subject={{
+                    variant: Identity.nonUser,
+                    label: triple.subject?.label ?? '',
+                    imgSrc: triple.subject?.image ?? '',
+                    id: triple.subject?.id,
+                    description: triple.subject?.description ?? '',
+                    ipfsLink: `${BLOCK_EXPLORER_URL}/address/${triple.subject?.id}`,
+                    link: getAtomLink(triple.subject),
+                    linkComponent: RemixLink,
+                  }}
+                  predicate={{
+                    variant: Identity.nonUser,
+                    label: triple.predicate?.label ?? '',
+                    imgSrc: triple.predicate?.image ?? '',
+                    id: triple.predicate?.id,
+                    description: triple.predicate?.description ?? '',
+                    ipfsLink: `${BLOCK_EXPLORER_URL}/address/${triple.predicate?.id}`,
+                    link: getProfileUrl(triple.predicate?.id),
+                    linkComponent: RemixLink,
+                  }}
+                  object={
+                    variant === 'followers'
+                      ? {
+                          variant: Identity.user,
+                          label: triple.object?.label ?? '',
+                          imgSrc: triple.object?.image ?? '',
+                          id: triple.object?.id,
+                          description: triple.object?.description ?? '',
+                          ipfsLink: `${BLOCK_EXPLORER_URL}/address/${triple.object?.id}`,
+                          link: getProfileUrl(triple.object?.id),
+                          linkComponent: RemixLink,
+                        }
+                      : {
+                          variant: Identity.nonUser,
+                          label: '?',
+                          imgSrc: '',
+                          id: '?',
+                          description: '?',
+                          ipfsLink: '',
+                        }
+                  }
+                  isClickable={variant === 'followers'}
+                />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
-      <CreateClaimModal
-        open={createClaimModalActive.isOpen}
-        wallet={userWallet}
-        onClose={() =>
-          setCreateClaimModalActive({
-            isOpen: false,
-            subject: null,
-            predicate: null,
-            object: null,
-          })
-        }
-      />
     </div>
   )
 }
