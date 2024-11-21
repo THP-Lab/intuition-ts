@@ -1,11 +1,12 @@
 import { Dialog, DialogContent } from '@0xintuition/1ui'
-import { ClaimPresenter, IdentityPresenter } from '@0xintuition/api'
 
 import { TagsForm } from './tags-form'
 
 export interface TagsModalProps {
-  identity: IdentityPresenter
-  tagClaims: ClaimPresenter[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  identity: any // TODO: (ENG-4782) temporary type fix until we lock in final types
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tagClaims: any[] // TODO: (ENG-4782) temporary type fix until we lock in final types
   userWallet: string
   open?: boolean
   mode: 'view' | 'add'
