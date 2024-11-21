@@ -17,11 +17,12 @@ import {
   getOrCreateAtom,
   tripleValue,
 } from './attestor'
-import { precomputeCID } from './cid'
+import { precomputeCIDs } from './cid'
 import { estimateGas } from './evm'
-import { checkImageAlreadyUploaded, resolveAndFilterImage } from './image'
+import { checkImagesAlreadyUploaded, resolveAndFilterImage } from './image'
 import {
   getAtomID,
+  getAtomIDs,
   getAtomURI,
   getTripleID,
   getURIData,
@@ -165,9 +166,9 @@ export async function checkAndFilterURIs(
   console.log('Updating requestHash again...')
   requestHash
     ? await pushUpdate(
-        requestHash,
-        `Checked ${URIs.length} URIs, found ${existingURIs.length} existing URIs and ${newURIs.length} new URIs`,
-      )
+      requestHash,
+      `Checked ${URIs.length} URIs, found ${existingURIs.length} existing URIs and ${newURIs.length} new URIs`,
+    )
     : null
   return { existingURIs, newURIs }
 }
@@ -587,7 +588,7 @@ export async function logTransactionHashAndVerifyTriples(
 export async function checkAtomsExist(
   atoms: any[],
 ): Promise<AtomExistsResult[]> {
-  const atomExistsResults = await processCheckAtomsExist(atoms, 100, 3, 1000)
+  const atomExistsResults = await processCheckAtomsExist(atoms)
   return atomExistsResults
 }
 
@@ -614,7 +615,7 @@ export function delay(ms: number) {
 export interface AtomExistsResult {
   filteredObj: any
   cid: string
-  originalIndex: number
+  originalIndex: number // can deprecate this
   alreadyExists?: boolean
   atomId?: string
 }
@@ -692,9 +693,9 @@ export async function pinAllData(
   // Process duplicate atoms after unique atoms
   requestHash
     ? await pushUpdate(
-        requestHash,
-        'Pinning atom data with duplicate images...',
-      )
+      requestHash,
+      'Pinning atom data with duplicate images...',
+    )
     : null
   const duplicatePinnedData = await processAtomDataBatches(
     duplicateAtoms,
@@ -814,51 +815,34 @@ export async function processAtomDataBatches(
 // Helper function for front end / interfaces
 export async function processCheckAtomsExist(
   atoms: any[],
-  concurrencyLimit: number,
-  maxRetries: number,
-  delayBetweenBatches: number,
-  startIndex: number = 0,
 ): Promise<AtomExistsResult[]> {
-  const atomBatches = chunk(
-    atoms.map((atom, index) => ({ atom, index: index + startIndex })),
-    concurrencyLimit,
+  const alreadyUploadedImages = await checkImagesAlreadyUploaded(
+    atoms.map((atom) => atom.image),
   )
-  const atomExistsResults: AtomExistsResult[] = []
 
-  for (const batch of atomBatches) {
-    const batchResults = await Promise.all(
-      batch.map(async ({ atom, index }) => {
-        // This may not be needed anymore, especially with the db caching
-        // await delay(i * 100); // Delay between individual calls within the batch
-        const result = await retryOperation(async () => {
-          const alreadyUploadedImage = await checkImageAlreadyUploaded(
-            atom.image,
-          )
-          if (alreadyUploadedImage) {
-            atom.image = alreadyUploadedImage
-          }
-          const cid = await precomputeCID(atom)
-          const atomID = await getAtomID(`ipfs://${cid}`)
-          const exists = atomID !== '0'
-          return {
-            filteredObj: atom,
-            cid: `ipfs://${cid}`,
-            originalIndex: index,
-            atomId: atomID,
-            alreadyExists: exists,
-          } as AtomExistsResult
-        }, maxRetries)
-        return result
-      }),
-    )
-    atomExistsResults.push(...batchResults)
-    await delay(delayBetweenBatches) // Delay between batches
+  atoms.map((atom, index) => {
+    if (alreadyUploadedImages[index]) {
+      atom.image = alreadyUploadedImages[index]
+    }
+  })
+
+  const CIDs = await precomputeCIDs(atoms)
+  const CIDsWithIPFS = CIDs.map((cid) => `ipfs://${cid}`)
+
+  const atomIds = await getAtomIDs(CIDsWithIPFS)
+
+  const result: AtomExistsResult[] = []
+  for (let i = 0; i < atoms.length; i++) {
+    result.push({
+      filteredObj: atoms[i],
+      cid: CIDsWithIPFS[i],
+      originalIndex: i,
+      atomId: atomIds[i],
+      alreadyExists: atomIds[i] !== '0',
+    })
   }
 
-  // Sort the results to maintain the original order
-  atomExistsResults.sort((a, b) => a.originalIndex - b.originalIndex)
-
-  return atomExistsResults
+  return result
 }
 
 export async function cullExistingAtoms(
@@ -1030,9 +1014,9 @@ export async function processBatchAtoms(
   console.log('Predetermining number of chunks to process batch atoms...')
   requestHash
     ? await pushUpdate(
-        requestHash,
-        'Predetermining number of chunks to process batch atoms...',
-      )
+      requestHash,
+      'Predetermining number of chunks to process batch atoms...',
+    )
     : null
   let numChunks = 1
 
@@ -1069,9 +1053,9 @@ export async function processBatchAtoms(
     if (staticExecutionReverted) {
       requestHash
         ? await pushUpdate(
-            requestHash,
-            'static execution reverted with chunk size of 1',
-          )
+          requestHash,
+          'static execution reverted with chunk size of 1',
+        )
         : null
       throw new Error('static execution reverted with chunk size of 1')
     }
@@ -1086,9 +1070,9 @@ export async function processBatchAtoms(
     console.log('Number of batch atom chunks: ', numChunks)
     requestHash
       ? await pushUpdate(
-          requestHash,
-          `Number of batch atom chunks: ${numChunks}`,
-        )
+        requestHash,
+        `Number of batch atom chunks: ${numChunks}`,
+      )
       : null
     console.log(
       'Chunk lengths: ',
@@ -1096,9 +1080,9 @@ export async function processBatchAtoms(
     )
     requestHash
       ? await pushUpdate(
-          requestHash,
-          `Chunk lengths: ${chunks.map((chunk) => chunk.length)}`,
-        )
+        requestHash,
+        `Chunk lengths: ${chunks.map((chunk) => chunk.length)}`,
+      )
       : null
     for (const batch of chunks) {
       lastChunkForDebug = batch
@@ -1142,9 +1126,9 @@ export async function processBatchTriples(
     console.log('Predetermining number of chunks to process batch triples...')
     requestHash
       ? await pushUpdate(
-          requestHash,
-          'Predetermining number of chunks to process batch triples...',
-        )
+        requestHash,
+        'Predetermining number of chunks to process batch triples...',
+      )
       : null
     while (staticExecutionReverted && numChunks < triples.length) {
       try {
@@ -1180,9 +1164,9 @@ export async function processBatchTriples(
     if (staticExecutionReverted) {
       requestHash
         ? await pushUpdate(
-            requestHash,
-            'static execution reverted with chunk size of 1',
-          )
+          requestHash,
+          'static execution reverted with chunk size of 1',
+        )
         : null
       throw new Error('static execution reverted with chunk size of 1')
     }
@@ -1197,9 +1181,9 @@ export async function processBatchTriples(
     console.log('Number of batch triple chunks: ', numChunks)
     requestHash
       ? await pushUpdate(
-          requestHash,
-          `Number of batch triple chunks: ${numChunks}`,
-        )
+        requestHash,
+        `Number of batch triple chunks: ${numChunks}`,
+      )
       : null
     console.log(
       'Chunk lengths: ',
@@ -1207,9 +1191,9 @@ export async function processBatchTriples(
     )
     requestHash
       ? await pushUpdate(
-          requestHash,
-          `Chunk lengths: ${chunks.map((chunk) => chunk.length)}`,
-        )
+        requestHash,
+        `Chunk lengths: ${chunks.map((chunk) => chunk.length)}`,
+      )
       : null
     for (const batch of chunks) {
       lastChunkForDebug = batch
@@ -1229,9 +1213,9 @@ export async function processBatchTriples(
     console.error('Error processing batch triples...', lastChunkForDebug)
     requestHash
       ? await pushUpdate(
-          requestHash,
-          `Error processing batch triples: ${error}`,
-        )
+        requestHash,
+        `Error processing batch triples: ${error}`,
+      )
       : null
     return result
   }

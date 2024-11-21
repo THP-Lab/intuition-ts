@@ -316,3 +316,50 @@ export async function getTripleId(
   const tripleId = await getTripleByHash(tripleHash)
   return tripleId
 }
+
+// To call this:
+// const atomIds = await bulkEVMRead(getAtomIdFromURI, cids, {chunkSize: 3, delayBetweenReads: 100, delayBetweenChunks: 1000})
+export async function bulkEVMRead<T, P>(
+  evmReadFn: (param: P) => Promise<T>, // EVM read method
+  params: P[], // Array of parameters, each representing one read
+  options: {
+    chunkSize?: number // Maximum number of parallel reads per chunk
+    delayBetweenReads?: number // Delay (ms) between individual reads within a chunk
+    delayBetweenChunks?: number // Delay (ms) between chunks
+  } = {},
+): Promise<T[]> {
+  const {
+    chunkSize = 10,
+    delayBetweenReads = 0,
+    delayBetweenChunks = 0,
+  } = options
+  const results: T[] = []
+
+  // Helper to process a single chunk
+  const processChunk = async (chunkParams: P[]): Promise<void> => {
+    for (const param of chunkParams) {
+      const result = await evmReadFn(param)
+      results.push(result)
+
+      // Delay between individual reads
+      if (delayBetweenReads > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delayBetweenReads))
+      }
+    }
+  }
+
+  // Divide params into chunks
+  for (let i = 0; i < params.length; i += chunkSize) {
+    const chunk = params.slice(i, i + chunkSize)
+
+    // Process each chunk
+    await processChunk(chunk)
+
+    // Delay between chunks
+    if (delayBetweenChunks > 0 && i + chunkSize < params.length) {
+      await new Promise((resolve) => setTimeout(resolve, delayBetweenChunks))
+    }
+  }
+
+  return results
+}

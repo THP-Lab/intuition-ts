@@ -10,6 +10,12 @@ if (!process.env.PINATA_GATEWAY_KEY) {
   throw new Error('PINATA_GATEWAY_KEY is not set')
 }
 
+export async function precomputeCIDs<T extends Thing>(
+  objs: WithContext<T>[],
+): Promise<string[]> {
+  return await Promise.all(objs.map((obj) => precomputeCID(obj)))
+}
+
 export async function precomputeCID<T extends Thing>(
   obj: WithContext<T>,
 ): Promise<string> {
@@ -76,9 +82,9 @@ export async function checkObjectPinned(
     const cid = await precomputeCID(obj)
     requestHash
       ? pushUpdate(
-          requestHash,
-          `Precomputed CID for atom data - checking if ${cid} is already pinned...`,
-        )
+        requestHash,
+        `Precomputed CID for atom data - checking if ${cid} is already pinned...`,
+      )
       : null
     const pinned = await checkCIDPinned(cid)
     return [pinned, cid]
