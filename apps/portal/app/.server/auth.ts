@@ -9,6 +9,7 @@ import { RedirectOptions } from 'app/types'
 
 import {
   getPrivyAccessToken,
+  getPrivyClient,
   getPrivySessionToken,
   getPrivyUserById,
   isOAuthInProgress,
@@ -21,13 +22,29 @@ export async function getUserId(request: Request): Promise<string | null> {
 }
 
 export async function getUser(request: Request): Promise<User | null> {
-  const userId = await getUserId(request)
-  return userId ? await getPrivyUserById(userId) : null
+  const privyIdToken = getPrivyAccessToken(request)
+  const privyClient = getPrivyClient()
+  if (!privyIdToken) {
+    return null
+  }
+  try {
+    // get User returns a partial user object, so we need to check for the wallet address
+    const partialUser = await getPrivyUserById(privyIdToken)
+    const user = await privyClient.getUserById(partialUser.id)
+    logger('Successfully fetched getUserById', user.wallet?.address)
+    return user
+  } catch (error) {
+    logger('Error fetching user', error)
+    return null
+  }
 }
 
 export async function getUserWallet(request: Request): Promise<string | null> {
   const user = await getUser(request)
-  return user?.wallet?.address ?? null
+  if (!user) {
+    return null
+  }
+  return user.wallet?.address ?? null
 }
 
 export async function requireUserId(
