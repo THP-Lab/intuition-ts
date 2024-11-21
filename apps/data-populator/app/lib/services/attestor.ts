@@ -329,31 +329,36 @@ export async function bulkEVMRead<T, P>(
   } = {},
 ): Promise<T[]> {
   const {
-    chunkSize = 10,
+    chunkSize = 100,
     delayBetweenReads = 0,
     delayBetweenChunks = 0,
   } = options
+
   const results: T[] = []
 
-  // Helper to process a single chunk
-  const processChunk = async (chunkParams: P[]): Promise<void> => {
-    for (const param of chunkParams) {
-      const result = await evmReadFn(param)
-      results.push(result)
-
-      // Delay between individual reads
-      if (delayBetweenReads > 0) {
-        await new Promise((resolve) => setTimeout(resolve, delayBetweenReads))
-      }
-    }
+  // Helper to process a single chunk in parallel
+  const processChunk = async (chunkParams: P[]): Promise<T[]> => {
+    const chunkResults = await Promise.all(
+      chunkParams.map(async (param, index) => {
+        // Delay between individual reads within the chunk
+        if (delayBetweenReads > 0 && index > 0) {
+          await new Promise((resolve) => setTimeout(resolve, delayBetweenReads))
+        }
+        const result = await evmReadFn(param)
+        console.log('Bulk EVM Read Result: ', result)
+        return result
+      }),
+    )
+    return chunkResults
   }
 
   // Divide params into chunks
   for (let i = 0; i < params.length; i += chunkSize) {
     const chunk = params.slice(i, i + chunkSize)
 
-    // Process each chunk
-    await processChunk(chunk)
+    // Process the chunk in parallel
+    const chunkResults = await processChunk(chunk)
+    results.push(...chunkResults)
 
     // Delay between chunks
     if (delayBetweenChunks > 0 && i + chunkSize < params.length) {

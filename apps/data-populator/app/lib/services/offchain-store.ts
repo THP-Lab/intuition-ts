@@ -65,9 +65,9 @@ export async function getAtomIDs(uris: string[]): Promise<string[]> {
     getAtomIDFromEVM,
     urisToFetchFromEVM,
     {
-      chunkSize: 10, // Customize chunk size
-      delayBetweenReads: 100, // Customize delay between individual reads
-      delayBetweenChunks: 500, // Customize delay between chunks
+      chunkSize: 1000,
+      delayBetweenReads: 0,
+      delayBetweenChunks: 0,
     },
   )
 
