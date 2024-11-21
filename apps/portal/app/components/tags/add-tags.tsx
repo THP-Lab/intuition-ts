@@ -94,12 +94,14 @@ export function AddTags({
     setIsPopoverOpen(false)
   }
 
-  const handleSaveClick = (invalidTag: IdentityPresenter) => {
+  const handleSaveClick = (
+    invalidTag: IdentityPresenter & { tagClaimId: string },
+  ) => {
     setSelectedInvalidTag(invalidTag)
     setSaveListModalActive({
       isOpen: true,
       identity: invalidTag,
-      id: invalidTag.vault_id,
+      id: invalidTag.tagClaimId,
     })
   }
 
@@ -163,7 +165,11 @@ export function AddTags({
             identity={invalidTag}
             variant="tag"
             onSaveClick={() => {
-              handleSaveClick(invalidTag)
+              if ('tagClaimId' in invalidTag) {
+                handleSaveClick(
+                  invalidTag as IdentityPresenter & { tagClaimId: string },
+                )
+              }
             }}
             onClose={() => onRemoveInvalidTag(invalidTag.vault_id)}
           />
