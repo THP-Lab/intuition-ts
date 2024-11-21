@@ -595,7 +595,7 @@ export async function checkAtomsExist(
 export async function checkAtomsExistWithRawURIs(
   URIs: string[],
 ): Promise<URIExistsResult[]> {
-  const uriExistsResults = await processCheckURIsExist(URIs, 100, 3, 1000)
+  const uriExistsResults = await processCheckURIsExist(URIs)
   return uriExistsResults
 }
 
@@ -718,37 +718,14 @@ export async function pinAllData(
 
 async function processCheckURIsExist(
   URIs: string[],
-  concurrencyLimit: number = 100,
-  maxRetries: number = 3,
-  delayBetweenBatches: number = 1000,
-  startIndex: number = 0,
 ): Promise<URIExistsResult[]> {
-  const uriBatches = chunk(
-    URIs.map((uri, index) => ({ uri, index: index + startIndex })),
-    concurrencyLimit,
-  )
-  const results: URIExistsResult[] = []
-
-  for (const batch of uriBatches) {
-    const batchResults = await Promise.all(
-      batch.map(({ uri, index }) =>
-        retryOperation(async () => {
-          const atomId = await getAtomID(uri)
-          return {
-            uri,
-            originalIndex: index,
-            atomId,
-            alreadyExists: atomId !== '0',
-          }
-        }, maxRetries),
-      ),
-    )
-
-    results.push(...batchResults)
-    await delay(delayBetweenBatches)
-  }
-
-  return results.sort((a, b) => a.originalIndex - b.originalIndex)
+  const atomIds = await getAtomIDs(URIs)
+  return atomIds.map((atomId, index) => ({
+    uri: URIs[index],
+    originalIndex: index,
+    alreadyExists: atomId !== '0',
+    atomId,
+  }))
 }
 
 // Splits atoms into two arrays: unique and duplicate based on the 'image' field
