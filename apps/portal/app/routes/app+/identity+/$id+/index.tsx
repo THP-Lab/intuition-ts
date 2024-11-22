@@ -1,24 +1,37 @@
 import { Suspense } from 'react'
 
 import { Button, ErrorStateCard, Icon, IconName, Text } from '@0xintuition/1ui'
-import { ClaimsService } from '@0xintuition/api'
+import {
+  fetcher,
+  GetAtomDocument,
+  GetAtomQuery,
+  GetAtomQueryVariables,
+  GetPositionsDocument,
+  GetPositionsQuery,
+  GetPositionsQueryVariables,
+  GetTriplesWithPositionsDocument,
+  GetTriplesWithPositionsQuery,
+  GetTriplesWithPositionsQueryVariables,
+  useGetAtomQuery,
+  useGetPositionsQuery,
+  useGetTriplesWithPositionsQuery,
+} from '@0xintuition/graphql'
 
 import CreateClaimModal from '@components/create-claim/create-claim-modal'
 import { ErrorPage } from '@components/error-page'
-import { ClaimsList as ClaimsAboutIdentity } from '@components/list/claims'
-import { PositionsOnIdentity } from '@components/list/positions-on-identity'
+import { ClaimsListNew as ClaimsAboutIdentity } from '@components/list/claims'
+import { PositionsOnIdentityNew } from '@components/list/positions-on-identity'
 import DataAboutHeader from '@components/profile/data-about-header'
 import { RevalidateButton } from '@components/revalidate-button'
 import { DataHeaderSkeleton, PaginatedListSkeleton } from '@components/skeleton'
 import { useLiveLoader } from '@lib/hooks/useLiveLoader'
-import { getClaimsAboutIdentity } from '@lib/services/claims'
-import { getPositionsOnIdentity } from '@lib/services/positions'
 import { detailCreateClaimModalAtom } from '@lib/state/store'
+import logger from '@lib/utils/logger'
 import { formatBalance, invariant } from '@lib/utils/misc'
-import { defer, LoaderFunctionArgs } from '@remix-run/node'
-import { Await, useRouteLoaderData } from '@remix-run/react'
-import { fetchWrapper } from '@server/api'
+import { json, LoaderFunctionArgs } from '@remix-run/node'
+import { useRouteLoaderData } from '@remix-run/react'
 import { requireUserWallet } from '@server/auth'
+import { QueryClient } from '@tanstack/react-query'
 import {
   NO_IDENTITY_ERROR,
   NO_PARAM_ID_ERROR,
@@ -31,39 +44,123 @@ import { IdentityLoaderData } from '../$id'
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const wallet = await requireUserWallet(request)
   invariant(wallet, NO_WALLET_ERROR)
+  const queryAddress = wallet.toLowerCase()
 
   const id = params.id
 
   invariant(id, NO_PARAM_ID_ERROR)
 
   const url = new URL(request.url)
-  const searchParams = new URLSearchParams(url.search)
+  // const searchParams = new URLSearchParams(url.search)
 
-  return defer({
-    positions: getPositionsOnIdentity({
-      request,
-      identityId: id,
-      searchParams,
-    }),
-    claims: getClaimsAboutIdentity({
-      request,
-      identityId: id,
-      searchParams,
-    }),
-    claimsSummary: fetchWrapper(request, {
-      method: ClaimsService.claimSummary,
-      args: {
-        identity: id,
+  // TODO: once we fully fix sort/pagination, we'll want to update these to use triples instead of claims, and orderBy instead of sortBy in the actual query params
+  const triplesLimit = parseInt(url.searchParams.get('claimsLimit') || '10')
+
+  const triplesOffset = parseInt(url.searchParams.get('claimsOffset') || '0')
+  const triplesOrderBy = url.searchParams.get('claimsSortBy')
+
+  const triplesWhere = {
+    _or: [
+      {
+        subjectId: {
+          _eq: id,
+        },
       },
-    }),
+      {
+        objectId: {
+          _eq: id,
+        },
+      },
+      {
+        predicateId: {
+          _eq: id,
+        },
+      },
+    ],
+  }
+
+  const positionsLimit = parseInt(
+    url.searchParams.get('positionsLimit') || '10',
+  )
+
+  const positionsOffset = parseInt(
+    url.searchParams.get('positionsOffset') || '0',
+  )
+  const positionsOrderBy = url.searchParams.get('positionsSortBy')
+
+  const queryClient = new QueryClient()
+
+  const positionsWhere = {
+    vaultId: { _eq: id },
+  }
+
+  await queryClient.prefetchQuery({
+    queryKey: ['get-atom', { id: params.id }],
+    queryFn: () =>
+      fetcher<GetAtomQuery, GetAtomQueryVariables>(GetAtomDocument, {
+        id: params.id,
+      })(),
+  })
+
+  await queryClient.prefetchQuery({
+    queryKey: [
+      'get-triples-with-positions',
+      { triplesWhere, triplesLimit, triplesOffset, triplesOrderBy },
+    ],
+    queryFn: () =>
+      fetcher<
+        GetTriplesWithPositionsQuery,
+        GetTriplesWithPositionsQueryVariables
+      >(GetTriplesWithPositionsDocument, {
+        where: triplesWhere,
+        limit: triplesLimit,
+        offset: triplesOffset,
+        orderBy: triplesOrderBy ? [{ [triplesOrderBy]: 'desc' }] : undefined,
+        address: queryAddress,
+      }),
+  })
+
+  await queryClient.prefetchQuery({
+    queryKey: [
+      'get-atom-positions',
+      { positionsWhere, positionsLimit, positionsOffset, positionsOrderBy },
+    ],
+    queryFn: () =>
+      fetcher<GetPositionsQuery, GetPositionsQueryVariables>(
+        GetPositionsDocument,
+        {
+          where: positionsWhere,
+          limit: positionsLimit,
+          offset: positionsOffset,
+          orderBy: positionsOrderBy
+            ? [{ [positionsOrderBy]: 'desc' }]
+            : undefined,
+        },
+      )(),
+  })
+
+  return json({
     wallet,
+    queryAddress,
+    initialParams: {
+      triplesLimit,
+      triplesOffset,
+      triplesOrderBy,
+      triplesWhere,
+      positionsLimit,
+      positionsOffset,
+      positionsOrderBy,
+      positionsWhere,
+      atomId: params.id,
+      queryAddress,
+    },
   })
 }
 
 export default function ProfileDataAbout() {
-  const { positions, claims, claimsSummary, wallet } = useLiveLoader<
-    typeof loader
-  >(['attest'])
+  const { wallet, initialParams, queryAddress } = useLiveLoader<typeof loader>([
+    'attest',
+  ])
 
   const { identity } =
     useRouteLoaderData<IdentityLoaderData>('routes/app+/identity+/$id') ?? {}
@@ -72,6 +169,77 @@ export default function ProfileDataAbout() {
   const [createClaimModalActive, setCreateClaimModalActive] = useAtom(
     detailCreateClaimModalAtom,
   )
+
+  const { data: atomResult, isLoading: isLoadingAtom } = useGetAtomQuery(
+    {
+      id: initialParams.atomId,
+    },
+    {
+      queryKey: ['get-atom', { id: initialParams.atomId }],
+    },
+  )
+
+  logger('Atom Result (Client):', atomResult)
+
+  const {
+    data: triplesResult,
+    isLoading: isLoadingTriples,
+    isError: isErrorTriples,
+    error: errorTripples,
+  } = useGetTriplesWithPositionsQuery(
+    {
+      where: initialParams.triplesWhere,
+      limit: initialParams.triplesLimit,
+      offset: initialParams.triplesOffset,
+      orderBy: initialParams.triplesOrderBy
+        ? [{ [initialParams.triplesOrderBy]: 'desc' }]
+        : undefined,
+      address: queryAddress,
+    },
+    {
+      queryKey: [
+        'get-triples-with-positions',
+        {
+          where: initialParams.triplesWhere,
+          limit: initialParams.triplesLimit,
+          offset: initialParams.triplesOffset,
+          orderBy: initialParams.triplesOrderBy,
+          address: queryAddress,
+        },
+      ],
+    },
+  )
+
+  logger('Triples Result (Client):', triplesResult)
+
+  const {
+    data: positionsResult,
+    isLoading: isLoadingPositions,
+    isError: isErrorPositions,
+    error: errorPositions,
+  } = useGetPositionsQuery(
+    {
+      where: initialParams.positionsWhere,
+      limit: initialParams.positionsLimit,
+      offset: initialParams.positionsOffset,
+      orderBy: initialParams.positionsOrderBy
+        ? [{ [initialParams.positionsOrderBy]: 'desc' }]
+        : undefined,
+    },
+    {
+      queryKey: [
+        'get-atom-positions',
+        {
+          where: initialParams.positionsWhere,
+          limit: initialParams.positionsLimit,
+          offset: initialParams.positionsOffset,
+          orderBy: initialParams.positionsOrderBy,
+        },
+      ],
+    },
+  )
+
+  logger('Positions Result (Client):', positionsResult)
 
   return (
     <>
@@ -96,45 +264,43 @@ export default function ProfileDataAbout() {
             </Button>
           </div>
           <Suspense fallback={<DataHeaderSkeleton />}>
-            <Await resolve={claims} errorElement={<></>}>
-              {(resolvedClaims) => (
-                <Await resolve={claimsSummary} errorElement={<></>}>
-                  {(resolvedClaimsSummary) => (
-                    <DataAboutHeader
-                      variant="claims"
-                      userIdentity={identity}
-                      totalClaims={resolvedClaims.pagination.totalEntries}
-                      totalStake={
-                        +formatBalance(
-                          resolvedClaimsSummary?.assets_sum ?? 0,
-                          18,
-                        )
-                      }
-                    />
-                  )}
-                </Await>
-              )}
-            </Await>
+            <DataAboutHeader
+              variant="claims"
+              atomImage={atomResult?.atom?.image ?? ''}
+              atomLabel={atomResult?.atom?.label ?? ''}
+              atomVariant="user" // TODO: Determine based on atom type
+              totalClaims={triplesResult?.total?.aggregate?.count ?? 0}
+              totalStake={0} // TODO: need to find way to get the shares -- may need to update the schema
+              // totalStake={
+              //   +formatBalance(
+              //     triplesResult?.total?.aggregate?.sums?.shares ?? 0,
+              //     18,
+              //   )
+              // }
+            />
           </Suspense>
           <Suspense fallback={<PaginatedListSkeleton />}>
-            <Await
-              resolve={claims}
-              errorElement={
-                <ErrorStateCard>
-                  <RevalidateButton />
-                </ErrorStateCard>
-              }
-            >
-              {(resolvedClaims) => (
-                <ClaimsAboutIdentity
-                  claims={resolvedClaims.data}
-                  pagination={resolvedClaims.pagination}
-                  paramPrefix="claims"
-                  enableSearch
-                  enableSort
-                />
-              )}
-            </Await>
+            {isLoadingTriples ? (
+              <PaginatedListSkeleton />
+            ) : isErrorTriples ? (
+              <ErrorStateCard
+                title="Failed to load claims"
+                message={
+                  (errorTripples as Error)?.message ??
+                  'An unexpected error occurred'
+                }
+              >
+                <RevalidateButton />
+              </ErrorStateCard>
+            ) : (
+              <ClaimsAboutIdentity
+                claims={triplesResult?.triples ?? []}
+                pagination={triplesResult?.total?.aggregate?.count ?? {}}
+                paramPrefix="claims"
+                enableSearch={false} // TODO: (ENG-4481) Re-enable search and sort
+                enableSort={false} // TODO: (ENG-4481) Re-enable search and sort
+              />
+            )}
           </Suspense>
         </div>
         <div className="flex flex-col w-full gap-6">
@@ -149,33 +315,43 @@ export default function ProfileDataAbout() {
             </Text>
           </div>
           <Suspense fallback={<DataHeaderSkeleton />}>
-            <Await resolve={positions} errorElement={<></>}>
-              {(resolvedPositions) => (
-                <DataAboutHeader
-                  variant="positions"
-                  userIdentity={identity}
-                  totalPositions={resolvedPositions.pagination.totalEntries}
-                  totalStake={+formatBalance(identity.assets_sum, 18)}
-                />
-              )}
-            </Await>
+            {isLoadingPositions && isLoadingAtom ? (
+              <DataHeaderSkeleton />
+            ) : (
+              <DataAboutHeader
+                variant="positions"
+                atomImage={atomResult?.atom?.image ?? ''}
+                atomLabel={atomResult?.atom?.label ?? ''}
+                atomVariant="user" // TODO: Determine based on atom type
+                totalPositions={positionsResult?.total?.aggregate?.count ?? 0}
+                totalStake={
+                  +formatBalance(
+                    positionsResult?.total?.aggregate?.sum?.shares ?? 0,
+                    18,
+                  )
+                }
+              />
+            )}
           </Suspense>
           <Suspense fallback={<PaginatedListSkeleton />}>
-            <Await
-              resolve={positions}
-              errorElement={
-                <ErrorStateCard>
-                  <RevalidateButton />
-                </ErrorStateCard>
-              }
-            >
-              {(resolvedPositions) => (
-                <PositionsOnIdentity
-                  positions={resolvedPositions.data}
-                  pagination={resolvedPositions.pagination}
-                />
-              )}
-            </Await>
+            {isLoadingPositions ? (
+              <PaginatedListSkeleton />
+            ) : isErrorPositions ? (
+              <ErrorStateCard
+                title="Failed to load positions"
+                message={
+                  (errorPositions as Error)?.message ??
+                  'An unexpected error occurred'
+                }
+              >
+                <RevalidateButton />
+              </ErrorStateCard>
+            ) : (
+              <PositionsOnIdentityNew
+                positions={positionsResult?.positions ?? []}
+                pagination={positionsResult?.total?.aggregate?.count ?? {}}
+              />
+            )}
           </Suspense>
         </div>
       </div>

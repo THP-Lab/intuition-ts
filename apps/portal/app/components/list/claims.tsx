@@ -4,12 +4,14 @@ import {
   ClaimRow,
   IconName,
   Identity,
+  useSidebarLayoutContext,
 } from '@0xintuition/1ui'
 import {
   ClaimPresenter,
   ClaimSortColumn,
   IdentityPresenter,
 } from '@0xintuition/api'
+import { GetTriplesWithPositionsQuery } from '@0xintuition/graphql'
 
 import { ListHeader } from '@components/list/list-header'
 import RemixLink from '@components/remix-link'
@@ -24,12 +26,179 @@ import {
   getClaimUrl,
 } from '@lib/utils/misc'
 import { Link } from '@remix-run/react'
-import { PaginationType } from 'app/types/pagination'
+import { PaginationType } from 'app/types'
 import { useSetAtom } from 'jotai'
 
 import { SortOption } from '../sort-select'
 import { List } from './list'
 
+type Triple = NonNullable<
+  NonNullable<GetTriplesWithPositionsQuery['triples']>[number]
+>
+
+// TODO: (ENG-4830) Add ReadOnly support back in and update our util functions that use it
+interface ClaimsListNewProps {
+  claims: Triple[]
+  pagination: { aggregate?: { count: number } } | number
+  paramPrefix?: string
+  enableHeader?: boolean
+  enableSearch?: boolean
+  enableSort?: boolean
+  // readOnly?: boolean
+}
+
+export function ClaimsListNew({
+  claims,
+  pagination,
+  paramPrefix,
+  enableHeader = true,
+  enableSearch = true,
+  enableSort = true,
+  // readOnly = false,
+}: ClaimsListNewProps) {
+  const setStakeModalActive = useSetAtom(stakeModalAtom)
+
+  const paginationCount =
+    typeof pagination === 'number'
+      ? pagination
+      : pagination?.aggregate?.count ?? 0
+
+  const options: SortOption<ClaimSortColumn>[] = [
+    { value: 'Total ETH', sortBy: 'AssetsSum' },
+    { value: 'ETH For', sortBy: 'ForAssetsSum' },
+    { value: 'ETH Against', sortBy: 'AgainstAssetsSum' },
+    { value: 'Total Positions', sortBy: 'NumPositions' },
+    { value: 'Positions For', sortBy: 'ForNumPositions' },
+    { value: 'Positions Against', sortBy: 'AgainstNumPositions' },
+    { value: 'Updated At', sortBy: 'UpdatedAt' },
+    { value: 'Created At', sortBy: 'CreatedAt' },
+  ]
+
+  return (
+    <List<ClaimSortColumn>
+      pagination={{
+        currentPage: 1,
+        limit: 10,
+        totalEntries: paginationCount,
+        totalPages: Math.ceil(paginationCount / 10),
+      }}
+      paginationLabel="claims"
+      options={options}
+      paramPrefix={paramPrefix}
+      enableSearch={enableSearch}
+      enableSort={enableSort}
+    >
+      {enableHeader && (
+        <ListHeader
+          items={[
+            { label: 'Claim', icon: IconName.claim },
+            { label: 'TVL', icon: IconName.ethereum },
+          ]}
+        />
+      )}
+      {claims.map((triple, index) => (
+        <div
+          key={triple.id}
+          className="grow shrink basis-0 self-stretch bg-background first:border-t-px first:rounded-t-xl last:rounded-b-xl theme-border border-t-0 flex-col justify-start gap-5 inline-flex"
+        >
+          <ClaimRow
+            numPositionsFor={triple.vault?.positionCount ?? 0}
+            numPositionsAgainst={triple.counterVault?.positionCount ?? 0}
+            tvlFor={formatBalance(triple.vault?.totalShares ?? '0', 18)}
+            tvlAgainst={formatBalance(
+              triple.counterVault?.totalShares ?? '0',
+              18,
+            )}
+            totalTVL={formatBalance(
+              BigInt(triple.vault?.totalShares ?? '0') +
+                BigInt(triple.counterVault?.totalShares ?? '0'),
+              18,
+            )}
+            userPosition={formatBalance(
+              triple.vault?.positions?.[0]?.shares ??
+                triple.counterVault?.positions?.[0]?.shares ??
+                '0',
+              18,
+            )}
+            positionDirection={
+              triple.vault?.positions?.[0]?.shares
+                ? ClaimPosition.claimFor
+                : triple.counterVault?.positions?.[0]?.shares
+                  ? ClaimPosition.claimAgainst
+                  : undefined
+            }
+            onStakeForClick={() =>
+              // @ts-ignore // TODO: Fix the staking actions to use correct types
+              setStakeModalActive((prevState) => ({
+                ...prevState,
+                mode: 'deposit',
+                modalType: 'claim',
+                direction: ClaimPosition.claimFor,
+                isOpen: true,
+                claim: triple,
+                vaultId: triple?.id,
+              }))
+            }
+            onStakeAgainstClick={() =>
+              // @ts-ignore // TODO: Fix the staking actions to use correct types
+              setStakeModalActive((prevState) => ({
+                ...prevState,
+                mode: 'deposit',
+                modalType: 'claim',
+                direction: ClaimPosition.claimAgainst,
+                isOpen: true,
+                claim: triple,
+                vaultId: triple?.id,
+              }))
+            }
+            isFirst={!enableHeader && index === 0}
+            isLast={index === claims.length - 1}
+            className="border-none rounded-none"
+          >
+            <Link to={getClaimUrl(triple?.id ?? '')} prefetch="intent">
+              <Claim
+                size="md"
+                subject={{
+                  variant: Identity.nonUser,
+                  label: triple.subject?.label ?? '',
+                  imgSrc: triple.subject?.image ?? '',
+                  id: triple.subject?.id,
+                  description: '',
+                  ipfsLink: '',
+                  link: '',
+                  linkComponent: RemixLink,
+                }}
+                predicate={{
+                  variant: Identity.nonUser,
+                  label: triple.predicate?.label ?? '',
+                  imgSrc: triple.predicate?.image ?? '',
+                  id: triple.predicate?.id,
+                  description: '',
+                  ipfsLink: '',
+                  link: '',
+                  linkComponent: RemixLink,
+                }}
+                object={{
+                  variant: Identity.nonUser,
+                  label: triple.object?.label ?? '',
+                  imgSrc: triple.object?.image ?? '',
+                  id: triple.object?.id,
+                  description: '',
+                  ipfsLink: '',
+                  link: '',
+                  linkComponent: RemixLink,
+                }}
+                isClickable={true}
+              />
+            </Link>
+          </ClaimRow>
+        </div>
+      ))}
+    </List>
+  )
+}
+
+// LEGACY IMPLEMENTATION -- CAN REMOVE ONCE ALL CLAIMS ARE CONVERTED TO NEW IMPLEMENTATION
 export function ClaimsList({
   claims,
   pagination,
@@ -48,6 +217,7 @@ export function ClaimsList({
   readOnly?: boolean
 }) {
   const setStakeModalActive = useSetAtom(stakeModalAtom)
+  const { isMobileView } = useSidebarLayoutContext()
 
   const options: SortOption<ClaimSortColumn>[] = [
     { value: 'Total ETH', sortBy: 'AssetsSum' },
@@ -80,7 +250,7 @@ export function ClaimsList({
       {claims.map((claim, index) => (
         <div
           key={claim.claim_id}
-          className="grow shrink basis-0 self-stretch bg-background first:border-t-px first:rounded-t-xl last:rounded-b-xl theme-border border-t-0 flex-col justify-start gap-5 inline-flex"
+          className="grow shrink basis-0 self-stretch first:border-t-px first:rounded-t-xl last:rounded-b-xl theme-border border-t-0 flex-col justify-start gap-5 inline-flex"
         >
           <ClaimRow
             numPositionsFor={claim.for_num_positions}
@@ -178,6 +348,7 @@ export function ClaimsList({
                   ),
                   linkComponent: RemixLink,
                 }}
+                orientation={isMobileView ? 'vertical' : 'horizontal'}
                 isClickable={true}
               />
             </Link>
