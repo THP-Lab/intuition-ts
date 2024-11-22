@@ -225,7 +225,17 @@ export function useBatchCreateAtom(onSuccess?: () => void) {
     try {
       let txHash
       if (isSmartWalletUser) {
+        // Bundling isn't working anymore for some reason - something weird is going on with Privy
         logger('[start] smart wallet sending batch tx')
+        console.log('account: ', smartWalletClient.account)
+        console.log(
+          'calls mapped: ',
+          state.calls.map((call) => ({
+            to: call.to as `0x${string}`,
+            data: call.data as `0x${string}`,
+            value: BigInt(call.value),
+          })),
+        )
         txHash = await smartWalletClient.sendTransaction({
           account: smartWalletClient.account,
           calls: state.calls.map((call) => ({
@@ -243,6 +253,7 @@ export function useBatchCreateAtom(onSuccess?: () => void) {
 
         for (const tx of state.calls) {
           await new Promise<void>((resolve, reject) => {
+            console.log('sending transaction: ', tx)
             sendTransaction(
               {
                 to: tx.to as `0x${string}`,
@@ -251,6 +262,7 @@ export function useBatchCreateAtom(onSuccess?: () => void) {
               },
               {
                 onSuccess: async (hash) => {
+                  console.log('transaction sent: ', hash)
                   try {
                     const receipt =
                       await publicClient?.waitForTransactionReceipt({ hash })
@@ -273,6 +285,12 @@ export function useBatchCreateAtom(onSuccess?: () => void) {
           })
         }
         // Use the last transaction hash as the overall txHash
+        console.log('confirmedHashes: ', confirmedHashes)
+        console.log('confirmedHashes length: ', confirmedHashes.length)
+        console.log(
+          'confirmedHashes last: ',
+          confirmedHashes[confirmedHashes.length - 1],
+        )
         txHash = confirmedHashes[confirmedHashes.length - 1]
       }
 

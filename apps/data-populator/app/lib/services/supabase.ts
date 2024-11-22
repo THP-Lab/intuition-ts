@@ -123,6 +123,17 @@ export async function appendToAtomLog(
   }
 }
 
+export async function multiAppendToAtomLog(
+  entries: AtomLogEntry[],
+): Promise<void> {
+  const { error } = await supabase.from(atomLogTable).insert(entries)
+
+  if (error) {
+    console.error('Error appending to atom_log:', error)
+    throw error
+  }
+}
+
 // Function to append a new entry to the triple_log table
 export async function appendToTripleLog(
   id: string,

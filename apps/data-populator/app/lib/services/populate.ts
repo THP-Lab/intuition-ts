@@ -21,7 +21,6 @@ import { precomputeCIDs } from './cid'
 import { estimateGas } from './evm'
 import { checkImagesAlreadyUploaded, resolveAndFilterImage } from './image'
 import {
-  getAtomID,
   getAtomIDs,
   getAtomURI,
   getTripleID,
@@ -30,7 +29,11 @@ import {
 import { pinataPinJSON } from './pinata'
 import { createRequest, pushUpdate, updateRequest } from './request'
 import { getSender } from './requestSender'
-import { appendToAtomLog, appendToTripleLog } from './supabase'
+import {
+  appendToTripleLog,
+  AtomLogEntry,
+  multiAppendToAtomLog,
+} from './supabase'
 
 export async function pinAtomData(obj: any, requestHash?: string) {
   try {
@@ -471,7 +474,7 @@ export async function logTransactionHashAndVerifyAtoms(
   if (requestHash) {
     await pushUpdate(requestHash, 'Verifying new atom IDs...')
   }
-  const newAtoms = await getAtomIdsFromURI(filteredCIDs, 100)
+  const newAtoms = await getAtomIdsFromURI(filteredCIDs)
 
   // Append to atom log
   console.log('Logging new atoms to database...')
@@ -479,22 +482,27 @@ export async function logTransactionHashAndVerifyAtoms(
     await pushUpdate(requestHash, 'Logging new atoms to database...')
   }
 
+  const atomLogEntries: AtomLogEntry[] = []
   for (const atom of newAtoms) {
     const filteredObj = filteredData.find(
       (data) => data.cid === atom.uri,
     )?.filteredObj
 
     if (filteredObj) {
-      await appendToAtomLog(
-        atom.atomId,
-        atom.uri,
+      atomLogEntries.push({
+        id: atom.atomId,
+        cid: atom.uri,
         txHash,
-        filteredObj,
-        msgSender,
-      )
+        data: filteredObj,
+        sender: msgSender,
+      })
     } else {
       console.warn(`No filtered object found for atom with URI: ${atom.uri}`)
     }
+  }
+
+  if (atomLogEntries.length > 0) {
+    await multiAppendToAtomLog(atomLogEntries)
   }
 
   // Verify old atom IDs from URIs
@@ -502,7 +510,7 @@ export async function logTransactionHashAndVerifyAtoms(
   if (requestHash) {
     await pushUpdate(requestHash, 'Verifying old atom IDs...')
   }
-  const oldAtoms = await getAtomIdsFromURI(oldAtomCIDs, 100)
+  const oldAtoms = await getAtomIdsFromURI(oldAtomCIDs)
 
   console.log('Done verifying and logging new atoms.')
   if (requestHash) {
@@ -638,7 +646,7 @@ export interface Triple {
 export interface AtomURIResult {
   atomId: string
   uri: string
-  originalIndex: number
+  originalIndex: number // this can be deprecated
 }
 
 export interface URIExistsResult {
@@ -940,35 +948,14 @@ export async function getTripleIdsFromTripleData(
 // Reading from EVM concurrently needs a delay between requests
 export async function getAtomIdsFromURI(
   URIs: string[],
-  concurrencyLimit: number,
-  maxRetries: number = 3,
-  delayBetweenBatches: number = 1000,
 ): Promise<AtomURIResult[]> {
-  const atomIdBatches = chunk(
-    URIs.map((uri, index) => ({ uri, index })),
-    concurrencyLimit,
-  )
-  const atoms: AtomURIResult[] = []
-
-  for (const batch of atomIdBatches) {
-    const batchResults = await Promise.all(
-      batch.map(async ({ uri, index }, i) => {
-        await delay(i * 100) // Introduce a slight delay between each concurrent request
-        const result = await retryOperation(async () => {
-          const atomId = await getAtomID(uri)
-          return { atomId, uri, originalIndex: index } as AtomURIResult
-        }, maxRetries)
-        return result
-      }),
-    )
-    atoms.push(...batchResults)
-    await delay(delayBetweenBatches) // Delay between batches to throttle requests
+  const atomIds = await getAtomIDs(URIs)
+  const result: AtomURIResult[] = []
+  for (let i = 0; i < URIs.length; i++) {
+    result.push({ atomId: atomIds[i], uri: URIs[i], originalIndex: i })
   }
 
-  // Sort the results to maintain the original order
-  atoms.sort((a, b) => a.originalIndex - b.originalIndex)
-
-  return atoms
+  return result
 }
 
 // Always perform these chunks sequentially
