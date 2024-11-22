@@ -1,41 +1,66 @@
 import { useCallback, useState } from 'react'
 
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Icon,
-  IconName,
-} from '@0xintuition/1ui'
+import { cn, Icon, IconName } from '@0xintuition/1ui'
 
 import { useDropzone } from 'react-dropzone'
-import { useFormContext } from 'react-hook-form'
+import { Control, useController } from 'react-hook-form'
 
 interface ImageUploadProps {
   name: string
-  label: string
+  control: Control<any>
+  label?: string
 }
 
-export function FormImageUpload({ name, label }: ImageUploadProps) {
-  const { control, setValue } = useFormContext()
-  const [preview, setPreview] = useState<string | null>(null)
+interface CloudinaryResponse {
+  url: string
+  public_id: string
+}
+
+export function FormImageUpload({ name, control, label }: ImageUploadProps) {
+  const [isUploading, setIsUploading] = useState(false)
+  const {
+    field: { onChange, value },
+    fieldState: { error },
+  } = useController({
+    name,
+    control,
+  })
+
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch(`/api/upload-image`, {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to upload image')
+    }
+
+    const data = (await response.json()) as CloudinaryResponse
+    return data.url
+  }
 
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      const file = acceptedFiles[0]
-      if (file) {
-        // Create preview URL
-        const previewUrl = URL.createObjectURL(file)
-        setPreview(previewUrl)
+    async (acceptedFiles: File[]) => {
+      try {
+        const file = acceptedFiles[0]
+        if (!file) return
 
-        // Here you would typically upload to IPFS/storage
-        // For now, we'll just use the preview URL
-        setValue(name, previewUrl, { shouldValidate: true })
+        setIsUploading(true)
+
+        // Upload to Cloudinary
+        const imageUrl = await uploadToCloudinary(file)
+        onChange(imageUrl)
+      } catch (error) {
+        console.error('Failed to upload image:', error)
+      } finally {
+        setIsUploading(false)
       }
     },
-    [setValue, name],
+    [onChange],
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -44,74 +69,93 @@ export function FormImageUpload({ name, label }: ImageUploadProps) {
       'image/*': ['.png', '.jpg', '.jpeg', '.gif'],
     },
     maxFiles: 1,
+    disabled: isUploading,
   })
-
-  const handleRemove = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation() // Prevent triggering dropzone click
-      setValue(name, '', { shouldValidate: true })
-      setPreview(null)
-    },
-    [setValue, name],
-  )
+  console.log('value', value)
 
   return (
-    <FormField
-      control={control}
-      name={name}
-      render={() => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <FormControl>
-            <div
-              {...getRootProps()}
-              className="theme-border border-dashed rounded-lg p-6 text-center transition-colors min-h-[200px] flex flex-col items-center justify-center relative cursor-pointer bg-primary/10
-                    hover:border-primary/50"
-            >
-              <input {...getInputProps()} />
-              {preview ? (
-                <>
-                  <img
-                    src={preview}
-                    alt="Preview"
-                    className="absolute inset-0 w-full h-full object-contain p-2"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity">
-                    <p className="text-white text-sm">Click to change image</p>
-                  </div>
-                  <div className="absolute top-2 right-2 z-10">
-                    <button
-                      type="button"
-                      onClick={handleRemove}
-                      className="p-1 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      <Icon name={IconName.trashCan} className="w-4 h-4" />
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div className="space-y-4">
-                  <Icon
-                    name={IconName.avatarSparkle}
-                    className="mx-auto h-12 w-12 text-muted-foreground"
-                  />
-                  <div className="text-sm text-muted-foreground space-y-2">
-                    {isDragActive ? (
-                      <p>Drop the image here</p>
-                    ) : (
-                      <>
-                        <p>Drag and drop an image here</p>
-                        <p className="text-primary">or click to select</p>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
+    <div className="space-y-2">
+      {label && (
+        <label className="text-sm font-medium text-foreground/70">
+          {label}
+        </label>
       )}
-    />
+      <div
+        {...getRootProps()}
+        className={cn(
+          'relative h-[160px] cursor-pointer overflow-hidden rounded-lg border-2 border-dashed transition-colors bg-primary/10',
+          isDragActive
+            ? 'border-primary bg-primary/5'
+            : error
+              ? 'border-destructive/50 bg-destructive/5'
+              : 'border-muted-foreground/25 hover:bg-muted/25',
+          isUploading && 'pointer-events-none opacity-60',
+        )}
+      >
+        <input {...getInputProps()} />
+
+        <div className="flex h-full w-full flex-col items-center justify-center p-1">
+          {isUploading ? (
+            <>
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+              <p className="mt-2 text-sm text-muted-foreground">
+                Uploading to Cloudinary...
+              </p>
+            </>
+          ) : value ? (
+            <div className="h-full w-full">
+              <img
+                src={value}
+                alt="Upload preview"
+                className="h-full w-full rounded-lg object-contain relative"
+              />
+              <div className="absolute inset-0">
+                <a
+                  href={value}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="absolute right-2 bottom-2 rounded-full bg-primary p-1.5 text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
+                  <Icon
+                    name={IconName.squareArrowTopRight}
+                    className="h-4 w-4"
+                  />
+                </a>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onChange(null)
+                  }}
+                  className="absolute right-2 top-2 rounded-full bg-destructive p-1.5 text-destructive-foreground hover:bg-destructive/90"
+                >
+                  <Icon name={IconName.trashCan} className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <Icon
+                name={IconName.avatarSparkle}
+                className="h-8 w-8 text-muted-foreground"
+              />
+              <div className="mt-2 text-sm text-muted-foreground">
+                <span className="font-semibold text-primary">
+                  Click to upload
+                </span>{' '}
+                or drag and drop
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                PNG, JPG, GIF up to 10MB
+              </p>
+            </>
+          )}
+        </div>
+      </div>
+      {error?.message && (
+        <p className="text-sm text-destructive">{error.message}</p>
+      )}
+    </div>
   )
 }

@@ -25,7 +25,7 @@ export function EthInput({
   placeholder,
   disabled,
 }: EthInputProps) {
-  const { control, setValue, trigger } = useFormContext()
+  const { control, trigger } = useFormContext()
   const [value, setLocalValue] = React.useState('')
   const debouncedValue = useDebounce(value, 500)
 

@@ -30,10 +30,10 @@ export function OrganizationForm({
       <form
         id="organization-form"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4"
+        className="space-y-2.5"
       >
         <FormInput name="name" label="Name" placeholder="Enter name" />
-        <FormImageUpload name="image" label="Image" />
+        <FormImageUpload name="image" label="Image" control={form.control} />
         <FormTextarea
           name="description"
           label="Description"
