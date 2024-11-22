@@ -2,13 +2,14 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: ['src/index.ts'],
-  treeshake: true,
-  sourcemap: 'inline',
-  minify: true,
-  clean: true,
+  format: ['esm', 'cjs'],
   dts: true,
   splitting: false,
-  format: ['cjs', 'esm'],
-  external: ['react'],
-  injectStyle: true,
+  sourcemap: true,
+  clean: true,
+  external: ['react', 'react-dom'],
+  injectStyle: false,
+  treeshake: true,
+  outDir: 'dist',
+  onSuccess: 'tsc --emitDeclarationOnly --declaration --declarationDir dist/types'
 })

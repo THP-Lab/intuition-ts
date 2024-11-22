@@ -22,7 +22,8 @@ import {
 import { GetAtomQuery, useGetAtomsQuery } from '@0xintuition/graphql'
 
 import { useDebounce } from '@lib/hooks/use-debounce'
-import { formatBalance } from '@lib/utils/misc'
+import { formatBalance, formatDisplayBalance } from '@lib/utils/misc'
+import { formatEther } from 'viem'
 
 import { AtomType, AtomTypeSelect } from './atom-type-select'
 
@@ -61,7 +62,13 @@ const AtomDetails = React.memo(({ atom }: AtomDetailsProps) => {
         <div className="flex items-center justify-between">
           <div className="text-sm text-foreground/70">TVL</div>
           <div className="text-base font-medium">
-            ${formatBalance(atom.vault?.currentSharePrice ?? '0')}
+            {(
+              parseFloat(formatEther(BigInt(atom.vault?.totalShares || 0))) *
+              parseFloat(
+                formatEther(BigInt(atom.vault?.currentSharePrice || 0)),
+              )
+            ).toFixed(4)}{' '}
+            ETH
           </div>
         </div>
         <hr className="w-full border-border/10" />

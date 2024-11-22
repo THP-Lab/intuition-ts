@@ -21,6 +21,7 @@ import {
 import { GetAtomQuery, useGetAtomsQuery } from '@0xintuition/graphql'
 
 import { formatBalance } from '@lib/utils/misc'
+import { formatEther, parseEther } from 'viem'
 
 interface AtomSearchComboboxItemProps {
   id: string | number
@@ -30,6 +31,7 @@ interface AtomSearchComboboxItemProps {
   variant?: 'user' | 'non-user'
   onClick?: () => void
   onSelect?: () => void
+  attestors?: number
 }
 
 const AtomSearchComboboxItem = ({
@@ -40,11 +42,12 @@ const AtomSearchComboboxItem = ({
   variant,
   onClick,
   onSelect,
+  attestors,
 }: AtomSearchComboboxItemProps) => {
   return (
     <CommandItem
       key={id}
-      className="border border-transparent aria-selected:bg-primary/5 aria-selected:text-primary hover:border-y-border/10 px-2.5 py-2.5 cursor-pointer [&:not(:last-child)]:border-b-border/10 group"
+      className="border border-transparent aria-selected:bg-primary/5 aria-selected:text-primary hover:border-y-border/10 px-2.5 py-1.5 cursor-pointer [&:not(:last-child)]:border-b-border/10 group"
       onClick={onClick}
       onSelect={onSelect}
     >
@@ -72,13 +75,13 @@ const AtomSearchComboboxItem = ({
             )}
           </div>
         </div>
-        <div className="transition-colors flex items-center gap-1 bg-foreground/10 rounded-md py-0.5 px-2 text-foreground/70 group-hover:text-foreground">
+        <div className="transition-colors flex items-center gap-1 bg-foreground/10 rounded-md py-0.5 px-2 text-foreground/70 group-hover:text-foreground flex-shrink-0">
           <Icon name={IconName.arrowUp} className="w-3 h-3 text-foreground" />
           <div className="text-sm font-medium flex items-center gap-2">
-            ${value?.toFixed(2)}
+            {value?.toFixed(3)} E
           </div>
           <span className="h-[2px] w-[2px] bg-foreground/50" />
-          <div className="flex items-center gap-0.5">{5}</div>
+          <div className="flex items-center gap-0.5">{attestors}</div>
         </div>
       </div>
     </CommandItem>
@@ -130,13 +133,15 @@ export function AtomSearchCombobox({
   }
 
   return (
-    <div className="min-w-96 max-md:min-w-0 max-md:w-[90vw]" {...props}>
+    <div className="min-w-[320px] max-md:min-w-0 max-md:w-[90vw]" {...props}>
       <Command shouldFilter={false}>
         <CommandInput
           placeholder={placeholder}
           value={searchValue}
           onValueChange={setSearchValue}
           onFocus={() => setIsOpen(true)}
+          autoFocus
+          className="text-base h-12"
         />
         {isOpen && (
           <CommandList>
@@ -155,9 +160,17 @@ export function AtomSearchCombobox({
                   avatarSrc={atom.image ?? ''}
                   value={
                     atom.vault?.currentSharePrice
-                      ? +formatBalance(atom.vault?.currentSharePrice)
+                      ? parseFloat(
+                          formatEther(BigInt(atom.vault?.totalShares || 0)),
+                        ) *
+                        parseFloat(
+                          formatEther(
+                            BigInt(atom.vault?.currentSharePrice || 0),
+                          ),
+                        )
                       : undefined
                   }
+                  attestors={atom.vault?.positionCount}
                   onClick={() => handleAtomSelect(atom)}
                   onSelect={() => handleAtomSelect(atom)}
                 />

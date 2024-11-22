@@ -34,7 +34,7 @@ export function AtomTypeSelect({ value, onValueChange }: AtomTypeSelectProps) {
         }
       }}
     >
-      <SelectTrigger className="w-32">
+      <SelectTrigger className="w-32 py-1 tracking-normal font-normal h-8">
         <SelectValue placeholder="Filter type" />
       </SelectTrigger>
       <SelectContent>
