@@ -81,8 +81,6 @@ export default function StakeModal({
   direction,
   onSuccess,
 }: StakeModalProps) {
-  console.log('claim', claim)
-  console.log('direction', direction)
   const fetchReval = useFetcher()
   const [stakeModalState] = useAtom(stakeModalAtom)
   const { mode, modalType } = stakeModalState
@@ -110,7 +108,7 @@ export default function StakeModal({
   useEffect(() => {
     let isCancelled = false
 
-    if (vaultId !== null) {
+    if (open && vaultId !== null) {
       const finalUrl = `${GET_VAULT_DETAILS_RESOURCE_ROUTE}?contract=${contract}&vaultId=${vaultId}&fetchId=${fetchId}`
       if (!isCancelled) {
         vaultDetailsFetcher.load(finalUrl)
@@ -439,7 +437,7 @@ export default function StakeModal({
     >
       <DialogContent
         onOpenAutoFocus={(event) => event.preventDefault()}
-        className="flex flex-col min-w-[600px] min-h-[600px]"
+        className="flex flex-col md:min-w-[600px] md:min-h-[600px]"
       >
         <DialogHeader>
           <DialogTitle>

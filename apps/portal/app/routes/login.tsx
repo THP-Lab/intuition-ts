@@ -81,6 +81,7 @@ export default function Login() {
 
   const fetcher = useFetcher()
   const navigate = useNavigate()
+
   const handleBackNavigation = () => {
     fetcher.submit(
       { action: 'clearOnboardingCookie' },
@@ -105,7 +106,7 @@ export default function Login() {
             </Button>
             <HeaderLogo />
           </div>
-          <div className="justify-end">
+          <div className="justify-end max-sm:hidden">
             <BuiltOnBase />
           </div>
         </div>
@@ -119,6 +120,9 @@ export default function Login() {
           <PrivyLoginButton handleLogin={handleLogin} />
         </div>
         <div className="flex items-center justify-center max-sm:flex-col max-sm:gap-2 max-sm:items-center max-sm:text-center gap-1">
+          <div className="justify-center md:hidden">
+            <BuiltOnBase />
+          </div>
           <Text variant="body" className="text-secondary-foreground/60">
             Have a question or need help resolving an issue?
           </Text>

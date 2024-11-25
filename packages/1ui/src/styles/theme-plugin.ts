@@ -109,7 +109,7 @@ export const themePlugin = plugin(
         'font-feature-settings': '"rlig" 1, "calt" 1',
       },
       '.theme-border': {
-        '@apply border border-border/20': {},
+        '@apply border border-border/10': {},
       },
       '.in-out-gradient': {
         '@apply bg-gradient-to-r from-border/5 from-10% via-border/20 via-50% to-border/5 to-90%':
@@ -241,6 +241,8 @@ export const themePlugin = plugin(
         animation: {
           'accordion-down': 'accordion-down 0.2s ease-out',
           'accordion-up': 'accordion-up 0.2s ease-out',
+          'pulse-slow': 'pulse 1.6s cubic-bezier(0.6, 0, 0.7, 1) infinite',
+          'spin-slow': 'spin 3.2s linear infinite',
         },
         boxShadow: {
           'sm-subtle':
