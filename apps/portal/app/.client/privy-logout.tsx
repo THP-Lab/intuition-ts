@@ -15,7 +15,11 @@ export default function PrivyLogout({ wallet }: { wallet: string }) {
     let mounted = true
     const handleLogout = async () => {
       if (mounted && ready) {
-        if (!address || address !== wallet || !isConnected) {
+        if (
+          !address ||
+          address.toLowerCase() !== wallet.toLowerCase() ||
+          !isConnected
+        ) {
           // Clear any existing timeout
           if (logoutTimeoutRef.current) {
             clearTimeout(logoutTimeoutRef.current)
@@ -24,7 +28,11 @@ export default function PrivyLogout({ wallet }: { wallet: string }) {
           // Set a new timeout
           logoutTimeoutRef.current = setTimeout(async () => {
             // Double-check the conditions before logging out
-            if (!address || address !== wallet || !isConnected) {
+            if (
+              !address ||
+              address.toLowerCase() !== wallet.toLowerCase() ||
+              !isConnected
+            ) {
               await logout()
               disconnect()
               submit(null, {
