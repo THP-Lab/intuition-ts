@@ -12,14 +12,14 @@ RUN foundryup
 
 WORKDIR /app
 
-# Copy contracts and config
-COPY contracts/ /app/contracts/
+# Copy lib and config
 COPY lib/ /app/lib/
 COPY foundry.toml /app/foundry.toml
 COPY remappings.txt /app/remappings.txt
 
-# Build contracts
-RUN forge build
+# Create contracts directory and copy BaseCurve
+RUN mkdir -p /app/contracts
+COPY contracts/BaseCurve.sol /app/contracts/
 
 # Expose default Anvil port
 EXPOSE 8545

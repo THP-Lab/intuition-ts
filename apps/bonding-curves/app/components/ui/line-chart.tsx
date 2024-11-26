@@ -16,8 +16,15 @@ interface Point {
   y: number
 }
 
+interface CurveData {
+  id: string
+  name: string
+  points: Point[]
+  color: string
+}
+
 interface LineChartProps {
-  data: Point[]
+  data: CurveData[]
   xLabel?: string
   yLabel?: string
   title?: string
@@ -29,10 +36,15 @@ export function LineChart({
   yLabel = 'Y',
   title,
 }: LineChartProps) {
-  const formattedData = data.map((point) => ({
-    name: point.x.toString(),
-    value: point.y,
-  }))
+  // Combine all points into a single dataset with multiple values
+  const formattedData =
+    data[0]?.points.map((_, index) => {
+      const point: any = { x: data[0].points[index].x }
+      data.forEach((curve) => {
+        point[curve.id] = curve.points[index].y
+      })
+      return point
+    }) || []
 
   return (
     <div className="w-full h-full">
@@ -44,7 +56,7 @@ export function LineChart({
         >
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
           <XAxis
-            dataKey="name"
+            dataKey="x"
             label={{ value: xLabel, position: 'insideBottom', offset: -5 }}
             className="text-sm fill-muted-foreground"
           />
@@ -65,14 +77,17 @@ export function LineChart({
             }}
           />
           <Legend />
-          <Line
-            type="monotone"
-            dataKey="value"
-            name="Value"
-            stroke="hsl(var(--primary))"
-            strokeWidth={2}
-            dot={false}
-          />
+          {data.map((curve) => (
+            <Line
+              key={curve.id}
+              type="monotone"
+              dataKey={curve.id}
+              name={curve.name}
+              stroke={curve.color}
+              strokeWidth={2}
+              dot={false}
+            />
+          ))}
         </RechartsLineChart>
       </ResponsiveContainer>
     </div>

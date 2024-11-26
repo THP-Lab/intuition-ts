@@ -5,6 +5,7 @@ import { promisify } from 'util'
 import path from 'path'
 import { createPublicClient, createWalletClient, http, Chain } from 'viem'
 import { promises as fs } from 'fs'
+import { prepareConstructorArgs, type ConstructorArgs } from '../../lib/contract-utils'
 
 const execAsync = promisify(exec)
 
@@ -28,6 +29,9 @@ export async function POST(request: Request) {
     const formData = await request.formData()
     const file = formData.get('file') as File
     const content = formData.get('content') as string
+    const getAbiOnly = formData.get('getAbiOnly') === 'true'
+    const constructorArgsStr = formData.get('constructorArgs') as string
+    const constructorArgs = constructorArgsStr ? JSON.parse(constructorArgsStr) as ConstructorArgs : undefined
 
     if (!file || !content) {
       return NextResponse.json(
@@ -37,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     // Ensure contracts directory exists
-    const contractsPath = path.join(process.cwd(), 'contracts', 'examples')
+    const contractsPath = path.join(process.cwd(), 'contracts')
     await fs.mkdir(contractsPath, { recursive: true })
 
     // Save the file to the contracts directory
@@ -62,13 +66,29 @@ export async function POST(request: Request) {
     const artifactPath = path.join(
       process.cwd(),
       'out',
-      `examples/${file.name}/${contractName}.json`
+      `${file.name}/${contractName}.json`
     )
 
     let artifact
     try {
+      console.log('Looking for artifact at:', artifactPath)
       const artifactContent = await fs.readFile(artifactPath, 'utf8')
       artifact = JSON.parse(artifactContent)
+
+      // Log artifact structure
+      console.log('Artifact structure:', {
+        hasAbi: !!artifact.abi,
+        abiLength: artifact.abi?.length,
+        hasBytecode: !!artifact.bytecode,
+        bytecodeLength: artifact.bytecode?.object?.length,
+      })
+
+      // If we only need the ABI, return it
+      if (getAbiOnly) {
+        console.log('Returning ABI:', artifact.abi)
+        return NextResponse.json({ abi: artifact.abi })
+      }
+
     } catch (error) {
       console.error('Failed to read artifact:', error)
       return NextResponse.json(
@@ -90,10 +110,15 @@ export async function POST(request: Request) {
     })
 
     try {
+      // Prepare constructor arguments
+      const args = constructorArgs
+        ? prepareConstructorArgs(constructorArgs.args, constructorArgs.values)
+        : []
+
       const hash = await walletClient.deployContract({
         abi: artifact.abi,
-        bytecode: artifact.bytecode as `0x${string}`,
-        args: ['Example Curve', 1000000000000000000n], // name and multiplier
+        bytecode: artifact.bytecode.object as `0x${string}`,
+        args,
       })
 
       const receipt = await publicClient.waitForTransactionReceipt({ hash })

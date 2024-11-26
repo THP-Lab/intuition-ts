@@ -39,4 +39,4 @@ abstract contract BaseCurve {
     constructor(string memory _name) {
         name = _name;
     }
-} 
+}
