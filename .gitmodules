@@ -1,0 +1,3 @@
+[submodule "apps/bonding-curves/lib/solady"]
+	path = apps/bonding-curves/lib/solady
+	url = https://github.com/transmissions11/solady
