@@ -10,6 +10,9 @@ query GetVaults(
     order_by: $orderBy
     where: $where
   ) {
+    aggregate {
+      count
+    }
     nodes {
       id
       atom {
@@ -40,8 +43,8 @@ query GetVaults(
           shares
         }
       }
-      currentSharePrice
-      totalShares
+      current_share_price
+      total_shares
     }
   }
 }

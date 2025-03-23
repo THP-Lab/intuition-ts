@@ -68,7 +68,7 @@ export default function Playground() {
       // Map and sort triples
       const triplesWithPositions = triples
         .map((triple) => {
-          const position = userAccount?.positions_aggregate.nodes.find(
+          const position = userAccount?.positions.find(
             (pos) => pos.vault?.triple?.id === triple.id,
           )
 
@@ -77,8 +77,8 @@ export default function Playground() {
             userPosition: position
               ? {
                   shares: position.shares,
-                  totalShares: position.vault?.totalShares,
-                  currentSharePrice: position.vault?.currentSharePrice,
+                  totalShares: position.vault?.total_shares,
+                  currentSharePrice: position.vault?.current_share_price,
                 }
               : null,
           }
@@ -136,7 +136,7 @@ export default function Playground() {
   const triplesWithPositionsCount =
     combinedData.data?.filter((triple) => triple.userPosition).length || 0
 
-  console.log('Account positions:', accountData?.account?.positions_aggregate)
+  console.log('Account positions:', accountData?.account?.positions)
   console.log('All triples:', triplesData?.triples)
 
   return (
@@ -148,10 +148,7 @@ export default function Playground() {
           <div className="p-4 rounded">
             <p>ID: {accountData.account.id}</p>
             <p>Label: {accountData.account.label}</p>
-            <p>
-              Total Positions:{' '}
-              {accountData.account.positions_aggregate.nodes.length}
-            </p>
+            <p>Total Positions: {accountData.account.positions.length}</p>
           </div>
         )}
       </div>
@@ -169,7 +166,6 @@ export default function Playground() {
             <div key={triple.id} className="p-4 border rounded">
               {/* Triple Info */}
               <div className="mb-4">
-                <h3 className="font-bold">{triple.label}</h3>
                 <div className="text-sm text-green-100">
                   <p>Subject: {triple.subject?.label}</p>
                   <p>Predicate: {triple.predicate?.label}</p>
@@ -205,8 +201,7 @@ export default function Playground() {
             {
               atomsCount: atoms?.length,
               triplesCount: triplesData?.triples.length,
-              accountPositions:
-                accountData?.account?.positions_aggregate.nodes.length,
+              accountPositions: accountData?.account?.positions.length,
               combinedCount: combinedData.data?.length,
               triplesWithPositions: triplesWithPositionsCount,
             },

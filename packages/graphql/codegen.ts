@@ -1,10 +1,15 @@
 import { CodegenConfig } from '@graphql-codegen/cli'
 import type { Types } from '@graphql-codegen/plugin-helpers'
 
+import { API_URL_DEV } from './src/constants'
+
 const commonGenerateOptions: Types.ConfiguredOutput = {
   config: {
     reactQueryVersion: 5,
-    fetcher: '../client#fetcher',
+    fetcher: {
+      func: '../client#fetcher',
+      isReactHook: false,
+    },
     exposeDocument: true,
     exposeFetcher: true,
     exposeQueryKeys: true,
@@ -31,9 +36,14 @@ const commonGenerateOptions: Types.ConfiguredOutput = {
 const config: CodegenConfig = {
   overwrite: true,
   hooks: { afterAllFileWrite: ['prettier --write'] },
-  schema: process.env.HASURA_PROJECT_ENDPOINT
-    ? [process.env.HASURA_PROJECT_ENDPOINT]
-    : ['./schema.graphql'],
+  schema: {
+    [API_URL_DEV]: {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  },
   ignoreNoDocuments: true,
   documents: ['**/*.graphql'],
   generates: {
@@ -50,7 +60,7 @@ const config: CodegenConfig = {
       },
     },
   },
-  watch: true,
+  watch: process.env.NODE_ENV === 'development',
 }
 
 export default config

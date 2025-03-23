@@ -3,23 +3,27 @@
 ## Usage
 
 ```typescript
-import { MultiVault } from '0xIntuition/protocol'
-import { base } from 'viem/chains'
-import { createPublicClient, http } from 'viem'
+import { Multivault } from '@0xintuition/protocol'
 
-const public = createPublicClient({
+import { Chain, createPublicClient, http, PublicClient, Transport } from 'viem'
+import { base } from 'viem/chains'
+
+const publicClient = createPublicClient({
   chain: base,
   transport: http(),
-})
+}) as PublicClient<Transport, Chain>
 
-const wallet = createWalletClient({
+const walletClient = createWalletClient({
   chain: base,
   transport: custom(window.ethereum!),
 })
 
-const multiVault = new Multivault({ public, wallet })
+const multivault = new Multivault({
+  publicClient,
+  walletClient,
+})
 
-const { vaultId, events } = await multiVault.createAtom('hello')
+const { vaultId, events } = await multivault.createAtom('hello')
 
 console.log(events)
 ```

@@ -1,6 +1,8 @@
 import { Suspense } from 'react'
 
 import {
+  Banner,
+  BannerVariant,
   formatWalletAddress,
   IconName,
   ProfileCardHeader,
@@ -21,36 +23,36 @@ import { QuestSetCard } from '@components/quest/quest-set-card'
 import { QuestSetProgressCard } from '@components/quest/quest-set-progress-card'
 import { ReferralCard } from '@components/referral-card/referral-card'
 import RelicPointCard from '@components/relic-point-card/relic-point-card'
-import { getPurchaseIntentsByAddress } from '@lib/services/phosphor'
-import { calculatePointsFromFees, invariant } from '@lib/utils/misc'
-import { defer, LoaderFunctionArgs } from '@remix-run/node'
+import { fetchRelicPoints } from '@lib/services/points'
+import { invariant } from '@lib/utils/misc'
+import { LoaderFunctionArgs } from '@remix-run/node'
 import { Await, Link, useLoaderData } from '@remix-run/react'
 import { fetchWrapper } from '@server/api'
 import { requireUserWallet } from '@server/auth'
 import { getQuestsProgress } from '@server/quest'
-import { getRelicCount } from '@server/relics'
 import {
   BLOCK_EXPLORER_URL,
   COMING_SOON_QUEST_SET,
   HEADER_BANNER_HELP_CENTER,
   QUEST_LOG_DESCRIPTION,
+  QUESTS_DISABLED_BANNER_MESSAGE,
+  QUESTS_DISABLED_BANNER_TITLE,
+  QUESTS_ENABLED,
   STANDARD_QUEST_SET,
 } from 'app/consts'
+import { fetchProtocolFees } from 'app/lib/services/protocol'
+import { fetchRelicCounts } from 'app/lib/services/relic'
 import { isAddress } from 'viem'
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userWallet = await requireUserWallet(request)
   invariant(userWallet, 'Unauthorized')
 
-  // TODO: Remove this relic hold/mint count and points calculation when it is stored in BE.
-  const relicHoldCount = await getRelicCount(userWallet as `0x${string}`)
-
-  const userCompletedMints = await getPurchaseIntentsByAddress(
-    userWallet,
-    'CONFIRMED',
-  )
-
-  const relicMintCount = userCompletedMints.data?.total_results
+  const [relicCounts, protocolFees, relicPoints] = await Promise.all([
+    fetchRelicCounts(userWallet.toLowerCase()),
+    fetchProtocolFees(userWallet.toLowerCase()),
+    fetchRelicPoints(userWallet.toLowerCase()),
+  ])
 
   const userProfile = await fetchWrapper(request, {
     method: UsersService.getUserByWalletPublic,
@@ -59,7 +61,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
   })
 
-  const userTotals = fetchWrapper(request, {
+  const userTotals = await fetchWrapper(request, {
     method: UsersService.getUserTotals,
     args: {
       id: userWallet,
@@ -73,34 +75,46 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
   })
 
-  const details = getQuestsProgress({
+  const details = await getQuestsProgress({
     request,
     options: {
       narrative: QuestNarrative.STANDARD,
     },
   })
 
-  return defer({
+  return {
     details,
     userWallet,
     userProfile,
     userTotals,
     inviteCodes: inviteCodes.invite_codes,
-    relicHoldCount: relicHoldCount.toString(),
-    relicMintCount,
-  })
+    relicHoldCount: relicCounts.holdCount,
+    mintCount: relicCounts.mintCount,
+    relicPoints,
+    protocolFees,
+  }
 }
 
 export default function Quests() {
-  const { details, userTotals, inviteCodes, relicMintCount, relicHoldCount } =
-    useLoaderData<typeof loader>()
+  const {
+    userTotals,
+    inviteCodes,
+    mintCount,
+    relicHoldCount,
+    relicPoints,
+    protocolFees,
+    details,
+  } = useLoaderData<typeof loader>()
 
-  // TODO: Remove this relic hold/mint count and points calculation when it is stored in BE.
-  const nftMintPoints = relicMintCount ? relicMintCount * 2000000 : 0
-  const nftHoldPoints = relicHoldCount ? +relicHoldCount * 250000 : 0
-  const totalNftPoints = nftMintPoints + nftHoldPoints
   return (
     <div className="p-10 w-full max-w-7xl mx-auto flex flex-col gap-5 max-md:p-5 max-sm:p-2">
+      {!QUESTS_ENABLED && (
+        <Banner
+          variant={BannerVariant.warning}
+          title={QUESTS_DISABLED_BANNER_TITLE}
+          message={QUESTS_DISABLED_BANNER_MESSAGE}
+        />
+      )}
       <ExploreHeader
         title="Quests"
         content="Explore the Intuition ecosystem, and earn IQ points along the way."
@@ -139,20 +153,11 @@ export default function Quests() {
                 <Await resolve={userTotals}>
                   {(resolvedUserTotals) => (
                     <PointsEarnedCard
-                      // TODO: Remove this relic hold/mint count and points calculation when it is stored in BE.
                       totalPoints={
-                        relicMintCount || relicHoldCount
-                          ? resolvedUserTotals.referral_points +
-                            resolvedUserTotals.quest_points +
-                            totalNftPoints +
-                            calculatePointsFromFees(
-                              resolvedUserTotals.total_protocol_fee_paid,
-                            )
-                          : resolvedUserTotals.referral_points +
-                            resolvedUserTotals.quest_points +
-                            calculatePointsFromFees(
-                              resolvedUserTotals.total_protocol_fee_paid,
-                            )
+                        resolvedUserTotals.referral_points +
+                        resolvedUserTotals.quest_points +
+                        relicPoints.totalPoints +
+                        parseInt(protocolFees.totalPoints)
                       }
                       activities={[
                         {
@@ -161,13 +166,11 @@ export default function Quests() {
                         },
                         {
                           name: 'Protocol',
-                          points: calculatePointsFromFees(
-                            resolvedUserTotals.total_protocol_fee_paid,
-                          ),
+                          points: parseInt(protocolFees.totalPoints),
                         },
                         {
                           name: 'NFT',
-                          points: totalNftPoints,
+                          points: relicPoints.totalPoints,
                         },
                         {
                           name: 'Referrals',
@@ -175,7 +178,7 @@ export default function Quests() {
                         },
                         {
                           name: 'Community',
-                          points: 0, // TODO: Update this when backend adds social points
+                          points: 0,
                           disabled: true,
                         },
                       ]}
@@ -185,9 +188,9 @@ export default function Quests() {
               </Suspense>
             </div>
             <RelicPointCard
-              relicsMintCount={relicMintCount ? relicMintCount : 0}
-              relicsHoldCount={relicHoldCount ? +relicHoldCount : 0}
-              relicsPoints={totalNftPoints}
+              relicsMintCount={mintCount}
+              relicsHoldCount={relicHoldCount}
+              relicsPoints={relicPoints.totalPoints}
             />
           </div>
         </div>

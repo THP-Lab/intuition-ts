@@ -40,7 +40,6 @@ import StakeModal from '@components/stake/stake-modal'
 import TagsModal from '@components/tags/tags-modal'
 import { useLiveLoader } from '@lib/hooks/useLiveLoader'
 import { getIdentityOrPending } from '@lib/services/identities'
-import { getPurchaseIntentsByAddress } from '@lib/services/phosphor'
 import { getTags } from '@lib/services/tags'
 import {
   followModalAtom,
@@ -54,7 +53,6 @@ import { getSpecialPredicate } from '@lib/utils/app'
 import logger from '@lib/utils/logger'
 import {
   calculatePercentageOfTvl,
-  calculatePointsFromFees,
   formatBalance,
   getAtomImage,
   getAtomLabel,
@@ -65,7 +63,6 @@ import { Outlet, useNavigate } from '@remix-run/react'
 import { fetchWrapper } from '@server/api'
 import { requireUserWallet } from '@server/auth'
 import { getVaultDetails } from '@server/multivault'
-import { getRelicCount } from '@server/relics'
 import {
   BLOCK_EXPLORER_URL,
   CURRENT_ENV,
@@ -75,6 +72,8 @@ import {
   userIdentityRouteOptions,
 } from 'app/consts'
 import TwoPanelLayout from 'app/layouts/two-panel-layout'
+import { fetchProtocolFees } from 'app/lib/services/protocol'
+import { fetchRelicCounts } from 'app/lib/services/relic'
 import { VaultDetailsType } from 'app/types/vault'
 import { useAtom } from 'jotai'
 
@@ -138,15 +137,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return logger('No user totals found')
   }
 
-  // TODO: Remove this relic hold/mint count and points calculation when it is stored in BE.
-  const relicHoldCount = await getRelicCount(wallet as `0x${string}`)
-
-  const userCompletedMints = await getPurchaseIntentsByAddress(
-    wallet,
-    'CONFIRMED',
-  )
-
-  const relicMintCount = userCompletedMints.data?.total_results
+  const [relicCounts, protocolFees] = await Promise.all([
+    fetchRelicCounts(wallet.toLowerCase()),
+    fetchProtocolFees(wallet.toLowerCase()),
+  ])
 
   let vaultDetails: VaultDetailsType | null = null
 
@@ -213,8 +207,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     followVaultDetails,
     vaultDetails,
     isPending,
-    relicHoldCount: relicHoldCount.toString(),
-    relicMintCount,
+    relicHoldCount: relicCounts.holdCount,
+    relicMintCount: relicCounts.mintCount,
+    protocolFees,
   })
 }
 
@@ -231,6 +226,7 @@ export default function Profile() {
     isPending,
     relicMintCount,
     relicHoldCount,
+    protocolFees,
   } = useLiveLoader<{
     wallet: string
     userWallet: string
@@ -242,7 +238,12 @@ export default function Profile() {
     vaultDetails: VaultDetailsType
     isPending: boolean
     relicMintCount: number
-    relicHoldCount: string
+    relicHoldCount: number
+    protocolFees: {
+      beforeCutoffPoints: string
+      afterCutoffPoints: string
+      totalPoints: string
+    }
   }>(['attest', 'create'])
   const navigate = useNavigate()
 
@@ -265,18 +266,15 @@ export default function Profile() {
     }
   }, [saveListModalActive])
 
-  // TODO: Remove this relic hold/mint count and points calculation when it is stored in BE.
   const nftMintPoints = relicMintCount ? relicMintCount * 2000000 : 0
-  const nftHoldPoints = relicHoldCount ? +relicHoldCount * 250000 : 0
+  const nftHoldPoints = relicHoldCount ? relicHoldCount * 250000 : 0
   const totalNftPoints = nftMintPoints + nftHoldPoints
-
-  const feePoints = calculatePointsFromFees(userTotals.total_protocol_fee_paid)
 
   const totalPoints =
     userTotals.referral_points +
     userTotals.quest_points +
     totalNftPoints +
-    feePoints
+    parseInt(protocolFees.totalPoints)
 
   const leftPanel = (
     <div className="flex-col justify-start items-start gap-5 inline-flex max-lg:w-full">

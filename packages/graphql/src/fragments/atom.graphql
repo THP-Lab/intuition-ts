@@ -1,33 +1,78 @@
+fragment AtomValue on atoms {
+  value {
+    person {
+      name
+      image
+      description
+      url
+    }
+    thing {
+      name
+      image
+      description
+      url
+    }
+    organization {
+      name
+      image
+      description
+      url
+    }
+  }
+}
+
 fragment AtomMetadata on atoms {
-  data
   id
+  data
   image
   label
   emoji
   type
+  wallet_id
+  creator {
+    id
+    label
+    image
+  }
+  ...AtomValue
 }
 
 fragment AtomTxn on atoms {
-  blockNumber
-  blockTimestamp
-  transactionHash
-  creatorId
+  block_number
+  block_timestamp
+  transaction_hash
+  creator_id
 }
 
 fragment AtomVaultDetails on atoms {
-  vaultId
-  walletId
+  vault_id
+  wallet_id
   vault {
-    positionCount
-    totalShares
-    currentSharePrice
+    position_count
+    total_shares
+    current_share_price
+    positions_aggregate {
+      aggregate {
+        count
+        sum {
+          shares
+        }
+      }
+    }
+    positions {
+      id
+      account {
+        label
+        id
+      }
+      shares
+    }
   }
 }
 
 fragment AtomTriple on atoms {
-  asSubject {
+  as_subject_triples {
     id
-    label
     object {
       data
       id
@@ -51,9 +96,8 @@ fragment AtomTriple on atoms {
       }
     }
   }
-  asPredicate {
+  as_predicate_triples {
     id
-    label
     subject {
       data
       id
@@ -77,9 +121,8 @@ fragment AtomTriple on atoms {
       }
     }
   }
-  asObject {
+  as_object_triples {
     id
-    label
     subject {
       data
       id
@@ -100,6 +143,26 @@ fragment AtomTriple on atoms {
       type
       creator {
         ...AccountMetadata
+      }
+    }
+  }
+}
+
+fragment AtomVaultDetailsWithPositions on atoms {
+  vault {
+    total_shares
+    current_share_price
+    positions_aggregate(where: { account_id: { _in: $addresses } }) {
+      aggregate {
+        sum {
+          shares
+        }
+      }
+      nodes {
+        account {
+          id
+        }
+        shares
       }
     }
   }

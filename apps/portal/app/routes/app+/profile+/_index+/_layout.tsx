@@ -41,7 +41,7 @@ import StakeModal from '@components/stake/stake-modal'
 import TagsModal from '@components/tags/tags-modal'
 import { useLiveLoader } from '@lib/hooks/useLiveLoader'
 import { getIdentityOrPending } from '@lib/services/identities'
-import { getPurchaseIntentsByAddress } from '@lib/services/phosphor'
+import { fetchPoints, fetchRelicPoints } from '@lib/services/points'
 import { getTags } from '@lib/services/tags'
 import {
   editProfileModalAtom,
@@ -55,7 +55,6 @@ import { getSpecialPredicate } from '@lib/utils/app'
 import logger from '@lib/utils/logger'
 import {
   calculatePercentageOfTvl,
-  calculatePointsFromFees,
   formatBalance,
   getAtomImage,
   getAtomLabel,
@@ -72,7 +71,6 @@ import {
 import { fetchWrapper } from '@server/api'
 import { requireUser } from '@server/auth'
 import { getVaultDetails } from '@server/multivault'
-import { getRelicCount } from '@server/relics'
 import {
   BLOCK_EXPLORER_URL,
   CURRENT_ENV,
@@ -81,6 +79,8 @@ import {
   userIdentityRouteOptions,
 } from 'app/consts'
 import TwoPanelLayout from 'app/layouts/two-panel-layout'
+import { fetchProtocolFees } from 'app/lib/services/protocol'
+import { fetchRelicCounts } from 'app/lib/services/relic'
 import { VaultDetailsType } from 'app/types/vault'
 import { useAtom } from 'jotai'
 
@@ -90,15 +90,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   invariant(user.wallet?.address, 'User wallet not found')
   const userWallet = user.wallet?.address
 
-  // TODO: Remove this relic hold/mint count and points calculation when it is stored in BE.
-  const relicHoldCount = await getRelicCount(userWallet as `0x${string}`)
-
-  const userCompletedMints = await getPurchaseIntentsByAddress(
-    userWallet,
-    'CONFIRMED',
-  )
-
-  const relicMintCount = userCompletedMints.data?.total_results
+  const [relicCounts, protocolFees, relicPoints, points] = await Promise.all([
+    fetchRelicCounts(userWallet.toLowerCase()),
+    fetchProtocolFees(userWallet.toLowerCase()),
+    fetchRelicPoints(userWallet.toLowerCase()),
+    fetchPoints(userWallet.toLowerCase()),
+  ])
 
   const userObject = await fetchWrapper(request, {
     method: UsersService.getUserByWalletPublic,
@@ -201,8 +198,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     vaultDetails,
     followClaim,
     isPending,
-    relicHoldCount: relicHoldCount.toString(),
-    relicMintCount,
+    relicHoldCount: relicCounts.holdCount,
+    relicMintCount: relicCounts.mintCount,
+    relicPoints,
+    points,
+    protocolFees,
   })
 }
 
@@ -217,7 +217,18 @@ export interface ProfileLoaderData {
   followClaim: ClaimPresenter
   isPending: boolean
   relicMintCount: number
-  relicHoldCount: string
+  relicHoldCount: number
+  relicPoints: {
+    totalPoints: number
+  }
+  points: {
+    totalPoints: number
+  }
+  protocolFees: {
+    beforeCutoffPoints: string
+    afterCutoffPoints: string
+    totalPoints: string
+  }
 }
 
 export default function Profile() {
@@ -230,8 +241,8 @@ export default function Profile() {
     userTotals,
     vaultDetails,
     isPending,
-    relicMintCount,
-    relicHoldCount,
+    protocolFees,
+    relicPoints,
   } = useLiveLoader<ProfileLoaderData>(['attest', 'create'])
 
   const { user_assets, assets_sum } = vaultDetails ? vaultDetails : userIdentity
@@ -288,18 +299,11 @@ export default function Profile() {
     return null
   }
 
-  // TODO: Remove this relic hold/mint count and points calculation when it is stored in BE.
-  const nftMintPoints = relicMintCount ? relicMintCount * 2000000 : 0
-  const nftHoldPoints = relicHoldCount ? +relicHoldCount * 250000 : 0
-  const totalNftPoints = nftMintPoints + nftHoldPoints
-
-  const feePoints = calculatePointsFromFees(userTotals.total_protocol_fee_paid)
-
   const totalPoints =
     userTotals.referral_points +
     userTotals.quest_points +
-    totalNftPoints +
-    feePoints
+    relicPoints.totalPoints +
+    parseInt(protocolFees.totalPoints)
 
   const leftPanel = (
     <div className="flex-col justify-start items-start gap-5 inline-flex max-lg:w-full">
